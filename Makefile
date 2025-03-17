@@ -18,10 +18,10 @@ INCLUDES				=	-I.
 ## Sources
 ###############################################################################
 
-CORE_TARGET			=	arcade
-CORE_DIR			=	arcade
-CORE_SOURCES		=	$(shell find $(CORE_DIR) $(FINDFLAGS))
-CORE_FLAGS			=	$(LDFLAGS)
+CORE_TARGET				=	arcade
+CORE_DIR				=	Arcade
+CORE_SOURCES			=	$(shell find $(CORE_DIR) $(FINDFLAGS))
+CORE_FLAGS				=	$(LDFLAGS)
 
 SFML_TARGET				=	$(LIB_DIR)/arcade_sfml.so
 SFML_DIR				=	backends/SFML
@@ -60,7 +60,9 @@ directories:
 	@mkdir -p $(LIB_DIR)
 
 core: directories $(CORE_TARGET)
+
 graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET)
+
 games: directories $(NIBBLER_TARGET)
 
 $(BUILD_DIR)/%.o: %.cpp
