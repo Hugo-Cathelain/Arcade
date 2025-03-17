@@ -18,10 +18,10 @@ INCLUDES				=	-I.
 ## Sources
 ###############################################################################
 
-ARC_TARGET				=	arcade
-ARC_DIR					=	arcade
-ARC_SOURCES				=	$(shell find $(ARC_DIR) $(FINDFLAGS))
-ARC_FLAGS				=	$(LDFLAGS)
+CORE_TARGET			=	arcade
+CORE_DIR			=	arcade
+CORE_SOURCES		=	$(shell find $(CORE_DIR) $(FINDFLAGS))
+CORE_FLAGS			=	$(LDFLAGS)
 
 SFML_TARGET				=	$(LIB_DIR)/arcade_sfml.so
 SFML_DIR				=	backends/SFML
@@ -33,21 +33,21 @@ NCURSES_DIR				=	backends/NCURSES
 NCURSES_SOURCES			=	$(shell find $(NCURSES_DIR) $(FINDFLAGS))
 NCURSES_FLAGS			=	-lncurses
 
-EXAMPLE_TARGET			=	$(LIB_DIR)/arcade_example.so
-EXAMPLE_DIR				=	games/Example
-EXAMPLE_SOURCES			=	$(shell find $(EXAMPLE_DIR) $(FINDFLAGS))
-EXAMPLE_FLAGS			=
+NIBBLER_TARGET			=	$(LIB_DIR)/arcade_nibbler.so
+NIBBLER_DIR				=	games/NIBBLER
+NIBBLER_SOURCES			=	$(shell find $(NIBBLER_DIR) $(FINDFLAGS))
+NIBBLER_FLAGS			=
 
 ###############################################################################
 ## Objects
 ###############################################################################
 
-INCLUDES				+=	$(addprefix -I, $(ARC_DIR))
+INCLUDES				+=	$(addprefix -I, $(CORE_DIR))
 
-ARC_OBJECTS				=	$(ARC_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+CORE_OBJECTS			=	$(CORE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 SFML_OBJECTS			=	$(SFML_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NCURSES_OBJECTS			=	$(NCURSES_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-EXAMPLE_OBJECTS			=	$(EXAMPLE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+NIBBLER_OBJECTS			=	$(NIBBLER_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 
 ###############################################################################
 ## Makefile rules
@@ -59,16 +59,16 @@ directories:
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(LIB_DIR)
 
-core: directories $(ARC_TARGET)
+core: directories $(CORE_TARGET)
 graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET)
-games: directories $(EXAMPLE_TARGET)
+games: directories $(NIBBLER_TARGET)
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-$(ARC_TARGET): $(ARC_OBJECTS)
-	$(CXX) $^ -o $@ $(ARC_FLAGS)
+$(CORE_TARGET): $(CORE_OBJECTS)
+	$(CXX) $^ -o $@ $(CORE_FLAGS)
 
 $(SFML_TARGET): $(SFML_OBJECTS)
 	$(CXX) -shared $^ -o $@ $(SFML_FLAGS)
@@ -76,8 +76,8 @@ $(SFML_TARGET): $(SFML_OBJECTS)
 $(NCURSES_TARGET): $(NCURSES_OBJECTS)
 	$(CXX) -shared $^ -o $@ $(NCURSES_FLAGS)
 
-$(EXAMPLE_TARGET): $(EXAMPLE_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(EXAMPLE_FLAGS)
+$(NIBBLER_TARGET): $(NIBBLER_OBJECTS)
+	$(CXX) -shared $^ -o $@ $(NIBBLER_FLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
