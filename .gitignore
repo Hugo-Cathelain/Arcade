@@ -1,0 +1,33 @@
+# Ignore binaries
+*
+!*.*
+!*/
+
+# Ignore logs
+*.log
+*.temp
+
+# Ignore Building files and directories
+Lib/
+Build/
+*.o
+*.a
+*.so
+*.d
+*.dll
+*.out
+
+# Ignore Configuration files
+*.ini
+*.env
+
+# Ignore Unit tests files
+*.gcda
+*.gcno
+
+# Ignore Valgrind reports
+vgcore.*
+
+# Unignore specific
+!Makefile
+!AUTHORS
