@@ -53,14 +53,6 @@ public:
     virtual void Render(void) = 0;
 
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief Check if the graphics module is open
-    ///
-    /// \return True if the graphics module is open, false otherwise
-    ///
-    ///////////////////////////////////////////////////////////////////////////
-    virtual bool IsOpen(void) const = 0;
-
-    ///////////////////////////////////////////////////////////////////////////
     /// \brief Set the title of the graphics module
     ///
     /// \param title The title of the graphics module
