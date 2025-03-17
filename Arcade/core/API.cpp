@@ -13,6 +13,9 @@ namespace Arc
 std::queue<API::Event> API::mEvents;
 
 ///////////////////////////////////////////////////////////////////////////////
+std::queue<IDrawable> API::mDrawables;
+
+///////////////////////////////////////////////////////////////////////////////
 std::optional<API::Event> API::PollEvent(void)
 {
     if (mEvents.empty()) {
@@ -27,6 +30,26 @@ std::optional<API::Event> API::PollEvent(void)
 void API::PushEvent(const Event& event)
 {
     mEvents.push(event);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void API::Draw(const IDrawable& drawable)
+{
+    mDrawables.push(drawable);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+IDrawable API::PopDraw(void)
+{
+    auto drawable = mDrawables.front();
+    mDrawables.pop();
+    return (drawable);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool API::IsDrawQueueEmpty(void)
+{
+    return (mDrawables.empty());
 }
 
 } // namespace Arc
