@@ -14,14 +14,8 @@ namespace Arc
 SFMLModule::SFMLModule(void)
 {
     mWindow = std::make_unique<sf::RenderWindow>(
-        sf::VideoMode(800, 600), "Arcade - SFML"
+        sf::VideoMode(600, 600), "Arcade - SFML"
     );
-
-    mView = std::make_unique<sf::View>(
-        sf::FloatRect(0, 0, 800, 600)
-    );
-
-    mWindow->setView(*mView);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,7 +25,6 @@ SFMLModule::~SFMLModule()
         mWindow->close();
     }
     mWindow.reset();
-    mView.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,6 +82,17 @@ EKeyboardKey SFMLModule::GetKey(sf::Keyboard::Key key)
 ///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::Update(void)
 {
+    while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
+        if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
+            mWindow->setSize(sf::Vector2u(
+                gridSize->width * 32, gridSize->height * 32
+            ));
+            mWindow->setView(sf::View(
+                {0, 0, gridSize->width * 32.f, gridSize->height * 32.f}
+            ));
+        }
+    }
+
     sf::Event event;
     while (mWindow->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -112,6 +116,16 @@ void SFMLModule::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::Render(void)
 {
+    while (!API::IsDrawQueueEmpty()) {
+        auto draw = API::PopDraw();
+
+        sf::RectangleShape shape({32, 32});
+        shape.setFillColor(sf::Color(
+            draw.color.r, draw.color.g, draw.color.b, draw.color.a
+        ));
+        shape.setPosition(draw.position.x * 32, draw.position.y * 32);
+        mWindow->draw(shape);
+    }
     mWindow->display();
 }
 

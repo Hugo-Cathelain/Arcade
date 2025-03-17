@@ -24,6 +24,8 @@ Nibbler::~Nibbler()
 void Nibbler::BeginPlay(void)
 {
     API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({16, 16}));
+    mDraw.position = {0, 0};
+    mDraw.color = {255, 0, 0, 255};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,8 +42,14 @@ void Nibbler::Tick(float deltaSeconds)
                 mGameOver = true;
                 break;
             }
+            if (key->code == EKeyboardKey::UP) mDraw.position.y -= 1;
+            if (key->code == EKeyboardKey::DOWN) mDraw.position.y += 1;
+            if (key->code == EKeyboardKey::LEFT) mDraw.position.x -= 1;
+            if (key->code == EKeyboardKey::RIGHT) mDraw.position.x += 1;
         }
     }
+
+    API::Draw(mDraw);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
