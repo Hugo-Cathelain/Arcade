@@ -7,7 +7,6 @@
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/interfaces/IGraphicsModule.hpp"
-#include "Arcade/interfaces/IDrawable.hpp"
 #include "Arcade/interfaces/IGameModule.hpp"
 #include <memory>
 #include <string>

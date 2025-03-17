@@ -13,7 +13,7 @@ namespace Arc
 std::unordered_map<API::Event::Channel, std::queue<API::Event>> API::mEvents;
 
 ///////////////////////////////////////////////////////////////////////////////
-std::queue<IDrawable> API::mDrawables;
+std::queue<std::tuple<IGameModule::Asset, int, int>> API::mDrawables;
 
 ///////////////////////////////////////////////////////////////////////////////
 int API::mGridWidth;
@@ -39,13 +39,13 @@ void API::PushEvent(API::Event::Channel channel, const Event& event)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void API::Draw(const IDrawable& drawable)
+void API::Draw(const IGameModule::Asset& drawable, int x, int y)
 {
-    mDrawables.push(drawable);
+    mDrawables.push(std::make_tuple(drawable, x, y));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-IDrawable API::PopDraw(void)
+std::tuple<IGameModule::Asset, int, int> API::PopDraw(void)
 {
     auto drawable = mDrawables.front();
     mDrawables.pop();

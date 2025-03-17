@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/enums/Inputs.hpp"
 #include "Arcade/interfaces/IGameModule.hpp"
+#include <tuple>
 #include <variant>
 #include <optional>
 #include <unordered_map>
@@ -277,7 +278,7 @@ private:
     // Member data
     ///////////////////////////////////////////////////////////////////////////
     static std::unordered_map<Event::Channel, std::queue<Event>> mEvents;
-    static std::queue<IGameModule::Asset> mDrawables;
+    static std::queue<std::tuple<IGameModule::Asset, int, int>> mDrawables;
     static int mGridWidth;
     static int mGridHeight;
 
@@ -312,7 +313,7 @@ public:
     /// \return The drawable
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static IGameModule::Asset PopDraw(void);
+    static std::tuple<IGameModule::Asset, int, int> PopDraw(void);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Check if the draw queue is empty

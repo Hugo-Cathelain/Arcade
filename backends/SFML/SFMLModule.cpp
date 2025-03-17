@@ -12,6 +12,7 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 SFMLModule::SFMLModule(void)
+    : mRatio(4.f)
 {
     mWindow = std::make_unique<sf::RenderWindow>(
         sf::VideoMode(600, 600), "Arcade - SFML"
@@ -85,10 +86,15 @@ void SFMLModule::Update(void)
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
             mWindow->setSize(sf::Vector2u(
-                gridSize->width * 32, gridSize->height * 32
+                static_cast<unsigned int>(gridSize->width * 8 * mRatio),
+                static_cast<unsigned int>(gridSize->height * 8 * mRatio)
             ));
             mWindow->setView(sf::View(
-                {0, 0, gridSize->width * 32.f, gridSize->height * 32.f}
+                {
+                    0, 0,
+                    gridSize->width * 8.f * mRatio,
+                    gridSize->height * 8.f * mRatio
+                }
             ));
         }
     }
@@ -116,15 +122,24 @@ void SFMLModule::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::Render(void)
 {
-    while (!API::IsDrawQueueEmpty()) {
-        auto draw = API::PopDraw();
+    float offset = 4 * mRatio;
 
-        sf::RectangleShape shape({32, 32});
-        shape.setFillColor(sf::Color(
-            draw.color.r, draw.color.g, draw.color.b, draw.color.a
+    while (mSpriteSheet && !API::IsDrawQueueEmpty()) {
+        auto draw = API::PopDraw();
+        auto [asset, x, y] = draw;
+
+        sf::Sprite sprite;
+        sprite.setTexture(*mSpriteSheet);
+        sprite.setTextureRect(sf::IntRect(
+            asset.position.x * 8,
+            asset.position.y * 8,
+            asset.size.x,
+            asset.size.y
         ));
-        shape.setPosition(draw.position.x * 32, draw.position.y * 32);
-        mWindow->draw(shape);
+        sprite.setOrigin({asset.size.x / 2.f, asset.size.y / 2.f});
+        sprite.setPosition(x * 8 * mRatio + offset, y * 8 * mRatio + offset);
+        sprite.setScale({mRatio, mRatio});
+        mWindow->draw(sprite);
     }
     mWindow->display();
 }
@@ -138,7 +153,13 @@ void SFMLModule::SetTitle(const std::string& title)
 ///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::LoadSpriteSheet(const std::string& path)
 {
-    mSpriteSheet.reset(new sf::Texture(path));
+    sf::Texture* texture = new sf::Texture();
+
+    if (!texture->loadFromFile(path)) {
+        delete texture;
+        return;
+    }
+    mSpriteSheet.reset(texture);
 }
 
 } // namespace Arc

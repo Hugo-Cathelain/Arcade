@@ -23,7 +23,7 @@ Pacman::~Pacman()
 ///////////////////////////////////////////////////////////////////////////////
 void Pacman::BeginPlay(void)
 {
-    API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({16, 16}));
+    API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({28, 31}));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,12 @@ void Pacman::EndPlay(void)
 void Pacman::Tick(float deltaSeconds)
 {
     (void)deltaSeconds;
-    API::Draw(SPRITE_PACMAN_R1, 0, 0);
+    for (int y = 0; y < 9; y++) {
+        for (int x = 0; x < 28; x++) {
+            API::Draw(PACMAN_MAP[y][x], x, y);
+        }
+    }
+    API::Draw(SPRITE_PACMAN_R1, 1, 3);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

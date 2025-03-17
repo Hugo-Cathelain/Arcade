@@ -38,6 +38,11 @@ NIBBLER_DIR				=	games/NIBBLER
 NIBBLER_SOURCES			=	$(shell find $(NIBBLER_DIR) $(FINDFLAGS))
 NIBBLER_FLAGS			=
 
+PACMAN_TARGET			=	$(LIB_DIR)/arcade_pacman.so
+PACMAN_DIR				=	games/PACMAN
+PACMAN_SOURCES			=	$(shell find $(PACMAN_DIR) $(FINDFLAGS))
+PACMAN_FLAGS			=
+
 ###############################################################################
 ## Objects
 ###############################################################################
@@ -48,6 +53,7 @@ CORE_OBJECTS			=	$(CORE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 SFML_OBJECTS			=	$(SFML_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NCURSES_OBJECTS			=	$(NCURSES_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NIBBLER_OBJECTS			=	$(NIBBLER_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+PACMAN_OBJECTS			=	$(PACMAN_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 
 ###############################################################################
 ## Makefile rules
@@ -63,7 +69,7 @@ core: directories $(CORE_TARGET)
 
 graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET)
 
-games: directories $(NIBBLER_TARGET)
+games: directories $(NIBBLER_TARGET) $(PACMAN_TARGET)
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -80,6 +86,9 @@ $(NCURSES_TARGET): $(NCURSES_OBJECTS)
 
 $(NIBBLER_TARGET): $(NIBBLER_OBJECTS)
 	$(CXX) -shared $^ -o $@ $(NIBBLER_FLAGS)
+
+$(PACMAN_TARGET): $(PACMAN_OBJECTS)
+	$(CXX) -shared $^ -o $@ $(PACMAN_FLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
