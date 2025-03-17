@@ -21,14 +21,11 @@ Core::Core(const std::string& graphicLib, const std::string& gameLib)
 void Core::HandleEvents(void)
 {
     while (std::optional event = API::PollEvent(API::Event::CORE)) {
-        if (auto change = event->GetIf<API::Event::ChangeLib>()) {
-            if (change->changeGame) {
-                mGame->EndPlay();
-                // TODO: Change the game libary
-                mGame->BeginPlay();
-            } else {
-                // TODO: Change the graphic library
-            }
+        if (auto change = event->GetIf<API::Event::ChangeGraphics>()) {
+            // TODO: Change the graphic library
+        }
+        if (auto change = event->GetIf<API::Event::ChangeGame>()) {
+            // TODO: Change the game libary (endplay and beginplay)
         }
     }
 }
