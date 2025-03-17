@@ -19,7 +19,8 @@ enum class EKeyboardKey
     N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
     UP, DOWN, LEFT, RIGHT,
     SPACE, ENTER, ESCAPE, BACKSPACE,
-    NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9
+    NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9,
+    UNKNOWN
 };
 
 ///////////////////////////////////////////////////////////////////////////////
