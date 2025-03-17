@@ -24,7 +24,13 @@ public:
         int x;              //<!
         int y;              //<!
     } position;             //<!
-    unsigned int color;     //<!
+    struct
+    {
+        unsigned char r;    //<!
+        unsigned char g;    //<!
+        unsigned char b;    //<!
+        unsigned char a;    //<!
+    } color;                //<!
 };
 
 } // namespace Arc
