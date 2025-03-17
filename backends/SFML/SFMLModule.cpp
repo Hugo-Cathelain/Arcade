@@ -95,7 +95,10 @@ void SFMLModule::Update(void)
             mWindow->close();
         }
         if (event.type == sf::Event::KeyPressed) {
-            API::PushEvent(API::Event::KeyPressed{GetKey(event.key.code)});
+            API::PushEvent(
+                API::Event::Channel::GAME,
+                API::Event::KeyPressed{GetKey(event.key.code)}
+            );
         }
     }
 }

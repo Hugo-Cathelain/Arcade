@@ -22,7 +22,9 @@ Nibbler::~Nibbler()
 
 ///////////////////////////////////////////////////////////////////////////////
 void Nibbler::BeginPlay(void)
-{}
+{
+    API::SetGridSize(16, 16);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Nibbler::EndPlay(void)
@@ -32,7 +34,7 @@ void Nibbler::EndPlay(void)
 void Nibbler::Tick(float deltaSeconds)
 {
     (void)deltaSeconds;
-    while (std::optional event = API::PollEvent()) {
+    while (std::optional event = API::PollEvent(API::Event::Channel::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
             if (key->code == EKeyboardKey::Q) {
                 mGameOver = true;

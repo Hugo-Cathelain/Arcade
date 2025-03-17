@@ -10,26 +10,32 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-std::queue<API::Event> API::mEvents;
+std::unordered_map<API::Event::Channel, std::queue<API::Event>> API::mEvents;
 
 ///////////////////////////////////////////////////////////////////////////////
 std::queue<IDrawable> API::mDrawables;
 
 ///////////////////////////////////////////////////////////////////////////////
-std::optional<API::Event> API::PollEvent(void)
+int API::mGridWidth;
+
+///////////////////////////////////////////////////////////////////////////////
+int API::mGridHeight;
+
+///////////////////////////////////////////////////////////////////////////////
+std::optional<API::Event> API::PollEvent(API::Event::Channel channel)
 {
-    if (mEvents.empty()) {
+    if (mEvents.count(channel) == 0 || mEvents[channel].empty()) {
         return (std::nullopt);
     }
-    auto event = mEvents.front();
-    mEvents.pop();
+    auto event = mEvents[channel].front();
+    mEvents[channel].pop();
     return (event);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void API::PushEvent(const Event& event)
+void API::PushEvent(API::Event::Channel channel, const Event& event)
 {
-    mEvents.push(event);
+    mEvents[channel].push(event);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,6 +56,25 @@ IDrawable API::PopDraw(void)
 bool API::IsDrawQueueEmpty(void)
 {
     return (mDrawables.empty());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void API::SetGridSize(int width, int height)
+{
+    mGridWidth = width;
+    mGridHeight = height;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int API::GetGridWidth(void)
+{
+    return (mGridWidth);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int API::GetGridHeight(void)
+{
+    return (mGridHeight);
 }
 
 } // namespace Arc
