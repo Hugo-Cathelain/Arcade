@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
-#include "Arcade/core/Library.hpp"
-#include "Arcade/interfaces/IGraphicsModule.hpp"
-#include "Arcade/interfaces/IGameModule.hpp"
+#include "Arcade/core/Core.hpp"
+#include "Arcade/errors/DLError.hpp"
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[])
@@ -13,23 +13,13 @@ int main(int argc, char* argv[])
         return (84);
     }
 
-    auto graphics = Arc::Library::Load<Arc::IGraphicsModule>(argv[1]);
-    auto game     = Arc::Library::Load<Arc::IGameModule>(argv[2]);
-
-    if (!graphics || !game) {
+    try {
+        Arc::Core core(argv[1], argv[2]);
+        core.Run();
+    } catch (const Arc::DLError& error) {
+        std::cerr << error.what() << std::endl;
         return (84);
     }
-
-    graphics->SetTitle(game->GetName());
-
-    game->BeginPlay();
-    while (!game->IsGameOver()) {
-        graphics->Update();
-        graphics->Clear();
-        game->Tick(0.f);
-        graphics->Render();
-    }
-    game->EndPlay();
 
     return (0);
 }

@@ -7,6 +7,7 @@
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/core/Library.hpp"
+#include "Arcade/errors/DLError.hpp"
 #include <dlfcn.h>
 #include <iostream>
 #include <unordered_map>
@@ -28,8 +29,7 @@ std::shared_ptr<T> Library::Load(const std::string& path)
 {
     void* handle = dlopen(path.c_str(), RTLD_LAZY);
     if (!handle) {
-        std::cerr << "Error loading library: " << dlerror() << std::endl;
-        return nullptr;
+        throw DLError(dlerror());
     }
 
     dlerror();
@@ -40,16 +40,12 @@ std::shared_ptr<T> Library::Load(const std::string& path)
 
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
-        std::cerr << "Error loading symbol: " << dlsym_error << std::endl;
-        dlclose(handle);
-        return nullptr;
+        throw DLError(dlerror());
     }
 
     std::unique_ptr<T> obj = createFunc();
     if (!obj) {
-        std::cerr << "Error creating object" << std::endl;
-        dlclose(handle);
-        return nullptr;
+        throw DLError(dlerror());
     }
 
     T* raw_ptr = obj.get();
