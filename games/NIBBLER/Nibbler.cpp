@@ -13,6 +13,7 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 Nibbler::Nibbler(void)
+    : mGameOver(false)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,8 +33,11 @@ void Nibbler::Tick(float deltaSeconds)
 {
     (void)deltaSeconds;
     while (std::optional event = API::PollEvent()) {
-        if (event->Is<API::Event::KeyPressed>()) {
-            std::cout << "Key Pressed" << std::endl;
+        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+            if (key->code == EKeyboardKey::Q) {
+                mGameOver = true;
+                break;
+            }
         }
     }
 }
@@ -41,7 +45,7 @@ void Nibbler::Tick(float deltaSeconds)
 ///////////////////////////////////////////////////////////////////////////////
 bool Nibbler::IsGameOver(void) const
 {
-    return (false);
+    return (mGameOver);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
