@@ -1,8 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
-#include "games/NIBBLER/Nibbler.hpp"
+#include "games/PACMAN/Pacman.hpp"
 #include "Arcade/core/API.hpp"
+#include "games/PACMAN/Assets.hpp"
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,66 +13,59 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-Nibbler::Nibbler(void)
-    : mGameOver(false)
+Pacman::Pacman(void)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-Nibbler::~Nibbler()
+Pacman::~Pacman()
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::BeginPlay(void)
+void Pacman::BeginPlay(void)
 {
     API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({16, 16}));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::EndPlay(void)
+void Pacman::EndPlay(void)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::Tick(float deltaSeconds)
+void Pacman::Tick(float deltaSeconds)
 {
     (void)deltaSeconds;
-    while (std::optional event = API::PollEvent(API::Event::GAME)) {
-        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
-            if (key->code == EKeyboardKey::Q) {
-                mGameOver = true;
-                break;
-            }
-        }
-    }
+    API::Draw(SPRITE_PACMAN_R1, 0, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool Nibbler::IsGameOver(void) const
+bool Pacman::IsGameOver(void) const
 {
-    return (mGameOver);
+    return (false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-int Nibbler::GetScore(void) const
+int Pacman::GetScore(void) const
 {
     return (0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string Nibbler::GetName(void) const
+std::string Pacman::GetName(void) const
 {
-    return ("Nibbler");
+    return ("Pacman");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string Nibbler::GetDescription(void) const
+std::string Pacman::GetDescription(void) const
 {
-    return ("Nibbler is a snake game");
+    return ("Pacman game");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string Nibbler::GetSpriteSheet(void) const
+std::string Pacman::GetSpriteSheet(void) const
 {
-    return ("");
+    return ("PACMAN.png");
 }
 
 } // namespace Arc
+

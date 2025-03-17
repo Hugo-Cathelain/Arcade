@@ -1,0 +1,26 @@
+///////////////////////////////////////////////////////////////////////////////
+// Header guard
+///////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+///////////////////////////////////////////////////////////////////////////////
+// Dependencies
+///////////////////////////////////////////////////////////////////////////////
+#include "Arcade/interfaces/IGameModule.hpp"
+
+///////////////////////////////////////////////////////////////////////////////
+// Namespace Arc
+///////////////////////////////////////////////////////////////////////////////
+namespace Arc
+{
+
+#define SPRITE_PACMAN_R1 IGameModule::Asset({{16, 16}, {0, 0}, "()"})
+#define SPRITE_PACMAN_R2 IGameModule::Asset({{16, 16}, {0, 2}, "()"})
+#define SPRITE_PACMAN_L1 IGameModule::Asset({{16, 16}, {2, 0}, "()"})
+#define SPRITE_PACMAN_L2 IGameModule::Asset({{16, 16}, {2, 2}, "()"})
+#define SPRITE_PACMAN_U1 IGameModule::Asset({{16, 16}, {4, 0}, "()"})
+#define SPRITE_PACMAN_U2 IGameModule::Asset({{16, 16}, {4, 2}, "()"})
+#define SPRITE_PACMAN_D1 IGameModule::Asset({{16, 16}, {6, 0}, "()"})
+#define SPRITE_PACMAN_D2 IGameModule::Asset({{16, 16}, {6, 2}, "()"})
+
+} // namespace Arc

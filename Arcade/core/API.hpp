@@ -7,12 +7,13 @@
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/enums/Inputs.hpp"
-#include "Arcade/interfaces/IDrawable.hpp"
+#include "Arcade/interfaces/IGameModule.hpp"
 #include <variant>
 #include <optional>
 #include <unordered_map>
 #include <vector>
 #include <queue>
+#include <string>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Define the API visibility
@@ -276,7 +277,7 @@ private:
     // Member data
     ///////////////////////////////////////////////////////////////////////////
     static std::unordered_map<Event::Channel, std::queue<Event>> mEvents;
-    static std::queue<IDrawable> mDrawables;
+    static std::queue<IGameModule::Asset> mDrawables;
     static int mGridWidth;
     static int mGridHeight;
 
@@ -303,7 +304,7 @@ public:
     /// \param drawable The drawable to push
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static void Draw(const IDrawable& drawable);
+    static void Draw(const IGameModule::Asset& drawable, int x, int y);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Pop a drawable from the queue
@@ -311,7 +312,7 @@ public:
     /// \return The drawable
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static IDrawable PopDraw(void);
+    static IGameModule::Asset PopDraw(void);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Check if the draw queue is empty

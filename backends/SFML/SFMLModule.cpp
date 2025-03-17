@@ -135,4 +135,10 @@ void SFMLModule::SetTitle(const std::string& title)
     mWindow->setTitle(title);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+void SFMLModule::LoadSpriteSheet(const std::string& path)
+{
+    mSpriteSheet.reset(new sf::Texture(path));
+}
+
 } // namespace Arc
