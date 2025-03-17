@@ -31,3 +31,7 @@ vgcore.*
 # Unignore specific
 !Makefile
 !AUTHORS
+
+# Ide related files
+.vscode/
+.idea/
