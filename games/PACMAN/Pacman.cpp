@@ -34,8 +34,8 @@ void Pacman::EndPlay(void)
 void Pacman::Tick(float deltaSeconds)
 {
     (void)deltaSeconds;
-    for (int y = 0; y < 9; y++) {
-        for (int x = 0; x < 28; x++) {
+    for (size_t y = 0; y < PACMAN_MAP.size(); y++) {
+        for (size_t x = 0; x < PACMAN_MAP[y].size(); x++) {
             API::Draw(PACMAN_MAP[y][x], x, y);
         }
     }
