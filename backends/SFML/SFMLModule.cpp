@@ -92,8 +92,8 @@ void SFMLModule::Update(void)
             mWindow->setView(sf::View(
                 {
                     0, 0,
-                    gridSize->width * 8.f * mRatio,
-                    gridSize->height * 8.f * mRatio
+                    gridSize->width * 8.f,
+                    gridSize->height * 8.f
                 }
             ));
         }
@@ -123,7 +123,7 @@ void SFMLModule::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::Render(void)
 {
-    float offset = 4 * mRatio;
+    float offset = 4.f;
 
     while (mSpriteSheet && !API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
@@ -138,8 +138,7 @@ void SFMLModule::Render(void)
             asset.size.y
         ));
         sprite.setOrigin({asset.size.x / 2.f, asset.size.y / 2.f});
-        sprite.setPosition(x * 8 * mRatio + offset, y * 8 * mRatio + offset);
-        sprite.setScale({mRatio, mRatio});
+        sprite.setPosition(x * 8 + offset, y * 8 + offset);
         mWindow->draw(sprite);
     }
     mWindow->display();
