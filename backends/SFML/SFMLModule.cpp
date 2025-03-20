@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "backends/SFML/SFMLModule.hpp"
 #include "Arcade/core/API.hpp"
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -81,6 +82,18 @@ EKeyboardKey SFMLModule::GetKey(sf::Keyboard::Key key)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+EMouseButton SFMLModule::GetMousePress(sf::Mouse::Button click)
+{
+    switch (click)
+    {
+    case sf::Mouse::Left:               return (EMouseButton::LEFT);
+    case sf::Mouse::Right:              return (EMouseButton::RIGHT);
+    case sf::Mouse::Middle:             return (EMouseButton::MIDDLE);
+    default:                            return (EMouseButton::LEFT);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
@@ -108,6 +121,15 @@ void SFMLModule::Update(void)
             API::PushEvent(
                 API::Event::Channel::GAME,
                 API::Event::KeyPressed{GetKey(event.key.code)}
+            );
+        }
+        if (event.type == sf::Event::MouseButtonPressed) {
+            sf::Mouse::Button click = event.mouseButton.button;
+            int gridX = event.mouseButton.x / (8 * mRatio);
+            int gridY = event.mouseButton.y / (8 * mRatio);
+            API::PushEvent(
+                API::Event::Channel::GAME,
+                API::Event::MousePressed{GetMousePress(click), gridX, gridY}
             );
         }
     }
