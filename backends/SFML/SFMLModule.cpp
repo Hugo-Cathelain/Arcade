@@ -102,7 +102,6 @@ void SFMLModule::Update(void)
     sf::Event event;
     while (mWindow->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            mWindow->close();
             API::PushEvent(API::Event::Channel::CORE, API::Event::Closed());
         }
         if (event.type == sf::Event::KeyPressed) {

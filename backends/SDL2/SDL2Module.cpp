@@ -12,7 +12,7 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-SDL2Module::SDL2Module(void) : mRatio(1.f)
+SDL2Module::SDL2Module(void) : mRatio(4.f)
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         return;
@@ -31,7 +31,7 @@ SDL2Module::SDL2Module(void) : mRatio(1.f)
 SDL2Module::~SDL2Module(void)
 {
     if (mRenderer)
-    SDL_DestroyRenderer(mRenderer);
+        SDL_DestroyRenderer(mRenderer);
     if (mWindow)
         SDL_DestroyWindow(mWindow);
     SDL_Quit();
@@ -98,23 +98,14 @@ void SDL2Module::Update(void)
                 static_cast<unsigned int>(gridSize->width * 8 * mRatio),
                 static_cast<unsigned int>(gridSize->height * 8 * mRatio)
             );
-            SDL_Rect viewport = {
-                0, 0,
-                static_cast<int>(gridSize->width * 8 * mRatio),
-                static_cast<int>(gridSize->height * 8 * mRatio)
-            };
-            SDL_RenderSetViewport(mRenderer, &viewport);
-            // Optionally, set the scale factor (similar to SFML's setScale)
             SDL_RenderSetScale(mRenderer, mRatio, mRatio);
-            }
+        }
     }
 
     SDL_Event event;
     while (SDL_PollEvent(&event)){
-        if (event.type == SDL_QUIT){
-            SDL_DestroyRenderer(mRenderer);
-            SDL_DestroyWindow(mWindow);
-            SDL_Quit();
+        if (event.type == SDL_QUIT) {
+            API::PushEvent(API::Event::Channel::CORE, API::Event::Closed());
         }
         if (event.type == SDL_KEYDOWN){
             SDL_Keycode key = event.key.keysym.sym;
@@ -134,8 +125,6 @@ void SDL2Module::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SDL2Module::Render(void)
 {
-    float offset = 4 * mRatio;
-
     while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
         auto [asset, x, y] = draw;
@@ -149,10 +138,10 @@ void SDL2Module::Render(void)
 
         // Define destination rect (where on the window to render)
         SDL_Rect destRect;
-        destRect.x = x * 8 * mRatio + offset;
-        destRect.y = y * 8 * mRatio + offset;
-        destRect.w = asset.size.x * mRatio;
-        destRect.h = asset.size.y * mRatio;
+        destRect.x = x * 8;
+        destRect.y = y * 8;
+        destRect.w = asset.size.x;
+        destRect.h = asset.size.y;
 
         // Render the sprite from sprite sheet
         SDL_RenderCopy(mRenderer, mSpriteSheet, &srcRect, &destRect);
