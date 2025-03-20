@@ -99,8 +99,8 @@ void SFMLModule::Update(void)
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
             mWindow->setSize(sf::Vector2u(
-                static_cast<unsigned int>(gridSize->width * 8 * mRatio),
-                static_cast<unsigned int>(gridSize->height * 8 * mRatio)
+                static_cast<unsigned int>(gridSize->width * GRID_TILE_SIZE * mRatio),
+                static_cast<unsigned int>(gridSize->height * GRID_TILE_SIZE * mRatio)
             ));
             mWindow->setView(sf::View(
                 {
@@ -125,8 +125,8 @@ void SFMLModule::Update(void)
         }
         if (event.type == sf::Event::MouseButtonPressed) {
             sf::Mouse::Button click = event.mouseButton.button;
-            int gridX = event.mouseButton.x / (8 * mRatio);
-            int gridY = event.mouseButton.y / (8 * mRatio);
+            int gridX = event.mouseButton.x / (GRID_TILE_SIZE * mRatio);
+            int gridY = event.mouseButton.y / (GRID_TILE_SIZE * mRatio);
             API::PushEvent(
                 API::Event::Channel::GAME,
                 API::Event::MousePressed{GetMousePress(click), gridX, gridY}

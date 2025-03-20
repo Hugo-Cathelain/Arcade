@@ -107,8 +107,8 @@ void SDL2Module::Update(void)
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
             SDL_SetWindowSize(mWindow,
-                static_cast<unsigned int>(gridSize->width * 8 * mRatio),
-                static_cast<unsigned int>(gridSize->height * 8 * mRatio)
+                static_cast<unsigned int>(gridSize->width * GRID_TILE_SIZE * mRatio),
+                static_cast<unsigned int>(gridSize->height * GRID_TILE_SIZE * mRatio)
             );
             SDL_RenderSetScale(mRenderer, mRatio, mRatio);
         }
@@ -152,15 +152,15 @@ void SDL2Module::Render(void)
 
         // Define source rect (part of the sprite sheet to render)
         SDL_Rect srcRect;
-        srcRect.x = asset.position.x * 8;
-        srcRect.y = asset.position.y * 8;
+        srcRect.x = asset.position.x * GRID_TILE_SIZE;
+        srcRect.y = asset.position.y * GRID_TILE_SIZE;
         srcRect.w = asset.size.x;
         srcRect.h = asset.size.y;
 
         // Define destination rect (where on the window to render)
         SDL_Rect destRect;
-        destRect.x = x * 8;
-        destRect.y = y * 8;
+        destRect.x = x * GRID_TILE_SIZE;
+        destRect.y = y * GRID_TILE_SIZE;
         destRect.w = asset.size.x;
         destRect.h = asset.size.y;
 
