@@ -14,13 +14,21 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 SDL2Module::SDL2Module(void) : mRatio(4.f)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         return;
+    }
 
-    mWindow = SDL_CreateWindow("Arcade - SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 600, SDL_WINDOW_SHOWN);
-    if (!mWindow) return;
+    mWindow = SDL_CreateWindow(
+        "Arcade - SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        600, 600, SDL_WINDOW_SHOWN
+    );
+
+    if (!mWindow) {
+        return;
+    }
 
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
+
     if (!mRenderer){
         SDL_DestroyWindow(mWindow);
         return;
@@ -30,10 +38,12 @@ SDL2Module::SDL2Module(void) : mRatio(4.f)
 ///////////////////////////////////////////////////////////////////////////////
 SDL2Module::~SDL2Module(void)
 {
-    if (mRenderer)
+    if (mRenderer) {
         SDL_DestroyRenderer(mRenderer);
-    if (mWindow)
+    }
+    if (mWindow) {
         SDL_DestroyWindow(mWindow);
+    }
     SDL_Quit();
 }
 
@@ -92,12 +102,11 @@ EKeyboardKey SDL2Module::GetKey(SDL_Keycode key)
 ///////////////////////////////////////////////////////////////////////////////
 EMouseButton SDL2Module::GetMousePress(Uint8 click)
 {
-    switch (click)
-    {
-    case SDL_BUTTON_LEFT:       return (EMouseButton::LEFT);
-    case SDL_BUTTON_RIGHT:      return (EMouseButton::RIGHT);
-    case SDL_BUTTON_MIDDLE:     return (EMouseButton::MIDDLE);
-    default:                    return (EMouseButton::LEFT);
+    switch (click) {
+        case SDL_BUTTON_LEFT:       return (EMouseButton::LEFT);
+        case SDL_BUTTON_RIGHT:      return (EMouseButton::RIGHT);
+        case SDL_BUTTON_MIDDLE:     return (EMouseButton::MIDDLE);
+        default:                    return (EMouseButton::LEFT);
     }
 }
 
@@ -107,8 +116,10 @@ void SDL2Module::Update(void)
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
             SDL_SetWindowSize(mWindow,
-                static_cast<unsigned int>(gridSize->width * GRID_TILE_SIZE * mRatio),
-                static_cast<unsigned int>(gridSize->height * GRID_TILE_SIZE * mRatio)
+                static_cast<unsigned int>(
+                    gridSize->width * GRID_TILE_SIZE * mRatio),
+                static_cast<unsigned int>(
+                    gridSize->height * GRID_TILE_SIZE * mRatio)
             );
             SDL_RenderSetScale(mRenderer, mRatio, mRatio);
         }
@@ -128,8 +139,8 @@ void SDL2Module::Update(void)
         }
         if (event.type == SDL_MOUSEBUTTONDOWN){
             Uint8 click = event.button.button;
-            int gridX = event.button.x / (8 * mRatio);
-            int gridY = event.button.y / (8 * mRatio);
+            int gridX = event.button.x / (GRID_TILE_SIZE * mRatio);
+            int gridY = event.button.y / (GRID_TILE_SIZE * mRatio);
             API::PushEvent(
                 API::Event::Channel::GAME,
                 API::Event::MousePressed{GetMousePress(click), gridX, gridY}
@@ -150,27 +161,22 @@ void SDL2Module::Render(void)
         auto draw = API::PopDraw();
         auto [asset, x, y] = draw;
 
-        // Define source rect (part of the sprite sheet to render)
         SDL_Rect srcRect;
         srcRect.x = asset.position.x * GRID_TILE_SIZE;
         srcRect.y = asset.position.y * GRID_TILE_SIZE;
         srcRect.w = asset.size.x;
         srcRect.h = asset.size.y;
 
-        // Define destination rect (where on the window to render)
         SDL_Rect destRect;
         destRect.x = x * GRID_TILE_SIZE;
         destRect.y = y * GRID_TILE_SIZE;
         destRect.w = asset.size.x;
         destRect.h = asset.size.y;
 
-        // Render the sprite from sprite sheet
         SDL_RenderCopy(mRenderer, mSpriteSheet, &srcRect, &destRect);
     }
 
-    // Present the renderer (similar to SFML's display())
     SDL_RenderPresent(mRenderer);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,16 +188,22 @@ void SDL2Module::SetTitle(const std::string& title)
 ///////////////////////////////////////////////////////////////////////////////
 void SDL2Module::LoadSpriteSheet(const std::string& path)
 {
-    if (!mRenderer) return;
+    if (!mRenderer) {
+        return;
+    }
 
     SDL_Surface* surface = IMG_Load(path.c_str());
-    if (!surface) return;
+    if (!surface) {
+        return;
+    }
+
     SDL_Texture *texture = SDL_CreateTextureFromSurface(mRenderer, surface);
     SDL_FreeSurface(surface);
 
-    if (!texture) return;
+    if (!texture) {
+        return;
+    }
     mSpriteSheet = texture;
 }
 
 } // namespace Arc
-

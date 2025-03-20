@@ -84,12 +84,11 @@ EKeyboardKey SFMLModule::GetKey(sf::Keyboard::Key key)
 ///////////////////////////////////////////////////////////////////////////////
 EMouseButton SFMLModule::GetMousePress(sf::Mouse::Button click)
 {
-    switch (click)
-    {
-    case sf::Mouse::Left:               return (EMouseButton::LEFT);
-    case sf::Mouse::Right:              return (EMouseButton::RIGHT);
-    case sf::Mouse::Middle:             return (EMouseButton::MIDDLE);
-    default:                            return (EMouseButton::LEFT);
+    switch (click) {
+        case sf::Mouse::Left:               return (EMouseButton::LEFT);
+        case sf::Mouse::Right:              return (EMouseButton::RIGHT);
+        case sf::Mouse::Middle:             return (EMouseButton::MIDDLE);
+        default:                            return (EMouseButton::LEFT);
     }
 }
 
@@ -99,8 +98,10 @@ void SFMLModule::Update(void)
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
             mWindow->setSize(sf::Vector2u(
-                static_cast<unsigned int>(gridSize->width * GRID_TILE_SIZE * mRatio),
-                static_cast<unsigned int>(gridSize->height * GRID_TILE_SIZE * mRatio)
+                static_cast<unsigned int>(
+                    gridSize->width * GRID_TILE_SIZE * mRatio),
+                static_cast<unsigned int>(
+                    gridSize->height * GRID_TILE_SIZE * mRatio)
             ));
             mWindow->setView(sf::View(
                 {
