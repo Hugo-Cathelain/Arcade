@@ -28,6 +28,11 @@ SFML_DIR				=	backends/SFML
 SFML_SOURCES			=	$(shell find $(SFML_DIR) $(FINDFLAGS))
 SFML_FLAGS				=	-lsfml-graphics -lsfml-window -lsfml-system
 
+SDL2_TARGET				=	$(LIB_DIR)/arcade_sdl2.so
+SDL2_DIR				=	backends/SDL2
+SDL2_SOURCES			=	$(shell find $(SDL2_DIR) $(FINDFLAGS))
+SDL2_FLAGS				=	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+
 NCURSES_TARGET			=	$(LIB_DIR)/arcade_ncurses.so
 NCURSES_DIR				=	backends/NCURSES
 NCURSES_SOURCES			=	$(shell find $(NCURSES_DIR) $(FINDFLAGS))
@@ -51,6 +56,7 @@ INCLUDES				+=	$(addprefix -I, $(CORE_DIR))
 
 CORE_OBJECTS			=	$(CORE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 SFML_OBJECTS			=	$(SFML_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+SDL2_OBJECTS			=	$(SDL2_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NCURSES_OBJECTS			=	$(NCURSES_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NIBBLER_OBJECTS			=	$(NIBBLER_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 PACMAN_OBJECTS			=	$(PACMAN_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
@@ -67,7 +73,7 @@ directories:
 
 core: directories $(CORE_TARGET)
 
-graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET)
+graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET) $(SDL2_TARGET)
 
 games: directories $(NIBBLER_TARGET) $(PACMAN_TARGET)
 
@@ -80,6 +86,9 @@ $(CORE_TARGET): $(CORE_OBJECTS)
 
 $(SFML_TARGET): $(SFML_OBJECTS)
 	$(CXX) -shared $^ -o $@ $(SFML_FLAGS)
+
+$(SDL2_TARGET): $(SDL2_OBJECTS)
+	$(CXX) -shared $^ -o $@ $(SDL2_FLAGS)
 
 $(NCURSES_TARGET): $(NCURSES_OBJECTS)
 	$(CXX) -shared $^ -o $@ $(NCURSES_FLAGS)
