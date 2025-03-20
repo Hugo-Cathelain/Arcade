@@ -14,7 +14,7 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 Core::Core(const std::string& graphicLib, const std::string& gameLib)
     : mGraphics(Library::Load<IGraphicsModule>(graphicLib))
-    , mGame(Library::Load<IGameModule>(gameLib))
+    , mGame(Library::Load<IGameModule>(gameLib)), mIsWindowOpen(true)
 {
     mGraphics->LoadSpriteSheet(mGame->GetSpriteSheet());
 }
@@ -29,6 +29,9 @@ void Core::HandleEvents(void)
         if (auto change = event->GetIf<API::Event::ChangeGame>()) {
             // TODO: Change the game libary (endplay and beginplay)
         }
+        if (event->Is<API::Event::Closed>()){
+            mIsWindowOpen = false;
+        }
     }
 }
 
@@ -38,7 +41,7 @@ void Core::Run(void)
     mGraphics->SetTitle(mGame->GetName());
 
     mGame->BeginPlay();
-    while (!mGame->IsGameOver()) {
+    while (mIsWindowOpen) {
         HandleEvents();
         mGraphics->Update();
         mGraphics->Clear();
