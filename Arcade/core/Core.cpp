@@ -14,9 +14,10 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 Core::Core(const std::string& graphicLib, const std::string& gameLib)
     : mGraphics(Library::Load<IGraphicsModule>(graphicLib))
-    , mGame(Library::Load<IGameModule>(gameLib)), mIsWindowOpen(true)
+    , mIsWindowOpen(true)
 {
-    mGraphics->LoadSpriteSheet(mGame->GetSpriteSheet());
+    mStates.push(Library::Load<IGameModule>(gameLib));
+    mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,7 +30,7 @@ void Core::HandleEvents(void)
         if (auto change = event->GetIf<API::Event::ChangeGame>()) {
             // TODO: Change the game libary (endplay and beginplay)
         }
-        if (event->Is<API::Event::Closed>()){
+        if (event->Is<API::Event::Closed>()) {
             mIsWindowOpen = false;
         }
     }
@@ -38,17 +39,21 @@ void Core::HandleEvents(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Core::Run(void)
 {
-    mGraphics->SetTitle(mGame->GetName());
+    if (mStates.size() == 0) {
+        return;
+    }
 
-    mGame->BeginPlay();
-    while (mIsWindowOpen) {
+    mGraphics->SetTitle(mStates.top()->GetName());
+
+    mStates.top()->BeginPlay();
+    while (mIsWindowOpen && mStates.size() > 0) {
         HandleEvents();
         mGraphics->Update();
         mGraphics->Clear();
-        mGame->Tick(0.f);
+        mStates.top()->Tick(0.f);
         mGraphics->Render();
     }
-    mGame->EndPlay();
+    mStates.top()->EndPlay();
 }
 
 } // namespace Arc

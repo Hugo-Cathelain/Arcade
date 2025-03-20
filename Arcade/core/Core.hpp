@@ -10,6 +10,7 @@
 #include "Arcade/interfaces/IGameModule.hpp"
 #include <memory>
 #include <string>
+#include <stack>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -27,8 +28,8 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     // Member data
     ///////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<Arc::IGraphicsModule> mGraphics;    //<!
-    std::shared_ptr<Arc::IGameModule> mGame;            //<!
+    std::shared_ptr<Arc::IGraphicsModule> mGraphics;        //<!
+    std::stack<std::shared_ptr<Arc::IGameModule>> mStates;  //<!
     bool mIsWindowOpen;
 
 public:
