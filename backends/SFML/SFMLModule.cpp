@@ -144,7 +144,7 @@ void SFMLModule::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SFMLModule::Render(void)
 {
-    float offset = 4.f;
+    float offset = static_cast<float>(GRID_TILE_SIZE) / 2.f;
 
     while (mSpriteSheet && !API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
