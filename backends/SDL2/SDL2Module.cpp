@@ -41,51 +41,63 @@ SDL2Module::~SDL2Module(void)
 EKeyboardKey SDL2Module::GetKey(SDL_Keycode key)
 {
     switch (key) {
-        case SDLK_a:           return (EKeyboardKey::A);
-        case SDLK_b:           return (EKeyboardKey::B);
-        case SDLK_c:           return (EKeyboardKey::C);
-        case SDLK_d:           return (EKeyboardKey::D);
-        case SDLK_e:           return (EKeyboardKey::E);
-        case SDLK_f:           return (EKeyboardKey::F);
-        case SDLK_g:           return (EKeyboardKey::G);
-        case SDLK_h:           return (EKeyboardKey::H);
-        case SDLK_i:           return (EKeyboardKey::I);
-        case SDLK_j:           return (EKeyboardKey::J);
-        case SDLK_k:           return (EKeyboardKey::K);
-        case SDLK_l:           return (EKeyboardKey::L);
-        case SDLK_m:           return (EKeyboardKey::M);
-        case SDLK_n:           return (EKeyboardKey::N);
-        case SDLK_o:           return (EKeyboardKey::O);
-        case SDLK_p:           return (EKeyboardKey::P);
-        case SDLK_q:           return (EKeyboardKey::Q);
-        case SDLK_r:           return (EKeyboardKey::R);
-        case SDLK_s:           return (EKeyboardKey::S);
-        case SDLK_t:           return (EKeyboardKey::T);
-        case SDLK_u:           return (EKeyboardKey::U);
-        case SDLK_v:           return (EKeyboardKey::V);
-        case SDLK_w:           return (EKeyboardKey::W);
-        case SDLK_x:           return (EKeyboardKey::X);
-        case SDLK_y:           return (EKeyboardKey::Y);
-        case SDLK_z:           return (EKeyboardKey::Z);
-        case SDLK_UP:          return (EKeyboardKey::UP);
-        case SDLK_DOWN:        return (EKeyboardKey::DOWN);
-        case SDLK_LEFT:        return (EKeyboardKey::LEFT);
-        case SDLK_RIGHT:       return (EKeyboardKey::RIGHT);
-        case SDLK_0:           return (EKeyboardKey::NUM0);
-        case SDLK_1:           return (EKeyboardKey::NUM1);
-        case SDLK_2:           return (EKeyboardKey::NUM2);
-        case SDLK_3:           return (EKeyboardKey::NUM3);
-        case SDLK_4:           return (EKeyboardKey::NUM4);
-        case SDLK_5:           return (EKeyboardKey::NUM5);
-        case SDLK_6:           return (EKeyboardKey::NUM6);
-        case SDLK_7:           return (EKeyboardKey::NUM7);
-        case SDLK_8:           return (EKeyboardKey::NUM8);
-        case SDLK_9:           return (EKeyboardKey::NUM9);
-        case SDLK_SPACE:       return (EKeyboardKey::SPACE);
-        case SDLK_RETURN:      return (EKeyboardKey::ENTER);
-        case SDLK_ESCAPE:      return (EKeyboardKey::ESCAPE);
-        case SDLK_BACKSPACE:   return (EKeyboardKey::BACKSPACE);
-        default:               return (EKeyboardKey::UNKNOWN);
+        case SDLK_a:            return (EKeyboardKey::A);
+        case SDLK_b:            return (EKeyboardKey::B);
+        case SDLK_c:            return (EKeyboardKey::C);
+        case SDLK_d:            return (EKeyboardKey::D);
+        case SDLK_e:            return (EKeyboardKey::E);
+        case SDLK_f:            return (EKeyboardKey::F);
+        case SDLK_g:            return (EKeyboardKey::G);
+        case SDLK_h:            return (EKeyboardKey::H);
+        case SDLK_i:            return (EKeyboardKey::I);
+        case SDLK_j:            return (EKeyboardKey::J);
+        case SDLK_k:            return (EKeyboardKey::K);
+        case SDLK_l:            return (EKeyboardKey::L);
+        case SDLK_m:            return (EKeyboardKey::M);
+        case SDLK_n:            return (EKeyboardKey::N);
+        case SDLK_o:            return (EKeyboardKey::O);
+        case SDLK_p:            return (EKeyboardKey::P);
+        case SDLK_q:            return (EKeyboardKey::Q);
+        case SDLK_r:            return (EKeyboardKey::R);
+        case SDLK_s:            return (EKeyboardKey::S);
+        case SDLK_t:            return (EKeyboardKey::T);
+        case SDLK_u:            return (EKeyboardKey::U);
+        case SDLK_v:            return (EKeyboardKey::V);
+        case SDLK_w:            return (EKeyboardKey::W);
+        case SDLK_x:            return (EKeyboardKey::X);
+        case SDLK_y:            return (EKeyboardKey::Y);
+        case SDLK_z:            return (EKeyboardKey::Z);
+        case SDLK_UP:           return (EKeyboardKey::UP);
+        case SDLK_DOWN:         return (EKeyboardKey::DOWN);
+        case SDLK_LEFT:         return (EKeyboardKey::LEFT);
+        case SDLK_RIGHT:        return (EKeyboardKey::RIGHT);
+        case SDLK_0:            return (EKeyboardKey::NUM0);
+        case SDLK_1:            return (EKeyboardKey::NUM1);
+        case SDLK_2:            return (EKeyboardKey::NUM2);
+        case SDLK_3:            return (EKeyboardKey::NUM3);
+        case SDLK_4:            return (EKeyboardKey::NUM4);
+        case SDLK_5:            return (EKeyboardKey::NUM5);
+        case SDLK_6:            return (EKeyboardKey::NUM6);
+        case SDLK_7:            return (EKeyboardKey::NUM7);
+        case SDLK_8:            return (EKeyboardKey::NUM8);
+        case SDLK_9:            return (EKeyboardKey::NUM9);
+        case SDLK_SPACE:        return (EKeyboardKey::SPACE);
+        case SDLK_RETURN:       return (EKeyboardKey::ENTER);
+        case SDLK_ESCAPE:       return (EKeyboardKey::ESCAPE);
+        case SDLK_BACKSPACE:    return (EKeyboardKey::BACKSPACE);
+        default:                return (EKeyboardKey::UNKNOWN);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+EMouseButton SDL2Module::GetMousePress(Uint8 click)
+{
+    switch (click)
+    {
+    case SDL_BUTTON_LEFT:       return (EMouseButton::LEFT);
+    case SDL_BUTTON_RIGHT:      return (EMouseButton::RIGHT);
+    case SDL_BUTTON_MIDDLE:     return (EMouseButton::MIDDLE);
+    default:                    return (EMouseButton::LEFT);
     }
 }
 
@@ -112,6 +124,15 @@ void SDL2Module::Update(void)
             API::PushEvent(
                 API::Event::Channel::GAME,
                 API::Event::KeyPressed{GetKey(key)}
+            );
+        }
+        if (event.type == SDL_MOUSEBUTTONDOWN){
+            Uint8 click = event.button.button;
+            int gridX = event.button.x / (8 * mRatio);
+            int gridY = event.button.y / (8 * mRatio);
+            API::PushEvent(
+                API::Event::Channel::GAME,
+                API::Event::MousePressed{GetMousePress(click), gridX, gridY}
             );
         }
     }
