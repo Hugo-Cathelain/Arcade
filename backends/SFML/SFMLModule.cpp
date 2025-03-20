@@ -105,8 +105,8 @@ void SFMLModule::Update(void)
             mWindow->setView(sf::View(
                 {
                     0, 0,
-                    gridSize->width * 8.f,
-                    gridSize->height * 8.f
+                    gridSize->width * static_cast<float>(GRID_TILE_SIZE),
+                    gridSize->height * static_cast<float>(GRID_TILE_SIZE)
                 }
             ));
         }
@@ -153,13 +153,16 @@ void SFMLModule::Render(void)
         sf::Sprite sprite;
         sprite.setTexture(*mSpriteSheet);
         sprite.setTextureRect(sf::IntRect(
-            asset.position.x * 8,
-            asset.position.y * 8,
+            asset.position.x * GRID_TILE_SIZE,
+            asset.position.y * GRID_TILE_SIZE,
             asset.size.x,
             asset.size.y
         ));
         sprite.setOrigin({asset.size.x / 2.f, asset.size.y / 2.f});
-        sprite.setPosition(x * 8 + offset, y * 8 + offset);
+        sprite.setPosition(
+            x * GRID_TILE_SIZE + offset,
+            y * GRID_TILE_SIZE + offset
+        );
         mWindow->draw(sprite);
     }
     mWindow->display();
