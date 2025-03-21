@@ -31,6 +31,8 @@ private:
     std::shared_ptr<Arc::IGraphicsModule> mGraphics;        //<!
     std::stack<std::shared_ptr<Arc::IGameModule>> mStates;  //<!
     bool mIsWindowOpen;
+    int mGraphicLibIdx{0};
+    int mGameLibIdx{0};
 
 public:
     ///////////////////////////////////////////////////////////////////////////
