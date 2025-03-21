@@ -120,7 +120,7 @@ void SFMLModule::Update(void)
         }
         if (event.type == sf::Event::KeyPressed) {
             API::PushEvent(
-                API::Event::Channel::GAME,
+                API::Event::Channel::CORE,
                 API::Event::KeyPressed{GetKey(event.key.code)}
             );
         }

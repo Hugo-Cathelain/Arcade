@@ -15,6 +15,7 @@ namespace Arc
 SDL2Module::SDL2Module(void) : mRatio(4.f)
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "Cannot init SDL2" << std::endl;
         return;
     }
 
@@ -24,12 +25,14 @@ SDL2Module::SDL2Module(void) : mRatio(4.f)
     );
 
     if (!mWindow) {
+        std::cerr << "No window created" << std::endl;
         return;
     }
 
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
 
     if (!mRenderer){
+        std::cerr << "No renderer created" << std::endl;
         SDL_DestroyWindow(mWindow);
         return;
     }
@@ -133,7 +136,7 @@ void SDL2Module::Update(void)
         if (event.type == SDL_KEYDOWN){
             SDL_Keycode key = event.key.keysym.sym;
             API::PushEvent(
-                API::Event::Channel::GAME,
+                API::Event::Channel::CORE,
                 API::Event::KeyPressed{GetKey(key)}
             );
         }
