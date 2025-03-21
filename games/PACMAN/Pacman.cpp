@@ -14,6 +14,11 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 Pacman::Pacman(void)
+    : mPacmanX(1)
+    , mPacmanY(1)
+    , mPacmanOffsetX(0)
+    , mPacmanOffsetY(0)
+    , mAccumulatedTime(0.0f)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,13 +38,49 @@ void Pacman::EndPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Pacman::Tick(float deltaSeconds)
 {
-    (void)deltaSeconds;
+    mAccumulatedTime += deltaSeconds;
+
+    while (auto event = API::PollEvent(API::Event::GAME)) {
+        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+            switch (key->code) {
+                case EKeyboardKey::UP:
+                    mPacmanY--;
+                    mPacmanOffsetX = 4;
+                    break;
+                case EKeyboardKey::DOWN:
+                    mPacmanY++;
+                    mPacmanOffsetX = 6;
+                    break;
+                case EKeyboardKey::LEFT:
+                    mPacmanX--;
+                    mPacmanOffsetX = 2;
+                    break;
+                case EKeyboardKey::RIGHT:
+                    mPacmanX++;
+                    mPacmanOffsetX = 0;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     for (size_t y = 0; y < PACMAN_MAP.size(); y++) {
         for (size_t x = 0; x < PACMAN_MAP[y].size(); x++) {
             API::Draw(PACMAN_MAP[y][x], x, y);
         }
     }
-    API::Draw(SPRITE_PACMAN_R1, 1, 3);
+
+    if (mAccumulatedTime >= 0.5f) {
+        mAccumulatedTime = 0.0f;
+    }
+
+    mPacmanOffsetY = mAccumulatedTime < 0.25f ? 0 : 2;
+
+    API::Draw(
+        SPRITE_PACMAN_ALL(mPacmanOffsetX, mPacmanOffsetY),
+        mPacmanX, mPacmanY
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
