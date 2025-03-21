@@ -171,8 +171,8 @@ void SDL2Module::Render(void)
         srcRect.h = asset.size.y;
 
         SDL_Rect destRect;
-        destRect.x = x * GRID_TILE_SIZE;
-        destRect.y = y * GRID_TILE_SIZE;
+        destRect.x = x * GRID_TILE_SIZE - (asset.size.x - GRID_TILE_SIZE) / 2;
+        destRect.y = y * GRID_TILE_SIZE - (asset.size.y - GRID_TILE_SIZE) / 2;
         destRect.w = asset.size.x;
         destRect.h = asset.size.y;
 
