@@ -110,7 +110,7 @@ std::string Pacman::GetDescription(void) const
 ///////////////////////////////////////////////////////////////////////////////
 std::string Pacman::GetSpriteSheet(void) const
 {
-    return ("PACMAN.png");
+    return ("assets/PACMAN/sprites.png");
 }
 
 } // namespace Arc
