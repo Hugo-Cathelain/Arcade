@@ -1,0 +1,44 @@
+///////////////////////////////////////////////////////////////////////////////
+// Dependencies
+///////////////////////////////////////////////////////////////////////////////
+#include "games/PACMAN/Ghost.hpp"
+#include "Arcade/core/API.hpp"
+#include "games/PACMAN/Assets.hpp"
+
+///////////////////////////////////////////////////////////////////////////////
+// Namespace Arc
+///////////////////////////////////////////////////////////////////////////////
+namespace Arc
+{
+
+///////////////////////////////////////////////////////////////////////////////
+Ghost::Ghost(Ghost::Type type, const Vec2i& startPos)
+    : mType(type)
+    , mState(State::SCATTER)
+    , mPosition(startPos)
+    , mAccumulatedTime(static_cast<float>(type) * .25f)
+{}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::Update(float deltaSeconds, const Vec2i& pacmanPos)
+{
+    mAccumulatedTime += deltaSeconds;
+
+    if (mAccumulatedTime >= 0.5f) {
+        mAccumulatedTime = 0.0f;
+    }
+
+    (void)pacmanPos;
+    // TODO: Add ghost logic
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::Draw(void)
+{
+    int idx = static_cast<int>(mType);
+    int ofs = mAccumulatedTime < 0.25f ? 0 : 1;
+
+    API::Draw(SPRITES[RED_R1 + (idx * 8) + ofs], mPosition.x, mPosition.y);
+}
+
+} // namespace Arc

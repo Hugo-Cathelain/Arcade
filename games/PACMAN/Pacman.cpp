@@ -14,9 +14,17 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 Pacman::Pacman(void)
-    : mPosition({1, 1})
+    : mPosition({14, 17})
     , mOffset({0, 0})
     , mAccumulatedTime(0.0f)
+    , mGhosts{
+        Ghost(Ghost::Type::BLINKY, {12, 14}),
+        Ghost(Ghost::Type::PINKY, {13, 14}),
+        Ghost(Ghost::Type::INKY, {14, 14}),
+        Ghost(Ghost::Type::CLYDE, {15, 14})
+    }
+    , mPowerPillActive(false)
+    , mPowerPillTimer(0.f)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,6 +35,8 @@ Pacman::~Pacman()
 void Pacman::BeginPlay(void)
 {
     API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({28, 31}));
+
+    mPosition = Vec2i(14, 17);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,6 +46,8 @@ void Pacman::EndPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Pacman::handleKeyPressed(EKeyboardKey key)
 {
+    Vec2i oldPosition = mPosition;
+
     switch (key) {
         case EKeyboardKey::UP:
             mPosition.y--;
@@ -56,19 +68,6 @@ void Pacman::handleKeyPressed(EKeyboardKey key)
         default:
             break;
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void Pacman::Tick(float deltaSeconds)
-{
-    Vec2i oldPosition = mPosition;
-    mAccumulatedTime += deltaSeconds;
-
-    while (auto event = API::PollEvent(API::Event::GAME)) {
-        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
-            handleKeyPressed(key->code);
-        }
-    }
 
     if (PACMAN_MAP[mPosition.y][mPosition.x] != TILE_EMPTY) {
         if (mPosition.x < 0) {
@@ -78,6 +77,22 @@ void Pacman::Tick(float deltaSeconds)
         } else {
             mPosition = oldPosition;
         }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Pacman::Tick(float deltaSeconds)
+{
+    mAccumulatedTime += deltaSeconds;
+
+    while (auto event = API::PollEvent(API::Event::GAME)) {
+        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+            handleKeyPressed(key->code);
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        mGhosts[i].Update(deltaSeconds, mPosition);
     }
 
     for (size_t y = 0; y < 31; y++) {
@@ -93,6 +108,10 @@ void Pacman::Tick(float deltaSeconds)
     mOffset.y = mAccumulatedTime < 0.25f ? 0 : 2;
 
     API::Draw(PACMAN_XY(mOffset.x, mOffset.y), mPosition.x, mPosition.y);
+
+    for (int i = 0; i < 4; i++) {
+        mGhosts[i].Draw();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
 #include "Arcade/interfaces/IGameModule.hpp"
 #include "Arcade/enums/Inputs.hpp"
 #include "Arcade/utils/Vec2.hpp"
+#include "games/PACMAN/Ghost.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -26,9 +27,12 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-    Vec2i mPosition;             //<!
-    Vec2i mOffset;               //<!
-    float mAccumulatedTime;     //<!
+    Vec2i mPosition;                    //<!
+    Vec2i mOffset;                      //<!
+    float mAccumulatedTime;             //<!
+    Ghost mGhosts[4];                   //<!
+    bool mPowerPillActive;              //<!
+    float mPowerPillTimer;              //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
