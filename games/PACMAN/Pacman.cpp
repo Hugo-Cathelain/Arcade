@@ -34,33 +34,39 @@ void Pacman::EndPlay(void)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
+void Pacman::handleKeyPressed(EKeyboardKey key)
+{
+    switch (key) {
+        case EKeyboardKey::UP:
+            mPosition.y--;
+            mOffset.x = 4;
+            break;
+        case EKeyboardKey::DOWN:
+            mPosition.y++;
+            mOffset.x = 6;
+            break;
+        case EKeyboardKey::LEFT:
+            mPosition.x--;
+            mOffset.x = 2;
+            break;
+        case EKeyboardKey::RIGHT:
+            mPosition.x++;
+            mOffset.x = 0;
+            break;
+        default:
+            break;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Pacman::Tick(float deltaSeconds)
 {
-    Vec2 oldPosition = mPosition;
+    Vec2i oldPosition = mPosition;
     mAccumulatedTime += deltaSeconds;
 
     while (auto event = API::PollEvent(API::Event::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
-            switch (key->code) {
-                case EKeyboardKey::UP:
-                    mPosition.y--;
-                    mOffset.x = 4;
-                    break;
-                case EKeyboardKey::DOWN:
-                    mPosition.y++;
-                    mOffset.x = 6;
-                    break;
-                case EKeyboardKey::LEFT:
-                    mPosition.x--;
-                    mOffset.x = 2;
-                    break;
-                case EKeyboardKey::RIGHT:
-                    mPosition.x++;
-                    mOffset.x = 0;
-                    break;
-                default:
-                    break;
-            }
+            handleKeyPressed(key->code);
         }
     }
 
