@@ -65,9 +65,9 @@ void Pacman::Tick(float deltaSeconds)
         }
     }
 
-    for (size_t y = 0; y < PACMAN_MAP.size(); y++) {
-        for (size_t x = 0; x < PACMAN_MAP[y].size(); x++) {
-            API::Draw(PACMAN_MAP[y][x], x, y);
+    for (size_t y = 0; y < 31; y++) {
+        for (size_t x = 0; x < 28; x++) {
+            API::Draw(SPRITES[PACMAN_MAP[y][x]], x, y);
         }
     }
 
@@ -77,10 +77,7 @@ void Pacman::Tick(float deltaSeconds)
 
     mPacmanOffsetY = mAccumulatedTime < 0.25f ? 0 : 2;
 
-    API::Draw(
-        SPRITE_PACMAN_ALL(mPacmanOffsetX, mPacmanOffsetY),
-        mPacmanX, mPacmanY
-    );
+    API::Draw(PACMAN_XY(mPacmanOffsetX, mPacmanOffsetY), mPacmanX, mPacmanY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
