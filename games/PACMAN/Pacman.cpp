@@ -14,10 +14,8 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 Pacman::Pacman(void)
-    : mPacmanX(1)
-    , mPacmanY(1)
-    , mPacmanOffsetX(0)
-    , mPacmanOffsetY(0)
+    : mPosition({1, 1})
+    , mOffset({0, 0})
     , mAccumulatedTime(0.0f)
 {}
 
@@ -38,30 +36,41 @@ void Pacman::EndPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Pacman::Tick(float deltaSeconds)
 {
+    Vec2 oldPosition = mPosition;
     mAccumulatedTime += deltaSeconds;
 
     while (auto event = API::PollEvent(API::Event::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
             switch (key->code) {
                 case EKeyboardKey::UP:
-                    mPacmanY--;
-                    mPacmanOffsetX = 4;
+                    mPosition.y--;
+                    mOffset.x = 4;
                     break;
                 case EKeyboardKey::DOWN:
-                    mPacmanY++;
-                    mPacmanOffsetX = 6;
+                    mPosition.y++;
+                    mOffset.x = 6;
                     break;
                 case EKeyboardKey::LEFT:
-                    mPacmanX--;
-                    mPacmanOffsetX = 2;
+                    mPosition.x--;
+                    mOffset.x = 2;
                     break;
                 case EKeyboardKey::RIGHT:
-                    mPacmanX++;
-                    mPacmanOffsetX = 0;
+                    mPosition.x++;
+                    mOffset.x = 0;
                     break;
                 default:
                     break;
             }
+        }
+    }
+
+    if (PACMAN_MAP[mPosition.y][mPosition.x] != TILE_EMPTY) {
+        if (mPosition.x < 0) {
+            mPosition.x = 27;
+        } else if (mPosition.x > 27) {
+            mPosition.x = 0;
+        } else {
+            mPosition = oldPosition;
         }
     }
 
@@ -75,9 +84,9 @@ void Pacman::Tick(float deltaSeconds)
         mAccumulatedTime = 0.0f;
     }
 
-    mPacmanOffsetY = mAccumulatedTime < 0.25f ? 0 : 2;
+    mOffset.y = mAccumulatedTime < 0.25f ? 0 : 2;
 
-    API::Draw(PACMAN_XY(mPacmanOffsetX, mPacmanOffsetY), mPacmanX, mPacmanY);
+    API::Draw(PACMAN_XY(mOffset.x, mOffset.y), mPosition.x, mPosition.y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
