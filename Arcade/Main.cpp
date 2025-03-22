@@ -8,13 +8,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[])
 {
-    if (argc != 3) {
-        std::cout << "Usage: " << argv[0] << " <library> <game>" << std::endl;
+    if (argc != 2) {
+        std::cout << "Usage: " << argv[0] << " <library>" << std::endl;
         return (84);
     }
 
     try {
-        Arc::Core core(argv[1], argv[2]);
+        Arc::Core core(argv[1], "lib/arcade_gui_menu.so");
         core.Run();
     } catch (const Arc::DLError& error) {
         std::cerr << error.what() << std::endl;

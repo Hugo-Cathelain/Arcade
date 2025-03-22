@@ -48,6 +48,11 @@ PACMAN_DIR				=	games/PACMAN
 PACMAN_SOURCES			=	$(shell find $(PACMAN_DIR) $(FINDFLAGS))
 PACMAN_FLAGS			=
 
+MENUGUI_TARGET			=	$(LIB_DIR)/arcade_gui_menu.so
+MENUGUI_DIR				=	games/GUI/MENU
+MENUGUI_SOURCES			=	$(shell find $(MENUGUI_DIR) $(FINDFLAGS))
+MENUGUI_FLAGS			=
+
 ###############################################################################
 ## Objects
 ###############################################################################
@@ -60,6 +65,7 @@ SDL2_OBJECTS			=	$(SDL2_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NCURSES_OBJECTS			=	$(NCURSES_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 NIBBLER_OBJECTS			=	$(NIBBLER_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 PACMAN_OBJECTS			=	$(PACMAN_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+MENUGUI_OBJECTS			=	$(MENUGUI_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 
 ###############################################################################
 ## Makefile rules
@@ -71,7 +77,7 @@ directories:
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(LIB_DIR)
 
-core: directories $(CORE_TARGET)
+core: directories $(CORE_TARGET) $(MENUGUI_TARGET)
 
 graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET) $(SDL2_TARGET)
 
@@ -98,6 +104,9 @@ $(NIBBLER_TARGET): $(NIBBLER_OBJECTS)
 
 $(PACMAN_TARGET): $(PACMAN_OBJECTS)
 	$(CXX) -shared $^ -o $@ $(PACMAN_FLAGS)
+
+$(MENUGUI_TARGET): $(MENUGUI_OBJECTS)
+	$(CXX) -shared $^ -o $@ $(MENUGUI_FLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
