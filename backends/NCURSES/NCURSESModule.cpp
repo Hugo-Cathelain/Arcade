@@ -74,7 +74,8 @@ void NCURSESModule::Update(void)
             mWindow = subwin(stdscr, windowHeight, windowWidth, startY, startX);
 
             if (mWindow == nullptr) {
-                // TODO: Handle the error
+                endwin();
+                return;
             }
         }
     }
