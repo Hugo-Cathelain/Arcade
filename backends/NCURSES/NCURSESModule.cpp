@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "backends/NCURSES/NCURSESModule.hpp"
 #include "Arcade/core/API.hpp"
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -51,6 +52,58 @@ NCURSESModule::~NCURSESModule()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+EKeyboardKey NCURSESModule::GetKey(int key)
+{
+    switch (key) {
+        case 'a': case 'A':         return (EKeyboardKey::A);
+        case 'b': case 'B':         return (EKeyboardKey::B);
+        case 'c': case 'C':         return (EKeyboardKey::C);
+        case 'd': case 'D':         return (EKeyboardKey::D);
+        case 'e': case 'E':         return (EKeyboardKey::E);
+        case 'f': case 'F':         return (EKeyboardKey::F);
+        case 'g': case 'G':         return (EKeyboardKey::G);
+        case 'h': case 'H':         return (EKeyboardKey::H);
+        case 'i': case 'I':         return (EKeyboardKey::I);
+        case 'j': case 'J':         return (EKeyboardKey::J);
+        case 'k': case 'K':         return (EKeyboardKey::K);
+        case 'l': case 'L':         return (EKeyboardKey::L);
+        case 'm': case 'M':         return (EKeyboardKey::M);
+        case 'n': case 'N':         return (EKeyboardKey::N);
+        case 'o': case 'O':         return (EKeyboardKey::O);
+        case 'p': case 'P':         return (EKeyboardKey::P);
+        case 'q': case 'Q':         return (EKeyboardKey::Q);
+        case 'r': case 'R':         return (EKeyboardKey::R);
+        case 's': case 'S':         return (EKeyboardKey::S);
+        case 't': case 'T':         return (EKeyboardKey::T);
+        case 'u': case 'U':         return (EKeyboardKey::U);
+        case 'v': case 'V':         return (EKeyboardKey::V);
+        case 'w': case 'W':         return (EKeyboardKey::W);
+        case 'x': case 'X':         return (EKeyboardKey::X);
+        case 'y': case 'Y':         return (EKeyboardKey::Y);
+        case 'z': case 'Z':         return (EKeyboardKey::Z);
+        case KEY_UP:                return (EKeyboardKey::UP);
+        case KEY_DOWN:              return (EKeyboardKey::DOWN);
+        case KEY_LEFT:              return (EKeyboardKey::LEFT);
+        case KEY_RIGHT:             return (EKeyboardKey::RIGHT);
+        case '0':                   return (EKeyboardKey::NUM0);
+        case '1':                   return (EKeyboardKey::NUM1);
+        case '2':                   return (EKeyboardKey::NUM2);
+        case '3':                   return (EKeyboardKey::NUM3);
+        case '4':                   return (EKeyboardKey::NUM4);
+        case '5':                   return (EKeyboardKey::NUM5);
+        case '6':                   return (EKeyboardKey::NUM6);
+        case '7':                   return (EKeyboardKey::NUM7);
+        case '8':                   return (EKeyboardKey::NUM8);
+        case '9':                   return (EKeyboardKey::NUM9);
+        case ' ':                   return (EKeyboardKey::SPACE);
+        case '\n': case KEY_ENTER:  return (EKeyboardKey::ENTER);
+        case 27:                    return (EKeyboardKey::ESCAPE);
+        case KEY_BACKSPACE:         return (EKeyboardKey::BACKSPACE);
+        default:                    return (EKeyboardKey::UNKNOWN);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void NCURSESModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
@@ -83,65 +136,10 @@ void NCURSESModule::Update(void)
     nodelay(mWindow, TRUE);
     int ch = getch();
     if (ch != ERR) {
-        switch (ch) {
-            case KEY_UP:
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::KeyPressed{EKeyboardKey::UP}
-                ); break;
-            case KEY_DOWN:
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::KeyPressed{EKeyboardKey::DOWN}
-                ); break;
-            case KEY_LEFT:
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::KeyPressed{EKeyboardKey::LEFT}
-                ); break;
-            case KEY_RIGHT:
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::KeyPressed{EKeyboardKey::RIGHT}
-                ); break;
-            case ' ':
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::KeyPressed{EKeyboardKey::SPACE}
-                ); break;
-            case '\n':
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::KeyPressed{EKeyboardKey::ENTER}
-                ); break;
-            case 27:
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::Closed{}
-                ); break;
-            default:
-                if (ch >= 'a' && ch <= 'z') {
-                    API::PushEvent(
-                        API::Event::CORE,
-                        API::Event::KeyPressed{
-                            static_cast<EKeyboardKey>('A' + (ch - 'a'))
-                        }
-                    );
-                } else if (ch >= 'A' && ch <= 'Z') {
-                    API::PushEvent(
-                        API::Event::CORE,
-                        API::Event::KeyPressed{static_cast<EKeyboardKey>(ch)}
-                    );
-                } else if (ch >= '0' && ch <= '9') {
-                    API::PushEvent(
-                        API::Event::CORE,
-                        API::Event::KeyPressed{
-                            static_cast<EKeyboardKey>('0' + (ch - '0'))
-                        }
-                    );
-                }
-                break;
-        }
+        API::PushEvent(
+            API::Event::CORE,
+            API::Event::KeyPressed{GetKey(ch)}
+        );
     }
 }
 
