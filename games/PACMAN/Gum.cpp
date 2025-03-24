@@ -46,6 +46,8 @@ std::map<int, std::unique_ptr<Gum>> Gum::GetDefaultGums(void)
 
     gums[3 * WIDTH + 1] = std::make_unique<Gum>(Gum::Type::BIG, Vec2i(1, 3));
     gums[3 * WIDTH + 26] = std::make_unique<Gum>(Gum::Type::BIG, Vec2i(26, 3));
+    gums[23 * WIDTH + 1] = std::make_unique<Gum>(Gum::Type::BIG, Vec2i(1, 23));
+    gums[23 * WIDTH + 26] = std::make_unique<Gum>(Gum::Type::BIG, Vec2i(26, 23));
 
     return (gums);
 }
