@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
+#include "Arcade/utils/Color.hpp"
+#include "Arcade/utils/Vec2.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -30,26 +32,27 @@ public:
     {
     public:
         ///////////////////////////////////////////////////////////////////////
-        //
-        ///////////////////////////////////////////////////////////////////////
-        using Vec2 = struct {int x; int y;};
-
-    public:
-        ///////////////////////////////////////////////////////////////////////
         // Member data
         ///////////////////////////////////////////////////////////////////////
-        Vec2 position;                      //<!
+        Vec2i position;                     //<!
         std::string characters;             //<!
-        Vec2 size;                          //<!
+        Color color;                        //<!
+        Vec2i size;                         //<!
 
     public:
         ///////////////////////////////////////////////////////////////////////
         /// \brief
         ///
         ///////////////////////////////////////////////////////////////////////
-        Asset(Vec2 position, std::string character = "  ", Vec2 size = {8, 8})
+        Asset(
+            const Vec2i& position,
+            std::string character = "  ",
+            const Color& color = {255, 255, 255},
+            const Vec2i& size = {8, 8}
+        )
             : position(position)
             , characters(character)
+            , color(color)
             , size(size)
         {};
     };

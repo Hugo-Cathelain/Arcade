@@ -15,6 +15,17 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////
+#define CLR_BLUE   Color{32, 32, 246}
+#define CLR_YELLOW Color{255, 255, 0}
+#define CLR_RED    Color{255, 0, 0}
+#define CLR_PINK   Color{255, 183, 255}
+#define CLR_CYAN   Color{1, 255, 255}
+#define CLR_ORANGE Color{255, 182, 80}
+#define CLR_PALE   Color{255, 183, 174}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief
 ///
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,87 +111,87 @@ enum SpriteType {
 ///
 ///////////////////////////////////////////////////////////////////////////////
 static const std::vector<IGameModule::Asset> SPRITES = {
-    IGameModule::Asset({0, 4}, "()", {16, 16}),     //<! PACMAN
-    IGameModule::Asset({12, 0}, "/\\", {16, 16}),   //<! RED_R1
-    IGameModule::Asset({14, 0}, "/\\", {16, 16}),   //<! RED_R2
-    IGameModule::Asset({16, 0}, "/\\", {16, 16}),   //<! RED_L1
-    IGameModule::Asset({18, 0}, "/\\", {16, 16}),   //<! RED_L2
-    IGameModule::Asset({20, 0}, "/\\", {16, 16}),   //<! RED_U1
-    IGameModule::Asset({22, 0}, "/\\", {16, 16}),   //<! RED_U2
-    IGameModule::Asset({24, 0}, "/\\", {16, 16}),   //<! RED_D1
-    IGameModule::Asset({26, 0}, "/\\", {16, 16}),   //<! RED_D2
-    IGameModule::Asset({12, 2}, "/\\", {16, 16}),   //<! PINK_R1
-    IGameModule::Asset({14, 2}, "/\\", {16, 16}),   //<! PINK_R2
-    IGameModule::Asset({16, 2}, "/\\", {16, 16}),   //<! PINK_L1
-    IGameModule::Asset({18, 2}, "/\\", {16, 16}),   //<! PINK_L2
-    IGameModule::Asset({20, 2}, "/\\", {16, 16}),   //<! PINK_U1
-    IGameModule::Asset({22, 2}, "/\\", {16, 16}),   //<! PINK_U2
-    IGameModule::Asset({24, 2}, "/\\", {16, 16}),   //<! PINK_D1
-    IGameModule::Asset({26, 2}, "/\\", {16, 16}),   //<! PINK_D2
-    IGameModule::Asset({12, 4}, "/\\", {16, 16}),   //<! CYAN_R1
-    IGameModule::Asset({14, 4}, "/\\", {16, 16}),   //<! CYAN_R2
-    IGameModule::Asset({16, 4}, "/\\", {16, 16}),   //<! CYAN_L1
-    IGameModule::Asset({18, 4}, "/\\", {16, 16}),   //<! CYAN_L2
-    IGameModule::Asset({20, 4}, "/\\", {16, 16}),   //<! CYAN_U1
-    IGameModule::Asset({22, 4}, "/\\", {16, 16}),   //<! CYAN_U2
-    IGameModule::Asset({24, 4}, "/\\", {16, 16}),   //<! CYAN_D1
-    IGameModule::Asset({26, 4}, "/\\", {16, 16}),   //<! CYAN_D2
-    IGameModule::Asset({12, 6}, "/\\", {16, 16}),   //<! ORANGE_R1
-    IGameModule::Asset({14, 6}, "/\\", {16, 16}),   //<! ORANGE_R2
-    IGameModule::Asset({16, 6}, "/\\", {16, 16}),   //<! ORANGE_L1
-    IGameModule::Asset({18, 6}, "/\\", {16, 16}),   //<! ORANGE_L2
-    IGameModule::Asset({20, 6}, "/\\", {16, 16}),   //<! ORANGE_U1
-    IGameModule::Asset({22, 6}, "/\\", {16, 16}),   //<! ORANGE_U2
-    IGameModule::Asset({24, 6}, "/\\", {16, 16}),   //<! ORANGE_D1
-    IGameModule::Asset({26, 6}, "/\\", {16, 16}),   //<! ORANGE_D2
-    IGameModule::Asset({2, 4}, "=]"),               //<! DOOR_LEFT
-    IGameModule::Asset({3, 4}, "--"),               //<! DOOR_MID
-    IGameModule::Asset({2, 5}, "[="),               //<! DOOR_RIGHT
-    IGameModule::Asset({5, 6}, "=="),               //<! TURN_QTR
-    IGameModule::Asset({4, 6}, "=="),               //<! TURN_QTL
-    IGameModule::Asset({4, 7}, "=="),               //<! TURN_QBL
-    IGameModule::Asset({5, 7}, "=="),               //<! TURN_QBR
-    IGameModule::Asset({3, 6}, "=="),               //<! WALL_QT
-    IGameModule::Asset({2, 7}, "=="),               //<! WALL_QB
-    IGameModule::Asset({2, 6}, "||"),               //<! WALL_QR
-    IGameModule::Asset({3, 7}, "||"),               //<! WALL_QL
-    IGameModule::Asset({3, 5}, "  "),               //<! TILE_EMPTY
-    IGameModule::Asset({3, 5}, "  "),               //<! TILE_NOTHING
-    IGameModule::Asset({1, 6}, "[]"),               //<! TILE_PACGUM
-    IGameModule::Asset({1, 7}, ".."),               //<! TILE_POINT
-    IGameModule::Asset({10, 8}, "//"),              //<! TURN_BR2
-    IGameModule::Asset({11, 8}, "\\\\"),            //<! TURN_LB2
-    IGameModule::Asset({10, 9}, "\\\\"),            //<! TURN_TR2
-    IGameModule::Asset({11, 9}, "//"),              //<! TURN_LT2
-    IGameModule::Asset({0, 6}, "\\\\"),             //<! TURN_TLB2
-    IGameModule::Asset({0, 7}, "//"),               //<! TURN_TBR2
-    IGameModule::Asset({7, 8}, "|\\"),              //<! TURN_LTR2
-    IGameModule::Asset({7, 9}, "|/"),               //<! TURN_LBR2
-    IGameModule::Asset({6, 8}, "/|"),               //<! TURN_RTL2
-    IGameModule::Asset({6, 9}, "\\|"),              //<! TURN_RLB2
-    IGameModule::Asset({8, 8}, "||"),               //<! WALL_L2
-    IGameModule::Asset({9, 8}, "=="),               //<! WALL_T2
-    IGameModule::Asset({8, 9}, "=="),               //<! WALL_B2
-    IGameModule::Asset({9, 9}, "||"),               //<! WALL_R2
-    IGameModule::Asset({6, 4}, " /"),               //<! TURN_SBR1
-    IGameModule::Asset({7, 4}, "\\ "),              //<! TURN_SLB1
-    IGameModule::Asset({6, 5}, " \\"),              //<! TURN_STR1
-    IGameModule::Asset({7, 5}, "/ "),               //<! TURN_SLT1
-    IGameModule::Asset({6, 6}, " /"),               //<! TURN_XBR1
-    IGameModule::Asset({7, 6}, "\\ "),              //<! TURN_XLB1
-    IGameModule::Asset({6, 7}, " \\"),              //<! TURN_XTR1
-    IGameModule::Asset({7, 7}, "/ "),               //<! TURN_XLT1
-    IGameModule::Asset({4, 4}, " |"),               //<! WALL_L1
-    IGameModule::Asset({5, 4}, "--"),               //<! WALL_T1
-    IGameModule::Asset({4, 5}, "--"),               //<! WALL_B1
-    IGameModule::Asset({5, 5}, "| ")                //<! WALL_R1
+    IGameModule::Asset({0, 4}, "()", CLR_YELLOW, {16, 16}),   //<! PACMAN
+    IGameModule::Asset({12, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_R1
+    IGameModule::Asset({14, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_R2
+    IGameModule::Asset({16, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_L1
+    IGameModule::Asset({18, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_L2
+    IGameModule::Asset({20, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_U1
+    IGameModule::Asset({22, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_U2
+    IGameModule::Asset({24, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_D1
+    IGameModule::Asset({26, 0}, "/\\", CLR_RED, {16, 16}),    //<! RED_D2
+    IGameModule::Asset({12, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_R1
+    IGameModule::Asset({14, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_R2
+    IGameModule::Asset({16, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_L1
+    IGameModule::Asset({18, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_L2
+    IGameModule::Asset({20, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_U1
+    IGameModule::Asset({22, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_U2
+    IGameModule::Asset({24, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_D1
+    IGameModule::Asset({26, 2}, "/\\", CLR_PINK, {16, 16}),   //<! PINK_D2
+    IGameModule::Asset({12, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_R1
+    IGameModule::Asset({14, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_R2
+    IGameModule::Asset({16, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_L1
+    IGameModule::Asset({18, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_L2
+    IGameModule::Asset({20, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_U1
+    IGameModule::Asset({22, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_U2
+    IGameModule::Asset({24, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_D1
+    IGameModule::Asset({26, 4}, "/\\", CLR_CYAN, {16, 16}),   //<! CYAN_D2
+    IGameModule::Asset({12, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_R1
+    IGameModule::Asset({14, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_R2
+    IGameModule::Asset({16, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_L1
+    IGameModule::Asset({18, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_L2
+    IGameModule::Asset({20, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_U1
+    IGameModule::Asset({22, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_U2
+    IGameModule::Asset({24, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_D1
+    IGameModule::Asset({26, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_D2
+    IGameModule::Asset({2, 4}, "=]", CLR_BLUE),               //<! DOOR_LEFT
+    IGameModule::Asset({3, 4}, "--", CLR_PINK),               //<! DOOR_MID
+    IGameModule::Asset({2, 5}, "[=", CLR_BLUE),               //<! DOOR_RIGHT
+    IGameModule::Asset({5, 6}, "==", CLR_BLUE),               //<! TURN_QTR
+    IGameModule::Asset({4, 6}, "==", CLR_BLUE),               //<! TURN_QTL
+    IGameModule::Asset({4, 7}, "==", CLR_BLUE),               //<! TURN_QBL
+    IGameModule::Asset({5, 7}, "==", CLR_BLUE),               //<! TURN_QBR
+    IGameModule::Asset({3, 6}, "==", CLR_BLUE),               //<! WALL_QT
+    IGameModule::Asset({2, 7}, "==", CLR_BLUE),               //<! WALL_QB
+    IGameModule::Asset({2, 6}, "||", CLR_BLUE),               //<! WALL_QR
+    IGameModule::Asset({3, 7}, "||", CLR_BLUE),               //<! WALL_QL
+    IGameModule::Asset({3, 5}, "  "),                         //<! TILE_EMPTY
+    IGameModule::Asset({3, 5}, "  "),                         //<! TILE_NOTHING
+    IGameModule::Asset({1, 6}, "[]", CLR_PALE),               //<! TILE_PACGUM
+    IGameModule::Asset({1, 7}, "..", CLR_PALE),               //<! TILE_POINT
+    IGameModule::Asset({10, 8}, "//", CLR_BLUE),              //<! TURN_BR2
+    IGameModule::Asset({11, 8}, "\\\\", CLR_BLUE),            //<! TURN_LB2
+    IGameModule::Asset({10, 9}, "\\\\", CLR_BLUE),            //<! TURN_TR2
+    IGameModule::Asset({11, 9}, "//", CLR_BLUE),              //<! TURN_LT2
+    IGameModule::Asset({0, 6}, "\\\\", CLR_BLUE),             //<! TURN_TLB2
+    IGameModule::Asset({0, 7}, "//", CLR_BLUE),               //<! TURN_TBR2
+    IGameModule::Asset({7, 8}, "|\\", CLR_BLUE),              //<! TURN_LTR2
+    IGameModule::Asset({7, 9}, "|/", CLR_BLUE),               //<! TURN_LBR2
+    IGameModule::Asset({6, 8}, "/|", CLR_BLUE),               //<! TURN_RTL2
+    IGameModule::Asset({6, 9}, "\\|", CLR_BLUE),              //<! TURN_RLB2
+    IGameModule::Asset({8, 8}, "||", CLR_BLUE),               //<! WALL_L2
+    IGameModule::Asset({9, 8}, "==", CLR_BLUE),               //<! WALL_T2
+    IGameModule::Asset({8, 9}, "==", CLR_BLUE),               //<! WALL_B2
+    IGameModule::Asset({9, 9}, "||", CLR_BLUE),               //<! WALL_R2
+    IGameModule::Asset({6, 4}, " /", CLR_BLUE),               //<! TURN_SBR1
+    IGameModule::Asset({7, 4}, "\\ ", CLR_BLUE),              //<! TURN_SLB1
+    IGameModule::Asset({6, 5}, " \\", CLR_BLUE),              //<! TURN_STR1
+    IGameModule::Asset({7, 5}, "/ ", CLR_BLUE),               //<! TURN_SLT1
+    IGameModule::Asset({6, 6}, " /", CLR_BLUE),               //<! TURN_XBR1
+    IGameModule::Asset({7, 6}, "\\ ", CLR_BLUE),              //<! TURN_XLB1
+    IGameModule::Asset({6, 7}, " \\", CLR_BLUE),              //<! TURN_XTR1
+    IGameModule::Asset({7, 7}, "/ ", CLR_BLUE),               //<! TURN_XLT1
+    IGameModule::Asset({4, 4}, " |", CLR_BLUE),               //<! WALL_L1
+    IGameModule::Asset({5, 4}, "--", CLR_BLUE),               //<! WALL_T1
+    IGameModule::Asset({4, 5}, "--", CLR_BLUE),               //<! WALL_B1
+    IGameModule::Asset({5, 5}, "| ", CLR_BLUE)                //<! WALL_R1
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief
 ///
 ///////////////////////////////////////////////////////////////////////////////
-#define PACMAN_XY(x, y) IGameModule::Asset({x, y}, "()", {16, 16})
+#define PACMAN_XY(x, y) IGameModule::Asset({x, y}, "()", CLR_YELLOW, {16, 16})
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief

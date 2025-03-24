@@ -149,7 +149,7 @@ void SFMLModule::Render(void)
 
     while (mSpriteSheet && !API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
-        auto [asset, x, y] = draw;
+        auto [asset, x, y, color] = draw;
 
         sf::Sprite sprite;
         sprite.setTexture(*mSpriteSheet);
@@ -164,6 +164,7 @@ void SFMLModule::Render(void)
             x * GRID_TILE_SIZE + offset,
             y * GRID_TILE_SIZE + offset
         );
+        sprite.setColor(sf::Color(color.r, color.g, color.b));
         mWindow->draw(sprite);
     }
     mWindow->display();

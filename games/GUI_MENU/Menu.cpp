@@ -67,7 +67,7 @@ void MenuGUI::Tick(float deltaSeconds)
         }
     }
 
-    API::Draw(IGameModule::Asset({0, 11}, "ARCADE", {128, 40}), 21, 2);
+    API::Draw(IGameModule::Asset({0, 11}, "ARCADE", CLR_WHITE, {128, 40}), 21, 2);
     Write("press space to play", {0, 10});
     Write("press escape to quit", {0, 12});
 }

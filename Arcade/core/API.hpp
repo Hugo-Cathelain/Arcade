@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/enums/Inputs.hpp"
 #include "Arcade/interfaces/IGameModule.hpp"
+#include "Arcade/utils/Color.hpp"
 #include <tuple>
 #include <variant>
 #include <optional>
@@ -278,7 +279,9 @@ private:
     // Member data
     ///////////////////////////////////////////////////////////////////////////
     static std::unordered_map<Event::Channel, std::queue<Event>> mEvents;
-    static std::queue<std::tuple<IGameModule::Asset, int, int>> mDrawables;
+    static std::queue<
+        std::tuple<IGameModule::Asset, int, int, Color>
+    > mDrawables;
     static int mGridWidth;
     static int mGridHeight;
 
@@ -303,9 +306,16 @@ public:
     /// \brief Push a drawable to the queue
     ///
     /// \param drawable The drawable to push
+    /// \param x
+    /// \param y
+    /// \param color
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static void Draw(const IGameModule::Asset& drawable, int x, int y);
+    static void Draw(
+        const IGameModule::Asset& drawable,
+        int x, int y,
+        Color color = {255, 255, 255}
+    );
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Pop a drawable from the queue
@@ -313,7 +323,7 @@ public:
     /// \return The drawable
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static std::tuple<IGameModule::Asset, int, int> PopDraw(void);
+    static std::tuple<IGameModule::Asset, int, int, Color> PopDraw(void);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Check if the draw queue is empty

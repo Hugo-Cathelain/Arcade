@@ -162,7 +162,7 @@ void SDL2Module::Render(void)
 {
     while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
-        auto [asset, x, y] = draw;
+        auto [asset, x, y, color] = draw;
 
         SDL_Rect srcRect;
         srcRect.x = asset.position.x * GRID_TILE_SIZE;

@@ -12,6 +12,42 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
+void NCURSESModule::InitColor(void)
+{
+    start_color();
+    use_default_colors();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int NCURSESModule::FindOrCreateColor(short r, short g, short b)
+{
+    static std::map<std::tuple<short, short, short>, int> colorMap;
+    static int colorPairCount = 1;
+
+    // Scale RGB from 0-255 to 0-1000
+    short scaledR = (r * 1000) / 255;
+    short scaledG = (g * 1000) / 255;
+    short scaledB = (b * 1000) / 255;
+
+    std::tuple<short, short, short> colorKey = std::make_tuple(scaledR, scaledG, scaledB);
+
+    auto it = colorMap.find(colorKey);
+    if (it != colorMap.end()) {
+        return (it->second);
+    }
+
+    if (colorPairCount < COLOR_PAIRS) {
+        // Use scaled values for init_color
+        init_color(colorPairCount, scaledR, scaledG, scaledB);
+        init_pair(colorPairCount, colorPairCount, -1);
+        colorMap[colorKey] = colorPairCount;
+        return (colorPairCount++);
+    }
+
+    return (0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 NCURSESModule::NCURSESModule(void)
     : mWindow(nullptr)
 {
@@ -40,6 +76,8 @@ NCURSESModule::NCURSESModule(void)
     if (mWindow == nullptr) {
         endwin();
     }
+
+    InitColor();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -155,8 +193,14 @@ void NCURSESModule::Render(void)
 {
     while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
-        auto [asset, x, y] = draw;
+        auto [asset, x, y, color] = draw;
+
+        int colorPair = FindOrCreateColor(asset.color.r, asset.color.g, asset.color.b);
+
+        wattron(mWindow, COLOR_PAIR(colorPair));
+        wattroff(mWindow, A_DIM);
         mvwprintw(mWindow, y + 1, (x * 2) + 1, asset.characters.c_str());
+        wattroff(mWindow, COLOR_PAIR(colorPair));
     }
     box(mWindow, ACS_VLINE, ACS_HLINE);
     refresh();
