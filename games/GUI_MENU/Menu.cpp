@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
-#include "games/GUI/MENU/Menu.hpp"
-#include "games/GUI/MENU/Assets.hpp"
+#include "games/GUI_MENU/Menu.hpp"
+#include "games/GUI_MENU/Assets.hpp"
 #include "Arcade/core/API.hpp"
 #include <iostream>
 #include <string>
