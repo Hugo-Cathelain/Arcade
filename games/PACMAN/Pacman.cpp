@@ -25,6 +25,7 @@ Pacman::Pacman(void)
     }
     , mPowerPillActive(false)
     , mPowerPillTimer(0.f)
+    , mGums(Gum::GetDefaultGums())
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,8 +36,6 @@ Pacman::~Pacman()
 void Pacman::BeginPlay(void)
 {
     API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({28, 31}));
-
-    mPosition = Vec2i(14, 17);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,6 +105,23 @@ void Pacman::Tick(float deltaSeconds)
     }
 
     mOffset.y = mAccumulatedTime < 0.25f ? 0 : 2;
+
+    std::vector<int> toDelete;
+
+    for (const auto& [pos, gum] : mGums) {
+        gum->Render();
+
+        int x = pos % 28;
+        int y = pos / 28;
+
+        if (mPosition.x == x && mPosition.y == y) {
+            toDelete.push_back(pos);
+        }
+    }
+
+    for (int pos : toDelete) {
+        mGums.erase(pos);
+    }
 
     API::Draw(PACMAN_XY(mOffset.x, mOffset.y), mPosition.x, mPosition.y);
 

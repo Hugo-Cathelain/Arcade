@@ -10,6 +10,7 @@
 #include "Arcade/enums/Inputs.hpp"
 #include "Arcade/utils/Vec2.hpp"
 #include "games/PACMAN/Ghost.hpp"
+#include "games/PACMAN/Gum.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -27,12 +28,13 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-    Vec2i mPosition;                    //<!
-    Vec2i mOffset;                      //<!
-    float mAccumulatedTime;             //<!
-    Ghost mGhosts[4];                   //<!
-    bool mPowerPillActive;              //<!
-    float mPowerPillTimer;              //<!
+    Vec2i mPosition;                            //<!
+    Vec2i mOffset;                              //<!
+    float mAccumulatedTime;                     //<!
+    Ghost mGhosts[4];                           //<!
+    bool mPowerPillActive;                      //<!
+    float mPowerPillTimer;                      //<!
+    std::map<int, std::unique_ptr<Gum>> mGums;  //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

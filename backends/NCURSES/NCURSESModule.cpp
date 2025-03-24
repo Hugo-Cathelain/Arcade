@@ -130,6 +130,8 @@ void NCURSESModule::Update(void)
                 endwin();
                 return;
             }
+
+            clear();
         }
     }
 
