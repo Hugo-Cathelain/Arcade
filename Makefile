@@ -15,6 +15,64 @@ LIB_DIR					=	lib
 INCLUDES				=	-I.
 
 ###############################################################################
+## Utility function
+###############################################################################
+
+lowercase				=	$(shell echo "$(1)" | tr '[:upper:]' '[:lower:]')
+uppercase				=	$(shell echo "$(1)" | tr '[:lower:]' '[:upper:]')
+
+###############################################################################
+## Dynamic Backend Discovery
+###############################################################################
+
+# Find all backends directories
+BACKEND_DIRS			=	$(wildcard backends/*)
+
+# Generate targets, objects, and flags for each backend
+BACKEND_TARGETS			=	$(BACKEND_DIRS:backends/%=$(LIB_DIR)/arcade_%.so)
+BACKEND_OBJECTS			=	$(foreach dir,$(BACKEND_DIRS),$($(notdir $(dir))_OBJECTS))
+
+# Backend-Specific library flags
+BACKEND_SFML_FLAGS		=	-lsfml-graphics -lsfml-window -lsfml-system
+BACKEND_SDL2_FLAGS		=	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+BACKEND_NCURSES_FLAGS	=	-lncurses
+
+EMPTY_FLAGS				=
+
+# Dynamic object generation for each backend
+define BACKEND_TEMPLATE
+	$(1)_DIR			=	backends/$(1)
+	$(1)_SOURCES		=	$$(shell find $$($(1)_DIR) $(FINDFLAGS))
+	$(1)_OBJECTS		=	$$($(1)_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+	$(1)_FLAGS			=	$$(or $$(BACKEND_$(1)_FLAGS),$$(EMPTY_FLAGS))
+endef
+
+# Instanciate template for each backends
+$(foreach backend,$(notdir $(BACKEND_DIRS)),$(eval $(call BACKEND_TEMPLATE,$(backend))))
+
+###############################################################################
+## Dynamic Game Discovery
+###############################################################################
+
+# Find all game directories
+GAME_DIRS				=	$(wildcard games/*)
+
+# Generate targets, object, and flags for each game
+GAME_TARGETS			=	$(GAME_DIRS:games/%=$(LIB_DIR)/arcade_%.so)
+GAME_OBJECTS			=	$(foreach dir,$(GAME_DIRS),$($(notdir $(dir))_OBJECTS))
+
+# Dynamic object generation for each game
+define GAME_TEMPLATE
+	$(1)_DIR			=	games/$(1)
+	$(1)_SOURCES		=	$$(shell find $$($(1)_DIR) $(FINDFLAGS))
+	$(1)_OBJECTS		=	$$($(1)_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+	$(1)_FLAGS			=
+endef
+
+# Instanciate template for each game
+$(foreach game,$(notdir $(GAME_DIRS)),$(eval $(call GAME_TEMPLATE,$(game))))
+
+###############################################################################
 ## Sources
 ###############################################################################
 
@@ -23,36 +81,6 @@ CORE_DIR				=	Arcade
 CORE_SOURCES			=	$(shell find $(CORE_DIR) $(FINDFLAGS))
 CORE_FLAGS				=	$(LDFLAGS)
 
-SFML_TARGET				=	$(LIB_DIR)/arcade_sfml.so
-SFML_DIR				=	backends/SFML
-SFML_SOURCES			=	$(shell find $(SFML_DIR) $(FINDFLAGS))
-SFML_FLAGS				=	-lsfml-graphics -lsfml-window -lsfml-system
-
-SDL2_TARGET				=	$(LIB_DIR)/arcade_sdl2.so
-SDL2_DIR				=	backends/SDL2
-SDL2_SOURCES			=	$(shell find $(SDL2_DIR) $(FINDFLAGS))
-SDL2_FLAGS				=	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-
-NCURSES_TARGET			=	$(LIB_DIR)/arcade_ncurses.so
-NCURSES_DIR				=	backends/NCURSES
-NCURSES_SOURCES			=	$(shell find $(NCURSES_DIR) $(FINDFLAGS))
-NCURSES_FLAGS			=	-lncurses
-
-NIBBLER_TARGET			=	$(LIB_DIR)/arcade_nibbler.so
-NIBBLER_DIR				=	games/NIBBLER
-NIBBLER_SOURCES			=	$(shell find $(NIBBLER_DIR) $(FINDFLAGS))
-NIBBLER_FLAGS			=
-
-PACMAN_TARGET			=	$(LIB_DIR)/arcade_pacman.so
-PACMAN_DIR				=	games/PACMAN
-PACMAN_SOURCES			=	$(shell find $(PACMAN_DIR) $(FINDFLAGS))
-PACMAN_FLAGS			=
-
-MENUGUI_TARGET			=	$(LIB_DIR)/arcade_gui_menu.so
-MENUGUI_DIR				=	games/GUI/MENU
-MENUGUI_SOURCES			=	$(shell find $(MENUGUI_DIR) $(FINDFLAGS))
-MENUGUI_FLAGS			=
-
 ###############################################################################
 ## Objects
 ###############################################################################
@@ -60,12 +88,6 @@ MENUGUI_FLAGS			=
 INCLUDES				+=	$(addprefix -I, $(CORE_DIR))
 
 CORE_OBJECTS			=	$(CORE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-SFML_OBJECTS			=	$(SFML_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-SDL2_OBJECTS			=	$(SDL2_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-NCURSES_OBJECTS			=	$(NCURSES_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-NIBBLER_OBJECTS			=	$(NIBBLER_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-PACMAN_OBJECTS			=	$(PACMAN_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-MENUGUI_OBJECTS			=	$(MENUGUI_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 
 ###############################################################################
 ## Makefile rules
@@ -77,11 +99,15 @@ directories:
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(LIB_DIR)
 
-core: directories $(CORE_TARGET) $(MENUGUI_TARGET)
+core: directories $(CORE_TARGET)
 
-graphicals: directories $(SFML_TARGET) $(NCURSES_TARGET) $(SDL2_TARGET)
+graphicals: directories $(BACKEND_TARGETS)
 
-games: directories $(NIBBLER_TARGET) $(PACMAN_TARGET)
+games: directories $(GAME_TARGETS)
+
+$(LIB_DIR)/arcade_%.so:
+	@make $($*_OBJECTS) | grep -v "Entering" | grep -v "Leaving"
+	$(CXX) -shared $($*_OBJECTS) -o $(call lowercase,$@) $($*_FLAGS)
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -89,24 +115,6 @@ $(BUILD_DIR)/%.o: %.cpp
 
 $(CORE_TARGET): $(CORE_OBJECTS)
 	$(CXX) $^ -o $@ $(CORE_FLAGS)
-
-$(SFML_TARGET): $(SFML_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(SFML_FLAGS)
-
-$(SDL2_TARGET): $(SDL2_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(SDL2_FLAGS)
-
-$(NCURSES_TARGET): $(NCURSES_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(NCURSES_FLAGS)
-
-$(NIBBLER_TARGET): $(NIBBLER_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(NIBBLER_FLAGS)
-
-$(PACMAN_TARGET): $(PACMAN_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(PACMAN_FLAGS)
-
-$(MENUGUI_TARGET): $(MENUGUI_OBJECTS)
-	$(CXX) -shared $^ -o $@ $(MENUGUI_FLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
