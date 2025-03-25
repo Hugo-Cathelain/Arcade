@@ -20,10 +20,6 @@ NCURSESModule::NCURSESModule(void)
     , mWidth(80)
     , mHeight(24)
 {
-    if (isendwin() == FALSE) {
-        endwin();
-    }
-
     initscr();
 
     if (isendwin()) {

@@ -105,6 +105,10 @@ void Core::HandleEvents(void)
                     API::PushEvent(API::Event::Channel::CORE,
                         API::Event::ChangeGame{1});
                     break;
+                case EKeyboardKey::Q:
+                    API::PushEvent(API::Event::Channel::CORE,
+                        API::Event::Closed{});
+                    break;
                 default:
                     API::PushEvent(API::Event::Channel::GAME,
                         API::Event::KeyPressed{key->code});
