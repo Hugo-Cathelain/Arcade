@@ -15,11 +15,16 @@ namespace Arc::Pacman
 ///////////////////////////////////////////////////////////////////////////////
 Core::Core(void)
     : mGameState(nullptr)
-{}
+{
+    mGameState.reset(new Menu());
+    mGameState->BeginPlay();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 Core::~Core()
-{}
+{
+    mGameState.reset();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Core::BeginPlay(void)
@@ -27,9 +32,6 @@ void Core::BeginPlay(void)
     API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({
         ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT
     }));
-
-    mGameState.reset(new Menu());
-    mGameState->BeginPlay();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
