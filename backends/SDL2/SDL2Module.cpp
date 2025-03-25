@@ -12,7 +12,10 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-SDL2Module::SDL2Module(void) : mRatio(4.f)
+SDL2Module::SDL2Module(void)
+    : mRatio(4.f)
+    , mInterpolationFactor(0.f)
+    , mLastFrameTime(0)
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "Cannot init SDL2" << std::endl;
@@ -160,10 +163,58 @@ void SDL2Module::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SDL2Module::Render(void)
 {
+    // Update interpolation factor based on time
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 deltaTime = mLastFrameTime ? (currentTime - mLastFrameTime) : 0;
+    mLastFrameTime = currentTime;
+    
+    float deltaSeconds = deltaTime / 1000.0f;
+    mInterpolationFactor += deltaSeconds * 10.0f; // Adjust speed factor as needed
+    
+    if (mInterpolationFactor > 1.0f) {
+        mInterpolationFactor = 0.0f;
+        // Move current positions to target positions
+        for (auto& [id, positions] : mSpritePositions) {
+            positions.first = positions.second;
+        }
+    }
+
     while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
         auto [asset, pos, color] = draw;
-        int y = pos.y, x = pos.x;
+        int entityId = asset.id;
+        
+        // Convert grid position to pixel position
+        float offset = GRID_TILE_SIZE / 2.0f;
+        SDL_FPoint targetPos = {
+            pos.x * GRID_TILE_SIZE + offset -
+                (asset.size.x - GRID_TILE_SIZE) / 2.0f,
+            pos.y * GRID_TILE_SIZE + offset -
+                (asset.size.y - GRID_TILE_SIZE) / 2.0f
+        };
+        
+        // If this is a new entity or one that doesn't exist yet
+        if (
+            entityId == -1 ||
+            mSpritePositions.find(entityId) == mSpritePositions.end()
+        ) {
+            mSpritePositions[entityId] = {targetPos, targetPos};
+        } else {
+            // Only update target position if it changed
+            if (mSpritePositions[entityId].second.x != targetPos.x || 
+                mSpritePositions[entityId].second.y != targetPos.y) {
+                mSpritePositions[entityId].second = targetPos;
+                // Reset interpolation when position changes
+                mInterpolationFactor = 0.0f;
+            }
+        }
+        
+        // Interpolate between current and target positions
+        SDL_FPoint currentPos = mSpritePositions[entityId].first;
+        SDL_FPoint interpolatedPos = {
+            currentPos.x + (targetPos.x - currentPos.x) * mInterpolationFactor,
+            currentPos.y + (targetPos.y - currentPos.y) * mInterpolationFactor
+        };
 
         SDL_Rect srcRect;
         srcRect.x = asset.position.x * GRID_TILE_SIZE;
@@ -172,8 +223,8 @@ void SDL2Module::Render(void)
         srcRect.h = asset.size.y;
 
         SDL_Rect destRect;
-        destRect.x = x * GRID_TILE_SIZE - (asset.size.x - GRID_TILE_SIZE) / 2;
-        destRect.y = y * GRID_TILE_SIZE - (asset.size.y - GRID_TILE_SIZE) / 2;
+        destRect.x = static_cast<int>(interpolatedPos.x);
+        destRect.y = static_cast<int>(interpolatedPos.y);
         destRect.w = asset.size.x;
         destRect.h = asset.size.y;
 

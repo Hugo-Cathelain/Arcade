@@ -10,6 +10,7 @@
 #include "Arcade/enums/Inputs.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -30,6 +31,11 @@ private:
     SDL_Renderer* mRenderer;                    //<! The rendering
     SDL_Texture* mSpriteSheet;                  //<! The texture
     float mRatio;                               //<! The scaling ratio
+    std::unordered_map<
+        int, std::pair<SDL_FPoint, SDL_FPoint>
+    > mSpritePositions;                         //<!
+    float mInterpolationFactor;                 //<!
+    Uint32 mLastFrameTime;                      //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
