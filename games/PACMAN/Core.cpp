@@ -5,6 +5,8 @@
 #include "../../Arcade/core/API.hpp"
 #include "games/PACMAN/Assets.hpp"
 #include "games/PACMAN/Menu.hpp"
+#include "games/PACMAN/Game.hpp"
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc::Pacman
@@ -15,6 +17,7 @@ namespace Arc::Pacman
 ///////////////////////////////////////////////////////////////////////////////
 Core::Core(void)
     : mGameState(nullptr)
+    , mInGame(false)
 {
     mGameState.reset(new Menu());
     mGameState->BeginPlay();
@@ -44,6 +47,18 @@ void Core::EndPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Core::Tick(float deltaSeconds)
 {
+    if (!mInGame) {
+        while (auto event = API::PollEvent(API::Event::GAME)) {
+            if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+                if (key->code == EKeyboardKey::SPACE) {
+                    mInGame = true;
+                    mGameState.reset(new Game());
+                    mGameState->BeginPlay();
+                }
+            }
+        }
+    }
+
     mGameState->Tick(deltaSeconds);
 }
 
