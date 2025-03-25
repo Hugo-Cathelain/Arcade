@@ -13,7 +13,10 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 SDL2Module::SDL2Module(void)
-    : mRatio(4.f)
+    : mWindow(nullptr)
+    , mRenderer(nullptr)
+    , mSpriteSheet(nullptr)
+    , mRatio(4.f)
     , mInterpolationFactor(0.f)
     , mLastFrameTime(0)
 {
@@ -44,12 +47,24 @@ SDL2Module::SDL2Module(void)
 ///////////////////////////////////////////////////////////////////////////////
 SDL2Module::~SDL2Module(void)
 {
+    mSpritePositions.clear();
+
+    if (mSpriteSheet) {
+        SDL_DestroyTexture(mSpriteSheet);
+        mSpriteSheet = nullptr;
+    }
+
     if (mRenderer) {
         SDL_DestroyRenderer(mRenderer);
+        mRenderer = nullptr;
     }
+
     if (mWindow) {
         SDL_DestroyWindow(mWindow);
+        mWindow = nullptr;
     }
+
+    IMG_Quit();
     SDL_Quit();
 }
 
@@ -236,6 +251,11 @@ void SDL2Module::LoadSpriteSheet(const std::string& path)
 {
     if (!mRenderer) {
         return;
+    }
+
+    if (mSpriteSheet) {
+        SDL_DestroyTexture(mSpriteSheet);
+        mSpriteSheet = nullptr;
     }
 
     SDL_Surface* surface = IMG_Load(path.c_str());
