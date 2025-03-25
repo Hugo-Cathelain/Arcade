@@ -17,8 +17,10 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////
-#define FRAME (0.25f)
-#define HALF_FRAME (FRAME / 2.f)
+#define ARCADE_SCREEN_WIDTH     28
+#define ARCADE_SCREEN_HEIGHT    36
+#define ARCADE_GAME_WIDTH       28
+#define ARCADE_GAME_HEIGHT      31
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -30,12 +32,7 @@ namespace Arc
 #define CLR_CYAN   Color{1, 255, 255}
 #define CLR_ORANGE Color{255, 182, 80}
 #define CLR_PALE   Color{255, 183, 174}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-///////////////////////////////////////////////////////////////////////////////
-#define MAP_WIDTH 28
-#define MAP_HEIGHT 31
+#define CLR_WHITE  Color{255, 255, 255}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief
@@ -117,7 +114,21 @@ enum SpriteType {
     WALL_L1,
     WALL_T1,
     WALL_B1,
-    WALL_R1
+    WALL_R1,
+    WHITE_PTS,
+    NAMCO_LOGO,
+    SCORE_100,
+    SCORE_200,
+    SCORE_300,
+    SCORE_400,
+    SCORE_500,
+    SCORE_700,
+    SCORE_800,
+    SCORE_1000,
+    SCORE_1600,
+    SCORE_2000,
+    SCORE_3000,
+    SCORE_5000
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,7 +182,7 @@ static const std::vector<IGameModule::Asset> SPRITES = {
     IGameModule::Asset({2, 7}, "==", CLR_BLUE),                  //<! WALL_QB
     IGameModule::Asset({2, 6}, "||", CLR_BLUE),                  //<! WALL_QR
     IGameModule::Asset({3, 7}, "||", CLR_BLUE),                  //<! WALL_QL
-    IGameModule::Asset({3, 5}, "  "),                            //<! TILE_EMPTY
+    IGameModule::Asset({16, 16}, "  "),                          //<! TILE_EMPTY
     IGameModule::Asset({3, 5}, "  "),                            //<! TILE_NOTHING
     IGameModule::Asset({1, 6}, "[]", CLR_PALE),                  //<! TILE_PACGUM
     IGameModule::Asset({1, 7}, "..", CLR_PALE),                  //<! TILE_POINT
@@ -200,7 +211,21 @@ static const std::vector<IGameModule::Asset> SPRITES = {
     IGameModule::Asset({4, 4}, " |", CLR_BLUE),                  //<! WALL_L1
     IGameModule::Asset({5, 4}, "--", CLR_BLUE),                  //<! WALL_T1
     IGameModule::Asset({4, 5}, "--", CLR_BLUE),                  //<! WALL_B1
-    IGameModule::Asset({5, 5}, "| ", CLR_BLUE)                   //<! WALL_R1
+    IGameModule::Asset({5, 5}, "| ", CLR_BLUE),                  //<! WALL_R1,
+    IGameModule::Asset({13, 11}, "pts", CLR_WHITE, {24, 8}),     //<! WHITE_PTS
+    IGameModule::Asset({0, 21}, "NAMCO", CLR_PINK, {56, 8}),     //<! NAMCO_LOGO
+    IGameModule::Asset({17, 14}, "100", CLR_WHITE, {16, 16}),    //<! SCORE_100
+    IGameModule::Asset({17, 12}, "400", CLR_WHITE, {16, 16}),    //<! SCORE_200
+    IGameModule::Asset({19, 14}, "800", CLR_WHITE, {16, 16}),    //<! SCORE_300
+    IGameModule::Asset({19, 12}, "400", CLR_WHITE, {16, 16}),    //<! SCORE_400
+    IGameModule::Asset({21, 14}, "500", CLR_WHITE, {16, 16}),    //<! SCORE_500
+    IGameModule::Asset({23, 14}, "700", CLR_WHITE, {16, 16}),    //<! SCORE_700
+    IGameModule::Asset({21, 12}, "800", CLR_WHITE, {16, 16}),    //<! SCORE_800
+    IGameModule::Asset({25, 14}, "1000", CLR_WHITE, {24, 16}),   //<! SCORE_1000
+    IGameModule::Asset({23, 12}, "1600", CLR_WHITE, {32, 16}),   //<! SCORE_1600
+    IGameModule::Asset({24, 16}, "2000", CLR_WHITE, {32, 16}),   //<! SCORE_2000
+    IGameModule::Asset({24, 18}, "3000", CLR_WHITE, {32, 16}),   //<! SCORE_3000
+    IGameModule::Asset({24, 20}, "5000", CLR_WHITE, {32, 16}),   //<! SCORE_5000
 };
 
 ///////////////////////////////////////////////////////////////////////////////
