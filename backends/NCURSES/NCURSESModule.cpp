@@ -21,26 +21,23 @@ void NCURSESModule::InitColor(void)
 ///////////////////////////////////////////////////////////////////////////////
 int NCURSESModule::FindOrCreateColor(short r, short g, short b)
 {
-    static std::map<std::tuple<short, short, short>, int> colorMap;
     static int colorPairCount = 1;
 
-    // Scale RGB from 0-255 to 0-1000
     short scaledR = (r * 1000) / 255;
     short scaledG = (g * 1000) / 255;
     short scaledB = (b * 1000) / 255;
 
     std::tuple<short, short, short> colorKey = std::make_tuple(scaledR, scaledG, scaledB);
 
-    auto it = colorMap.find(colorKey);
-    if (it != colorMap.end()) {
+    auto it = mColorMap.find(colorKey);
+    if (it != mColorMap.end()) {
         return (it->second);
     }
 
     if (colorPairCount < COLOR_PAIRS) {
-        // Use scaled values for init_color
         init_color(colorPairCount, scaledR, scaledG, scaledB);
         init_pair(colorPairCount, colorPairCount, -1);
-        colorMap[colorKey] = colorPairCount;
+        mColorMap[colorKey] = colorPairCount;
         return (colorPairCount++);
     }
 
@@ -75,6 +72,8 @@ NCURSESModule::NCURSESModule(void)
 
     if (mWindow == nullptr) {
         endwin();
+        API::PushEvent(API::Event::CORE, API::Event::Closed{});
+        return;
     }
 
     InitColor();
@@ -83,10 +82,12 @@ NCURSESModule::NCURSESModule(void)
 ///////////////////////////////////////////////////////////////////////////////
 NCURSESModule::~NCURSESModule()
 {
-    curs_set(1);
-    delwin(mWindow);
+    mColorMap.clear();
+    if (mWindow != nullptr) {
+        delwin(mWindow);
+        mWindow = nullptr;
+    }
     endwin();
-    mWindow = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,6 +143,52 @@ EKeyboardKey NCURSESModule::GetKey(int key)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void NCURSESModule::ResetNCURSES(void)
+{
+    if (mWindow != nullptr) {
+        delwin(mWindow);
+        mWindow = nullptr;
+    }
+
+    mColorMap.clear();
+
+    endwin();
+    refresh();
+    initscr();
+    start_color();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    curs_set(0);
+    nodelay(stdscr, TRUE);
+    timeout(0);
+
+    int maxY, maxX;
+    getmaxyx(stdscr, maxY, maxX);
+
+    int windowHeight = 33;
+    int windowWidth = 29 * 2;
+    int startY = (maxY - windowHeight - 2) / 2;
+    int startX = (maxX - windowWidth - 2) / 2;
+
+    startY = (startY < 0) ? 0 : startY;
+    startX = (startX < 0) ? 0 : startX;
+
+    mWindow = subwin(stdscr, windowHeight, windowWidth, startY, startX);
+
+    if (mWindow == nullptr) {
+        endwin();
+        API::PushEvent(API::Event::CORE, API::Event::Closed{});
+        return;
+    }
+
+    clear();
+    wclear(mWindow);
+
+    InitColor();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void NCURSESModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
@@ -170,7 +217,13 @@ void NCURSESModule::Update(void)
             }
 
             clear();
+        } else if (event->Is<API::Event::ChangeGame>()) {
+            ResetNCURSES();
         }
+    }
+
+    if (mWindow == nullptr) {
+        return;
     }
 
     nodelay(mWindow, TRUE);
@@ -185,12 +238,15 @@ void NCURSESModule::Update(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 void NCURSESModule::Clear(void)
-{
-}
+{}
 
 ///////////////////////////////////////////////////////////////////////////////
 void NCURSESModule::Render(void)
 {
+    if (mWindow == nullptr) {
+        return;
+    }
+
     while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
         auto [asset, pos, color] = draw;
