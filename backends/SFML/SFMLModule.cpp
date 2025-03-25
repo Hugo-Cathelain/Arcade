@@ -187,7 +187,8 @@ void SFMLModule::Render(void)
 
         // Interpolate between current and target positions
         sf::Vector2f currentPos = mSpritePositions[entityId].first;
-        sf::Vector2f interpolatedPos = currentPos + (targetPos - currentPos) * mInterpolationFactor;
+        sf::Vector2f interpolatedPos = currentPos +
+            (targetPos - currentPos) * mInterpolationFactor;
 
         sf::Sprite sprite;
         sprite.setTexture(*mSpriteSheet);
