@@ -19,7 +19,7 @@ Player::Player(void)
     , mDirection(0)
     , mNextDirection(0)
     , mAccumulatedTime(0.f)
-    , mMovementSpeed(7.f)
+    , mMovementSpeed(6.f)
     , mMovementAccumulator(0.f)
 {}
 
@@ -46,7 +46,7 @@ void Player::Update(float deltaSeconds)
 {
     // Update animation timer
     mAccumulatedTime += deltaSeconds;
-    if (mAccumulatedTime >= 0.5f) {
+    if (mAccumulatedTime >= FRAME) {
         mAccumulatedTime = 0.0f;
     }
 
@@ -65,6 +65,12 @@ void Player::Update(float deltaSeconds)
         // Move in the direction of the next direction if possible
         Vec2i nextPosition = mPosition + mNextDirection;
 
+        if (nextPosition.x < 0) {
+            nextPosition.x = MAP_WIDTH - 1;
+        } else if (nextPosition.x >= MAP_WIDTH) {
+            nextPosition.x = 0;
+        }
+
         // Check if the next position is empty
         if (PACMAN_MAP[nextPosition.y][nextPosition.x] == TILE_EMPTY) {
             mDirection = mNextDirection;
@@ -82,23 +88,23 @@ void Player::Update(float deltaSeconds)
 ///////////////////////////////////////////////////////////////////////////////
 void Player::Draw(void)
 {
-    int animationOffset = mAccumulatedTime < 0.25f ? 0 : 2;
-    int directionOffset = 0;
+    mAnimationOffset = mAccumulatedTime < HALF_FRAME ? 0 : 2;
+    mDirectionOffset = 0;
 
     if (mDirection == Vec2i(0, 0)) {
-        directionOffset = 0;
-        animationOffset = 4;
+        mDirectionOffset = 0;
+        mAnimationOffset = 4;
     } else if (mDirection.x == 1) {
-        directionOffset = 0;
+        mDirectionOffset = 0;
     } else if (mDirection.x == -1) {
-        directionOffset = 2;
+        mDirectionOffset = 2;
     } else if (mDirection.y == -1) {
-        directionOffset = 4;
+        mDirectionOffset = 4;
     } else if (mDirection.y == 1) {
-        directionOffset = 6;
+        mDirectionOffset = 6;
     }
 
-    API::Draw(PACMAN_XY(directionOffset, animationOffset), mPosition);
+    API::Draw(PACMAN_XY(mDirectionOffset, mAnimationOffset), mPosition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

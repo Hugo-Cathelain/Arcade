@@ -46,6 +46,10 @@ void Pacman::Tick(float deltaSeconds)
 {
     mAccumulatedTime += deltaSeconds;
 
+    if (mAccumulatedTime >= FRAME * 4.f) {
+        mAccumulatedTime = 0.f;
+    }
+
     // Update the player and the ghosts
     mPlayer.Update(deltaSeconds);
     for (int i = 0; i < 4; i++) {
@@ -61,6 +65,9 @@ void Pacman::Tick(float deltaSeconds)
 
     // Draw the pacgums
     for (const auto& [pos, gum] : mGums) {
+        if (gum->type == Gum::BIG && mAccumulatedTime < FRAME * 2.f) {
+            continue;
+        }
         gum->Draw();
     }
 

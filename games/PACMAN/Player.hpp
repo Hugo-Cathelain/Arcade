@@ -37,6 +37,8 @@ private:
     float mAccumulatedTime;         //<!
     float mMovementSpeed;           //<!
     float mMovementAccumulator;     //<!
+    int mAnimationOffset;           //<!
+    int mDirectionOffset;           //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

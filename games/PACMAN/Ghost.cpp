@@ -16,7 +16,7 @@ Ghost::Ghost(Ghost::Type type, const Vec2i& startPos)
     : mType(type)
     , mState(State::SCATTER)
     , mPosition(startPos)
-    , mAccumulatedTime(static_cast<float>(type) * .25f)
+    , mAccumulatedTime(static_cast<float>(type) * (HALF_FRAME / 2.f))
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ void Ghost::Update(float deltaSeconds, const Vec2i& pacmanPos)
 {
     mAccumulatedTime += deltaSeconds;
 
-    if (mAccumulatedTime >= 0.5f) {
+    if (mAccumulatedTime >= FRAME) {
         mAccumulatedTime = 0.0f;
     }
 
@@ -35,7 +35,7 @@ void Ghost::Update(float deltaSeconds, const Vec2i& pacmanPos)
 void Ghost::Draw(void)
 {
     int idx = static_cast<int>(mType);
-    int ofs = mAccumulatedTime < 0.25f ? 0 : 1;
+    int ofs = mAccumulatedTime < HALF_FRAME ? 0 : 1;
 
     if (mState == State::FRIGHTENED) {
         API::Draw(SPRITES[SCARED_1 + ofs], mPosition);
