@@ -35,3 +35,6 @@ vgcore.*
 # Ide related files
 .vscode/
 .idea/
+
+# Old source files
+old/
