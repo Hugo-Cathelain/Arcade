@@ -14,6 +14,7 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 SFMLModule::SFMLModule(void)
     : mRatio(4.f)
+    , mInterpolationFactor(0.f)
 {
     mWindow = std::make_unique<sf::RenderWindow>(
         sf::VideoMode(600, 600), "Arcade - SFML"
@@ -147,10 +148,46 @@ void SFMLModule::Render(void)
 {
     float offset = static_cast<float>(GRID_TILE_SIZE) / 2.f;
 
+    // Update interpolation factor
+    float deltaTime = mInterpolationClock.restart().asSeconds();
+    mInterpolationFactor += deltaTime * 10.0f; // Adjust speed factor as needed
+    if (mInterpolationFactor > 1.0f) {
+        mInterpolationFactor = 0.0f;
+        // Move current positions to reach target positions
+        for (auto& [id, positions] : mSpritePositions) {
+            positions.first = positions.second;
+        }
+    }
+
     while (mSpriteSheet && !API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
         auto [asset, pos, color] = draw;
-        int y = pos.y, x = pos.x;
+        int entityId = asset.id;
+
+        // Convert grid position to pixel position
+        sf::Vector2f targetPos(
+            pos.x * GRID_TILE_SIZE + offset,
+            pos.y * GRID_TILE_SIZE + offset
+        );
+
+        // If this is a new entity or one that was recently updated
+        if (
+            entityId == -1 ||
+            mSpritePositions.find(entityId) == mSpritePositions.end()
+        ) {
+            mSpritePositions[entityId] = {targetPos, targetPos};
+        } else {
+            // Only update target position if it changed
+            if (mSpritePositions[entityId].second != targetPos) {
+                mSpritePositions[entityId].second = targetPos;
+                // Reset interpolation when position changes
+                mInterpolationFactor = 0.0f;
+            }
+        }
+
+        // Interpolate between current and target positions
+        sf::Vector2f currentPos = mSpritePositions[entityId].first;
+        sf::Vector2f interpolatedPos = currentPos + (targetPos - currentPos) * mInterpolationFactor;
 
         sf::Sprite sprite;
         sprite.setTexture(*mSpriteSheet);
@@ -161,10 +198,7 @@ void SFMLModule::Render(void)
             asset.size.y
         ));
         sprite.setOrigin({asset.size.x / 2.f, asset.size.y / 2.f});
-        sprite.setPosition(
-            x * GRID_TILE_SIZE + offset,
-            y * GRID_TILE_SIZE + offset
-        );
+        sprite.setPosition(interpolatedPos);
         sprite.setColor(sf::Color(color.r, color.g, color.b));
         mWindow->draw(sprite);
     }

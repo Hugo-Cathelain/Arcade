@@ -11,6 +11,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <memory>
+#include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -30,7 +31,12 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     std::unique_ptr<sf::RenderWindow> mWindow;  //<! The window
     std::unique_ptr<sf::Texture> mSpriteSheet;  //<! The texture
-    float mRatio;                              //<! The scaling ratio
+    float mRatio;                               //<! The scaling ratio
+    std::unordered_map<
+        int, std::pair<sf::Vector2f, sf::Vector2f>
+    > mSpritePositions;                         //<!
+    float mInterpolationFactor;                 //<!
+    sf::Clock mInterpolationClock;              //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

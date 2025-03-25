@@ -31,9 +31,12 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-    Vec2i mPosition;        //<!
-    Vec2i mDirection;       //<!
-    float mAccumulatedTime; //<!
+    Vec2i mPosition;                //<!
+    Vec2i mDirection;               //<!
+    Vec2i mNextDirection;           //<!
+    float mAccumulatedTime;         //<!
+    float mMovementSpeed;           //<!
+    float mMovementAccumulator;     //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

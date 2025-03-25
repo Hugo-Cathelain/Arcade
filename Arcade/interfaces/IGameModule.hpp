@@ -38,6 +38,7 @@ public:
         std::string characters;             //<!
         Color color;                        //<!
         Vec2i size;                         //<!
+        int id;                             //<!
 
     public:
         ///////////////////////////////////////////////////////////////////////
@@ -48,12 +49,14 @@ public:
             const Vec2i& position,
             std::string character = "  ",
             const Color& color = {255, 255, 255},
-            const Vec2i& size = {8, 8}
+            const Vec2i& size = {8, 8},
+            int id = -1
         )
             : position(position)
             , characters(character)
             , color(color)
             , size(size)
+            , id(id)
         {};
     };
 
