@@ -175,7 +175,16 @@ void SFMLModule::Render(void)
         ) {
             mSpritePositions[entityId] = {targetPos, targetPos, 1.0f};
         } else {
-            if (mSpritePositions[entityId].target != targetPos) {
+            float length = std::sqrt(
+                std::pow(targetPos.x - mSpritePositions[entityId].current.x, 2) +
+                std::pow(targetPos.y - mSpritePositions[entityId].current.y, 2)
+            );
+
+            if (length > 16.f) {
+                mSpritePositions[entityId].target = targetPos;
+                mSpritePositions[entityId].current = targetPos;
+                mSpritePositions[entityId].factor = 1.0f;
+            } else if (mSpritePositions[entityId].target != targetPos) {
                 mSpritePositions[entityId].target = targetPos;
                 mSpritePositions[entityId].factor = 0.0f;
             }

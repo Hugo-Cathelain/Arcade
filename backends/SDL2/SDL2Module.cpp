@@ -211,7 +211,16 @@ void SDL2Module::Render(void)
         ) {
             mSpritePositions[entityId] = {targetPos, targetPos, 1.0f};
         } else {
-            if (mSpritePositions[entityId].target.x != targetPos.x ||
+            float length = std::sqrt(
+                std::pow(targetPos.x - mSpritePositions[entityId].current.x, 2) +
+                std::pow(targetPos.y - mSpritePositions[entityId].current.y, 2)
+            );
+
+            if (length > 15.f) {
+                mSpritePositions[entityId].target = targetPos;
+                mSpritePositions[entityId].current = targetPos;
+                mSpritePositions[entityId].factor = 1.0f;
+            } else if (mSpritePositions[entityId].target.x != targetPos.x ||
                 mSpritePositions[entityId].target.y != targetPos.y) {
                 mSpritePositions[entityId].target = targetPos;
                 mSpritePositions[entityId].factor = 0.0f;
