@@ -163,19 +163,18 @@ void SDL2Module::Clear(void)
 ///////////////////////////////////////////////////////////////////////////////
 void SDL2Module::Render(void)
 {
-    // Update interpolation factor based on time
     Uint32 currentTime = SDL_GetTicks();
     Uint32 deltaTime = mLastFrameTime ? (currentTime - mLastFrameTime) : 0;
     mLastFrameTime = currentTime;
 
     float deltaSeconds = deltaTime / 1000.0f;
-    mInterpolationFactor += deltaSeconds * 10.0f; // Adjust speed factor as needed
+    float speed = 10.0f;
 
-    if (mInterpolationFactor > 1.0f) {
-        mInterpolationFactor = 0.0f;
-        // Move current positions to target positions
-        for (auto& [id, positions] : mSpritePositions) {
-            positions.first = positions.second;
+    for (auto& [id, interp] : mSpritePositions) {
+        interp.factor += deltaSeconds * speed;
+        if (interp.factor > 1.0f) {
+            interp.factor = 1.0f;
+            interp.current = interp.target;
         }
     }
 
@@ -184,33 +183,28 @@ void SDL2Module::Render(void)
         auto [asset, pos, color] = draw;
         int entityId = asset.id;
 
-        // Convert grid position to pixel position
         SDL_FPoint targetPos = {
             pos.x * GRID_TILE_SIZE - (asset.size.x - GRID_TILE_SIZE) / 2.0f,
             pos.y * GRID_TILE_SIZE - (asset.size.y - GRID_TILE_SIZE) / 2.0f
         };
 
-        // If this is a new entity or one that doesn't exist yet
         if (
             entityId == -1 ||
             mSpritePositions.find(entityId) == mSpritePositions.end()
         ) {
-            mSpritePositions[entityId] = {targetPos, targetPos};
+            mSpritePositions[entityId] = {targetPos, targetPos, 1.0f};
         } else {
-            // Only update target position if it changed
-            if (mSpritePositions[entityId].second.x != targetPos.x ||
-                mSpritePositions[entityId].second.y != targetPos.y) {
-                mSpritePositions[entityId].second = targetPos;
-                // Reset interpolation when position changes
-                mInterpolationFactor = 0.0f;
+            if (mSpritePositions[entityId].target.x != targetPos.x ||
+                mSpritePositions[entityId].target.y != targetPos.y) {
+                mSpritePositions[entityId].target = targetPos;
+                mSpritePositions[entityId].factor = 0.0f;
             }
         }
 
-        // Interpolate between current and target positions
-        SDL_FPoint currentPos = mSpritePositions[entityId].first;
+        SDL_FPoint currentPos = mSpritePositions[entityId].current;
         SDL_FPoint interpolatedPos = {
-            currentPos.x + (targetPos.x - currentPos.x) * mInterpolationFactor,
-            currentPos.y + (targetPos.y - currentPos.y) * mInterpolationFactor
+            currentPos.x + (targetPos.x - currentPos.x) * mSpritePositions[entityId].factor,
+            currentPos.y + (targetPos.y - currentPos.y) * mSpritePositions[entityId].factor
         };
 
         SDL_Rect srcRect;

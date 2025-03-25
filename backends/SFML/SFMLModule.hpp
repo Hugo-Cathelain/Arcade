@@ -27,13 +27,25 @@ class SFMLModule : public IGraphicsModule
 {
 private:
     ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    struct EntityInterpolation
+    {
+        sf::Vector2f current;
+        sf::Vector2f target;
+        float factor;
+    };
+
+private:
+    ///////////////////////////////////////////////////////////////////////////
     // Data members
     ///////////////////////////////////////////////////////////////////////////
     std::unique_ptr<sf::RenderWindow> mWindow;  //<! The window
     std::unique_ptr<sf::Texture> mSpriteSheet;  //<! The texture
     float mRatio;                               //<! The scaling ratio
     std::unordered_map<
-        int, std::pair<sf::Vector2f, sf::Vector2f>
+        int, EntityInterpolation
     > mSpritePositions;                         //<!
     float mInterpolationFactor;                 //<!
     sf::Clock mInterpolationClock;              //<!

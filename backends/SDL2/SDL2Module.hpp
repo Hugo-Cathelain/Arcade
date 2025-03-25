@@ -25,6 +25,18 @@ class SDL2Module : public IGraphicsModule
 {
 private:
     ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    struct EntityInterpolation
+    {
+        SDL_FPoint current;
+        SDL_FPoint target;
+        float factor;
+    };
+
+private:
+    ///////////////////////////////////////////////////////////////////////////
     // Data members
     ///////////////////////////////////////////////////////////////////////////
     SDL_Window* mWindow;                        //<! The window container
@@ -32,7 +44,7 @@ private:
     SDL_Texture* mSpriteSheet;                  //<! The texture
     float mRatio;                               //<! The scaling ratio
     std::unordered_map<
-        int, std::pair<SDL_FPoint, SDL_FPoint>
+        int, EntityInterpolation
     > mSpritePositions;                         //<!
     float mInterpolationFactor;                 //<!
     Uint32 mLastFrameTime;                      //<!

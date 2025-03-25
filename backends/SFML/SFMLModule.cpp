@@ -148,14 +148,16 @@ void SFMLModule::Render(void)
 {
     float offset = static_cast<float>(GRID_TILE_SIZE) / 2.f;
 
-    // Update interpolation factor
+    // Update interpolation factors for all entities
     float deltaTime = mInterpolationClock.restart().asSeconds();
-    mInterpolationFactor += deltaTime * 10.0f; // Adjust speed factor as needed
-    if (mInterpolationFactor > 1.0f) {
-        mInterpolationFactor = 0.0f;
-        // Move current positions to reach target positions
-        for (auto& [id, positions] : mSpritePositions) {
-            positions.first = positions.second;
+    float speed = 10.0f; // Adjust speed factor as needed
+    
+    // Update all entities' interpolation factors
+    for (auto& [id, interp] : mSpritePositions) {
+        interp.factor += deltaTime * speed;
+        if (interp.factor > 1.0f) {
+            interp.factor = 1.0f;
+            interp.current = interp.target;
         }
     }
 
@@ -175,20 +177,20 @@ void SFMLModule::Render(void)
             entityId == -1 ||
             mSpritePositions.find(entityId) == mSpritePositions.end()
         ) {
-            mSpritePositions[entityId] = {targetPos, targetPos};
+            mSpritePositions[entityId] = {targetPos, targetPos, 1.0f};
         } else {
             // Only update target position if it changed
-            if (mSpritePositions[entityId].second != targetPos) {
-                mSpritePositions[entityId].second = targetPos;
-                // Reset interpolation when position changes
-                mInterpolationFactor = 0.0f;
+            if (mSpritePositions[entityId].target != targetPos) {
+                mSpritePositions[entityId].target = targetPos;
+                // Reset interpolation when position changes, but only for this entity
+                mSpritePositions[entityId].factor = 0.0f;
             }
         }
 
         // Interpolate between current and target positions
-        sf::Vector2f currentPos = mSpritePositions[entityId].first;
+        sf::Vector2f currentPos = mSpritePositions[entityId].current;
         sf::Vector2f interpolatedPos = currentPos +
-            (targetPos - currentPos) * mInterpolationFactor;
+            (targetPos - currentPos) * mSpritePositions[entityId].factor;
 
         sf::Sprite sprite;
         sprite.setTexture(*mSpriteSheet);
