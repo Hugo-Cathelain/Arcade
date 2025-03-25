@@ -143,6 +143,8 @@ void SDL2Module::Update(void)
                     gridSize->height * GRID_TILE_SIZE * mRatio)
             );
             SDL_RenderSetScale(mRenderer, mRatio, mRatio);
+        } else if (event->Is<API::Event::ChangeGame>()) {
+            mSpritePositions.clear();
         }
     }
 

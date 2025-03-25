@@ -111,6 +111,8 @@ void SFMLModule::Update(void)
                     gridSize->height * static_cast<float>(GRID_TILE_SIZE)
                 }
             ));
+        } else if (event->Is<API::Event::ChangeGame>()) {
+            mSpritePositions.clear();
         }
     }
 
@@ -118,14 +120,12 @@ void SFMLModule::Update(void)
     while (mWindow->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             API::PushEvent(API::Event::Channel::CORE, API::Event::Closed());
-        }
-        if (event.type == sf::Event::KeyPressed) {
+        } else if (event.type == sf::Event::KeyPressed) {
             API::PushEvent(
                 API::Event::Channel::CORE,
                 API::Event::KeyPressed{GetKey(event.key.code)}
             );
-        }
-        if (event.type == sf::Event::MouseButtonPressed) {
+        } else if (event.type == sf::Event::MouseButtonPressed) {
             sf::Mouse::Button click = event.mouseButton.button;
             int gridX = event.mouseButton.x / (GRID_TILE_SIZE * mRatio);
             int gridY = event.mouseButton.y / (GRID_TILE_SIZE * mRatio);
@@ -148,11 +148,9 @@ void SFMLModule::Render(void)
 {
     float offset = static_cast<float>(GRID_TILE_SIZE) / 2.f;
 
-    // Update interpolation factors for all entities
     float deltaTime = mInterpolationClock.restart().asSeconds();
-    float speed = 10.0f; // Adjust speed factor as needed
-    
-    // Update all entities' interpolation factors
+    float speed = 10.0f;
+
     for (auto& [id, interp] : mSpritePositions) {
         interp.factor += deltaTime * speed;
         if (interp.factor > 1.0f) {
@@ -166,28 +164,23 @@ void SFMLModule::Render(void)
         auto [asset, pos, color] = draw;
         int entityId = asset.id;
 
-        // Convert grid position to pixel position
         sf::Vector2f targetPos(
             pos.x * GRID_TILE_SIZE + offset,
             pos.y * GRID_TILE_SIZE + offset
         );
 
-        // If this is a new entity or one that was recently updated
         if (
             entityId == -1 ||
             mSpritePositions.find(entityId) == mSpritePositions.end()
         ) {
             mSpritePositions[entityId] = {targetPos, targetPos, 1.0f};
         } else {
-            // Only update target position if it changed
             if (mSpritePositions[entityId].target != targetPos) {
                 mSpritePositions[entityId].target = targetPos;
-                // Reset interpolation when position changes, but only for this entity
                 mSpritePositions[entityId].factor = 0.0f;
             }
         }
 
-        // Interpolate between current and target positions
         sf::Vector2f currentPos = mSpritePositions[entityId].current;
         sf::Vector2f interpolatedPos = currentPos +
             (targetPos - currentPos) * mSpritePositions[entityId].factor;

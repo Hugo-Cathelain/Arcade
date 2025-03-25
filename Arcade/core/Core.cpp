@@ -58,6 +58,9 @@ void Core::HandleEvents(void)
                 std::cerr << "Failed to load graphics library: " << e.what() << std::endl;
             }
         } else if (auto change = event->GetIf<API::Event::ChangeGame>()) {
+            API::PushEvent(API::Event::Channel::GRAPHICS,
+                API::Event::ChangeGame{0});
+
             mGameLibIdx += change->delta;
 
             if (mGameLibIdx < 0) {
@@ -82,6 +85,10 @@ void Core::HandleEvents(void)
             mIsWindowOpen = false;
         } else if (auto key = event->GetIf<API::Event::KeyPressed>()) {
             switch (key->code) {
+                case EKeyboardKey::R:
+                    API::PushEvent(API::Event::Channel::CORE,
+                        API::Event::ChangeGame{0});
+                    break;
                 case EKeyboardKey::O:
                     API::PushEvent(API::Event::Channel::CORE,
                         API::Event::ChangeGraphics{-1});
