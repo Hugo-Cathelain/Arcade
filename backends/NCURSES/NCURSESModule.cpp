@@ -21,8 +21,6 @@ void NCURSESModule::InitColor(void)
 ///////////////////////////////////////////////////////////////////////////////
 int NCURSESModule::FindOrCreateColor(short r, short g, short b)
 {
-    static int colorPairCount = 1;
-
     short scaledR = (r * 1000) / 255;
     short scaledG = (g * 1000) / 255;
     short scaledB = (b * 1000) / 255;
@@ -34,11 +32,11 @@ int NCURSESModule::FindOrCreateColor(short r, short g, short b)
         return (it->second);
     }
 
-    if (colorPairCount < COLOR_PAIRS) {
-        init_color(colorPairCount, scaledR, scaledG, scaledB);
-        init_pair(colorPairCount, colorPairCount, -1);
-        mColorMap[colorKey] = colorPairCount;
-        return (colorPairCount++);
+    if (mColorPairCount < COLOR_PAIRS) {
+        init_color(mColorPairCount, scaledR, scaledG, scaledB);
+        init_pair(mColorPairCount, mColorPairCount, -1);
+        mColorMap[colorKey] = mColorPairCount;
+        return (mColorPairCount++);
     }
 
     return (0);
@@ -47,8 +45,10 @@ int NCURSESModule::FindOrCreateColor(short r, short g, short b)
 ///////////////////////////////////////////////////////////////////////////////
 NCURSESModule::NCURSESModule(void)
     : mWindow(nullptr)
+    , mColorPairCount(1)
 {
     initscr();
+    refresh();
     start_color();
     cbreak();
     noecho();
@@ -59,6 +59,13 @@ NCURSESModule::NCURSESModule(void)
 
     int maxY, maxX;
     getmaxyx(stdscr, maxY, maxX);
+
+    if (maxY < 35 || maxX < 60) {
+        endwin();
+        std::cerr << "Terminal window is too small." << std::endl;
+        API::PushEvent(API::Event::CORE, API::Event::Closed{});
+        return;
+    }
 
     int windowHeight = 33;
     int windowWidth = 29 * 2;
@@ -150,11 +157,12 @@ void NCURSESModule::ResetNCURSES(void)
         mWindow = nullptr;
     }
 
+    mColorPairCount = 1;
     mColorMap.clear();
 
     endwin();
-    refresh();
     initscr();
+    refresh();
     start_color();
     cbreak();
     noecho();
@@ -165,6 +173,13 @@ void NCURSESModule::ResetNCURSES(void)
 
     int maxY, maxX;
     getmaxyx(stdscr, maxY, maxX);
+
+    if (maxY < 35 || maxX < 60) {
+        endwin();
+        std::cerr << "Terminal window is too small." << std::endl;
+        API::PushEvent(API::Event::CORE, API::Event::Closed{});
+        return;
+    }
 
     int windowHeight = 33;
     int windowWidth = 29 * 2;
