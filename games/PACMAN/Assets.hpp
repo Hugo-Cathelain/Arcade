@@ -215,7 +215,7 @@ static const std::vector<IGameModule::Asset> SPRITES = {
     IGameModule::Asset({13, 11}, "pts", CLR_WHITE, {24, 8}),     //<! WHITE_PTS
     IGameModule::Asset({0, 21}, "NAMCO", CLR_PINK, {56, 8}),     //<! NAMCO_LOGO
     IGameModule::Asset({17, 14}, "100", CLR_WHITE, {16, 16}),    //<! SCORE_100
-    IGameModule::Asset({17, 12}, "400", CLR_WHITE, {16, 16}),    //<! SCORE_200
+    IGameModule::Asset({17, 12}, "200", CLR_WHITE, {16, 16}),    //<! SCORE_200
     IGameModule::Asset({19, 14}, "800", CLR_WHITE, {16, 16}),    //<! SCORE_300
     IGameModule::Asset({19, 12}, "400", CLR_WHITE, {16, 16}),    //<! SCORE_400
     IGameModule::Asset({21, 14}, "500", CLR_WHITE, {16, 16}),    //<! SCORE_500
