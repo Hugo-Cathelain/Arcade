@@ -167,10 +167,10 @@ void SDL2Module::Render(void)
     Uint32 currentTime = SDL_GetTicks();
     Uint32 deltaTime = mLastFrameTime ? (currentTime - mLastFrameTime) : 0;
     mLastFrameTime = currentTime;
-    
+
     float deltaSeconds = deltaTime / 1000.0f;
     mInterpolationFactor += deltaSeconds * 10.0f; // Adjust speed factor as needed
-    
+
     if (mInterpolationFactor > 1.0f) {
         mInterpolationFactor = 0.0f;
         // Move current positions to target positions
@@ -183,16 +183,13 @@ void SDL2Module::Render(void)
         auto draw = API::PopDraw();
         auto [asset, pos, color] = draw;
         int entityId = asset.id;
-        
+
         // Convert grid position to pixel position
-        float offset = GRID_TILE_SIZE / 2.0f;
         SDL_FPoint targetPos = {
-            pos.x * GRID_TILE_SIZE + offset -
-                (asset.size.x - GRID_TILE_SIZE) / 2.0f,
-            pos.y * GRID_TILE_SIZE + offset -
-                (asset.size.y - GRID_TILE_SIZE) / 2.0f
+            pos.x * GRID_TILE_SIZE - (asset.size.x - GRID_TILE_SIZE) / 2.0f,
+            pos.y * GRID_TILE_SIZE - (asset.size.y - GRID_TILE_SIZE) / 2.0f
         };
-        
+
         // If this is a new entity or one that doesn't exist yet
         if (
             entityId == -1 ||
@@ -201,14 +198,14 @@ void SDL2Module::Render(void)
             mSpritePositions[entityId] = {targetPos, targetPos};
         } else {
             // Only update target position if it changed
-            if (mSpritePositions[entityId].second.x != targetPos.x || 
+            if (mSpritePositions[entityId].second.x != targetPos.x ||
                 mSpritePositions[entityId].second.y != targetPos.y) {
                 mSpritePositions[entityId].second = targetPos;
                 // Reset interpolation when position changes
                 mInterpolationFactor = 0.0f;
             }
         }
-        
+
         // Interpolate between current and target positions
         SDL_FPoint currentPos = mSpritePositions[entityId].first;
         SDL_FPoint interpolatedPos = {
