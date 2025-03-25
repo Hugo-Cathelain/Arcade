@@ -93,6 +93,8 @@ void Game::DrawGums(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::BeginPlay(void)
 {
+    mTimer = 0.0f;
+    mPlaying = false;
     SetDefaultGums();
 }
 
