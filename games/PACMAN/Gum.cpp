@@ -17,10 +17,10 @@ Gum::Gum(Gum::Type type, const Vec2i& position)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-void Gum::Render(void) const
+void Gum::Draw(void) const
 {
     int spriteIdx = type == Type::SMALL ? TILE_POINT : TILE_PACGUM;
-    API::Draw(SPRITES[spriteIdx], position.x, position.y);
+    API::Draw(SPRITES[spriteIdx], position);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

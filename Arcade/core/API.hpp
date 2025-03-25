@@ -9,6 +9,7 @@
 #include "Arcade/enums/Inputs.hpp"
 #include "Arcade/interfaces/IGameModule.hpp"
 #include "Arcade/utils/Color.hpp"
+#include "Arcade/utils/Vec2.hpp"
 #include <tuple>
 #include <variant>
 #include <optional>
@@ -280,7 +281,7 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     static std::unordered_map<Event::Channel, std::queue<Event>> mEvents;
     static std::queue<
-        std::tuple<IGameModule::Asset, int, int, Color>
+        std::tuple<IGameModule::Asset, Vec2i, Color>
     > mDrawables;
     static int mGridWidth;
     static int mGridHeight;
@@ -313,7 +314,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     static void Draw(
         const IGameModule::Asset& drawable,
-        int x, int y,
+        Vec2i position,
         Color color = {255, 255, 255}
     );
 
@@ -323,7 +324,7 @@ public:
     /// \return The drawable
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static std::tuple<IGameModule::Asset, int, int, Color> PopDraw(void);
+    static std::tuple<IGameModule::Asset, Vec2i, Color> PopDraw(void);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Check if the draw queue is empty

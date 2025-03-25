@@ -63,6 +63,8 @@ enum SpriteType {
     ORANGE_U2,
     ORANGE_D1,
     ORANGE_D2,
+    SCARED_1,
+    SCARED_2,
     DOOR_LEFT,
     DOOR_MID,
     DOOR_RIGHT,
@@ -144,6 +146,8 @@ static const std::vector<IGameModule::Asset> SPRITES = {
     IGameModule::Asset({22, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_U2
     IGameModule::Asset({24, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_D1
     IGameModule::Asset({26, 6}, "/\\", CLR_ORANGE, {16, 16}), //<! ORANGE_D2
+    IGameModule::Asset({12, 8}, "/\\", CLR_BLUE, {16, 16}),   //<! SCARED_1
+    IGameModule::Asset({14, 8}, "/\\", CLR_BLUE, {16, 16}),   //<! SCARED_2
     IGameModule::Asset({2, 4}, "=]", CLR_BLUE),               //<! DOOR_LEFT
     IGameModule::Asset({3, 4}, "--", CLR_PINK),               //<! DOOR_MID
     IGameModule::Asset({2, 5}, "[=", CLR_BLUE),               //<! DOOR_RIGHT

@@ -193,7 +193,8 @@ void NCURSESModule::Render(void)
 {
     while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
-        auto [asset, x, y, color] = draw;
+        auto [asset, pos, color] = draw;
+        int y = pos.y, x = pos.x;
 
         int colorPair = FindOrCreateColor(asset.color.r, asset.color.g, asset.color.b);
 

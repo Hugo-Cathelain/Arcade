@@ -34,7 +34,7 @@ void MenuGUI::Write(const std::string& text, const Vec2i& position)
                         {ji % GRID_SIZE, ji / GRID_SIZE},
                         std::string(1, text[i])
                     ),
-                    position.x + static_cast<int>(i), position.y
+                    Vec2i(position.x + static_cast<int>(i), position.y)
                 );
                 break;
             }
@@ -67,7 +67,10 @@ void MenuGUI::Tick(float deltaSeconds)
         }
     }
 
-    API::Draw(IGameModule::Asset({0, 11}, "ARCADE", CLR_WHITE, {128, 40}), 21, 2);
+    API::Draw(
+        IGameModule::Asset({0, 11}, "ARCADE", CLR_WHITE, {128, 40}),
+        Vec2i(21, 2)
+    );
     Write("press space to play", {0, 10});
     Write("press escape to quit", {0, 12});
 }

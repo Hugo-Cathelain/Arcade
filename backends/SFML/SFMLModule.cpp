@@ -149,7 +149,8 @@ void SFMLModule::Render(void)
 
     while (mSpriteSheet && !API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
-        auto [asset, x, y, color] = draw;
+        auto [asset, pos, color] = draw;
+        int y = pos.y, x = pos.x;
 
         sf::Sprite sprite;
         sprite.setTexture(*mSpriteSheet);

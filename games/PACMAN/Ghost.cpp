@@ -29,7 +29,6 @@ void Ghost::Update(float deltaSeconds, const Vec2i& pacmanPos)
     }
 
     (void)pacmanPos;
-    // TODO: Add ghost logic
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +37,23 @@ void Ghost::Draw(void)
     int idx = static_cast<int>(mType);
     int ofs = mAccumulatedTime < 0.25f ? 0 : 1;
 
-    API::Draw(SPRITES[RED_R1 + (idx * 8) + ofs], mPosition.x, mPosition.y);
+    if (mState == State::FRIGHTENED) {
+        API::Draw(SPRITES[SCARED_1 + ofs], mPosition);
+    } else {
+        API::Draw(SPRITES[RED_R1 + (idx * 8) + ofs], mPosition);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::SwitchState(State state)
+{
+    mState = state;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::SetPosition(const Vec2i& position)
+{
+    mPosition = position;
 }
 
 } // namespace Arc
