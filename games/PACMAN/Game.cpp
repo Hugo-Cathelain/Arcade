@@ -17,6 +17,7 @@ namespace Arc::Pacman
 Game::Game(void)
     : mTimer(0.f)
     , mPlaying(false)
+    , mScore(0)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,10 +92,56 @@ void Game::DrawGums(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::HandleEvents(void)
+{
+    while (auto event = API::PollEvent(API::Event::GAME)) {
+        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+            Vec2i direction(0);
+
+            if (key->code == EKeyboardKey::UP) {
+                direction = Vec2i{0, -1};
+            } else if (key->code == EKeyboardKey::DOWN) {
+                direction = Vec2i{0, 1};
+            } else if (key->code == EKeyboardKey::LEFT) {
+                direction = Vec2i{-1, 0};
+            } else if (key->code == EKeyboardKey::RIGHT) {
+                direction = Vec2i{1, 0};
+            }
+
+            if (direction != 0) {
+                mPlayer->SetDesiredDirection(direction);
+                mPlaying = true;
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Game::CheckForGumsEaten(void)
+{
+    for (auto& [index, type] : mGums) {
+        Vec2i position(index % ARCADE_GAME_WIDTH, index / ARCADE_GAME_WIDTH);
+
+        if (mPlayer->GetPosition() == position) {
+            if (type == GumType::SMALL) {
+                mScore += 10;
+            } else {
+                mScore += 50;
+            }
+
+            mGums.erase(index);
+            break;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::BeginPlay(void)
 {
     mTimer = 0.0f;
     mPlaying = false;
+    mPlayer.reset(new Player());
+    mScore = 0;
     SetDefaultGums();
 }
 
@@ -105,11 +152,23 @@ void Game::Tick(float deltaSeconds)
         mTimer += deltaSeconds;
     }
 
+    // Handle Events
+    HandleEvents();
+
     // Updating
+    if (mPlaying) {
+        mPlayer->Update(deltaSeconds);
+    }
+    CheckForGumsEaten();
 
     // Drawing
     DrawMapBaseLayer();
     DrawGums();
+
+    if (mPlaying) {
+        mPlayer->Draw(mTimer);
+    }
+
     DrawScore();
 }
 
