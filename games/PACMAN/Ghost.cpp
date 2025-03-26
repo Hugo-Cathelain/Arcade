@@ -14,12 +14,26 @@ namespace Arc::Pacman
 ///////////////////////////////////////////////////////////////////////////////
 Ghost::Ghost(Type type)
     : mType(type)
+    , mState(State::IDLING)
     , mPosition(static_cast<float>(type) * 2.f + 9.5f, 14.f)
     , mDirection(0, 0)
 {
     if (type == Type::BLINKY) {
+        mState = State::CHASING;
         mPosition = Vec2f(13.5f, 11.f);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+Ghost::State Ghost::GetState(void) const
+{
+    return (mState);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::SetState(Ghost::State state)
+{
+    mState = state;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,14 +66,26 @@ void Ghost::Draw(float timer)
         directionOffset = 12;
     }
 
-    API::Draw(
-        IGameModule::Asset(
-            {12 + directionOffset + flickering, index * 2},
-            "/\\", GHOST_COLORS[index], {16, 16},
-            index * 4
-        ),
-        mPosition + Vec2f(0, ARCADE_OFFSET_Y)
-    );
+    if (mState == State::FRIGHTENED) {
+        auto scared = SPRITES[SCARED_1 + flickering / 2];
+        scared.id = index * 4;
+
+        API::Draw(
+            scared,
+            mPosition + Vec2f(0, ARCADE_OFFSET_Y)
+        );
+    } else if (mState == State::KILLED) {
+
+    } else {
+        API::Draw(
+            IGameModule::Asset(
+                {12 + directionOffset + flickering, index * 2},
+                "/\\", GHOST_COLORS[index], {16, 16},
+                index * 4
+            ),
+            mPosition + Vec2f(0, ARCADE_OFFSET_Y)
+        );
+    }
 }
 
 } // namespace Arc::Pacman

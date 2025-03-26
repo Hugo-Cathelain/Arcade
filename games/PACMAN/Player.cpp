@@ -49,7 +49,7 @@ Vec2i Player::GetDirection(void) const
 ///////////////////////////////////////////////////////////////////////////////
 void Player::Draw(float timer)
 {
-    mAnimationOffset = static_cast<int>(timer * 8) % 2 ? 2 : 0;
+    mAnimationOffset = static_cast<int>(timer * 12) % 2 ? 2 : 0;
     mDirectionOffset = 0;
 
     if (mDirection == Vec2i(0, 0)) {

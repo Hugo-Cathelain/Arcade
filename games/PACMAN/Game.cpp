@@ -18,6 +18,7 @@ Game::Game(void)
     : mTimer(0.f)
     , mState(State::PRESS_START)
     , mScore(0)
+    , mPowerPillTimer(0.f)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,6 +147,32 @@ void Game::HandleEvents(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::HandlePowerPill(float deltaSeconds)
+{
+    if (mPowerPillTimer == 0.f) {
+        return;
+    }
+
+    mPowerPillTimer -= deltaSeconds;
+    if (mPowerPillTimer < 0.f) {
+        mPowerPillTimer = 0.f;
+
+        if (mBlinky->GetState() == Ghost::State::FRIGHTENED) {
+            mBlinky->SetState(Ghost::State::CHASING);
+        }
+        if (mPinky->GetState() == Ghost::State::FRIGHTENED) {
+            mPinky->SetState(Ghost::State::CHASING);
+        }
+        if (mInky->GetState() == Ghost::State::FRIGHTENED) {
+            mInky->SetState(Ghost::State::CHASING);
+        }
+        if (mClyde->GetState() == Ghost::State::FRIGHTENED) {
+            mClyde->SetState(Ghost::State::CHASING);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::CheckForGumsEaten(void)
 {
     for (auto& [index, type] : mGums) {
@@ -155,7 +182,12 @@ void Game::CheckForGumsEaten(void)
             if (type == GumType::SMALL) {
                 mScore += 10;
             } else {
+                mPowerPillTimer = 10.f;
                 mScore += 50;
+                mBlinky->SetState(Ghost::State::FRIGHTENED);
+                mPinky->SetState(Ghost::State::FRIGHTENED);
+                mInky->SetState(Ghost::State::FRIGHTENED);
+                mClyde->SetState(Ghost::State::FRIGHTENED);
             }
 
             mGums.erase(index);
@@ -175,6 +207,7 @@ void Game::BeginPlay(void)
     mInky.reset(new Ghost(Ghost::Type::INKY));
     mClyde.reset(new Ghost(Ghost::Type::CLYDE));
     mScore = 0;
+    mPowerPillTimer = 0.f;
     SetDefaultGums();
 }
 
@@ -189,6 +222,7 @@ void Game::Tick(float deltaSeconds)
     HandleEvents();
 
     // Updating
+    HandlePowerPill(deltaSeconds);
     if (mState == State::PLAYING) {
         mPlayer->Update(deltaSeconds);
         mBlinky->Update(deltaSeconds);
