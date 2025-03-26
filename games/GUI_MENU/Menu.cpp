@@ -16,6 +16,7 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 MenuGUI::MenuGUI(void)
     : mGameOver(false)
+    , mCurrentGame(0)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,6 +64,16 @@ void MenuGUI::Tick(float deltaSeconds)
                 API::PushEvent(API::Event::CORE, API::Event::Closed{});
             } else if (key->code == EKeyboardKey::SPACE) {
                 API::PushEvent(API::Event::CORE, API::Event::ChangeGame{+1});
+            } else if (key->code == EKeyboardKey::LEFT) {
+                mCurrentGame--;
+                if (mCurrentGame < 0) {
+                    mCurrentGame = 3;
+                }
+            } else if (key->code == EKeyboardKey::RIGHT) {
+                mCurrentGame++;
+                if (mCurrentGame > 3) {
+                    mCurrentGame = 0;
+                }
             }
         }
     }
@@ -71,8 +82,15 @@ void MenuGUI::Tick(float deltaSeconds)
         IGameModule::Asset({0, 11}, "ARCADE", CLR_WHITE, {128, 40}),
         Vec2i(21, 2)
     );
-    Write("press space to play", {0, 10});
-    Write("press escape to quit", {0, 12});
+
+    API::Draw(
+        IGameModule::Asset(
+            {0, 16 + 8 * mCurrentGame},
+            "NIBBLER", CLR_WHITE,
+            {256, 64}
+        ),
+        Vec2i(21, 16)
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
