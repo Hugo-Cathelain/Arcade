@@ -87,7 +87,7 @@ void Menu::DrawRomChecksum(void)
 
         for (int i = 0; i < ARCADE_SCREEN_WIDTH; i++) {
             for (int j = 0; j < ARCADE_SCREEN_HEIGHT; j++) {
-                API::Draw(IGameModule::Asset({15, 15}, "  "), {i, j});
+                API::Draw(IGameModule::Asset({15, 15}, "  "), Vec2i{i, j});
             }
         }
     }
@@ -114,7 +114,7 @@ void Menu::DrawMenuTextAnimated(void)
     if (mTimer > 1.0f) {
         auto blinky = SPRITES[RED_R1];
         blinky.id = -1;
-        API::Draw(blinky, {4, 6});
+        API::Draw(blinky, Vec2i{4, 6});
     }
     if (mTimer > 2.0f) {
         Text("-SHADOW", TextColor::TEXT_RED, Vec2i{7, 6});
@@ -126,7 +126,7 @@ void Menu::DrawMenuTextAnimated(void)
     if (mTimer > 3.0f) {
         auto pinky = SPRITES[PINK_R1];
         pinky.id = -1;
-        API::Draw(pinky, {4, 9});
+        API::Draw(pinky, Vec2i{4, 9});
     }
     if (mTimer > 4.0f) {
         Text("-SPEEDY", TextColor::TEXT_PINK, Vec2i{7, 9});
@@ -138,7 +138,7 @@ void Menu::DrawMenuTextAnimated(void)
     if (mTimer > 5.0f) {
         auto inky = SPRITES[CYAN_R1];
         inky.id = -1;
-        API::Draw(inky, {4, 12});
+        API::Draw(inky, Vec2i{4, 12});
     }
     if (mTimer > 6.0f) {
         Text("-BASHFUL", TextColor::TEXT_CYAN, Vec2i{7, 12});
@@ -150,7 +150,7 @@ void Menu::DrawMenuTextAnimated(void)
     if (mTimer > 7.0f) {
         auto clyde = SPRITES[ORANGE_R1];
         clyde.id = -1;
-        API::Draw(clyde, {4, 15});
+        API::Draw(clyde, Vec2i{4, 15});
     }
     if (mTimer > 8.0f) {
         Text("-POKEY", TextColor::TEXT_ORANGE, Vec2i{7, 15});
@@ -160,21 +160,21 @@ void Menu::DrawMenuTextAnimated(void)
     }
 
     if (mTimer > 10.0f) {
-        API::Draw(SPRITES[TILE_POINT], {10, 24});
+        API::Draw(SPRITES[TILE_POINT], Vec2i{10, 24});
         Text("10", TextColor::TEXT_WHITE, Vec2i{12, 24});
-        API::Draw(SPRITES[WHITE_PTS], {16, 24});
+        API::Draw(SPRITES[WHITE_PTS], Vec2i{16, 24});
         if (mTimer < 12.f) {
-            API::Draw(SPRITES[TILE_PACGUM], {10, 26});
+            API::Draw(SPRITES[TILE_PACGUM], Vec2i{10, 26});
         }
         Text("50", TextColor::TEXT_WHITE, Vec2i{12, 26});
-        API::Draw(SPRITES[WHITE_PTS], {16, 26});
+        API::Draw(SPRITES[WHITE_PTS], Vec2i{16, 26});
     }
 
     if (mTimer > 11.0f) {
         Text("@ 1980 NAMCO TKD", TextColor::TEXT_WHITE, Vec2i{6, 29});
-        API::Draw(SPRITES[NAMCO_LOGO], {14, 31});
+        API::Draw(SPRITES[NAMCO_LOGO], Vec2i{14, 31});
         if (mTimer < 12.f) {
-            API::Draw(SPRITES[TILE_PACGUM], {4, 20});
+            API::Draw(SPRITES[TILE_PACGUM], Vec2i{4, 20});
         }
     }
 
@@ -184,31 +184,31 @@ void Menu::DrawMenuTextAnimated(void)
     static int lastGhostX = 0;
 
     if (mTimer > 12.f && pacgumFlick == 0) {
-        API::Draw(SPRITES[TILE_PACGUM], {10, 26});
+        API::Draw(SPRITES[TILE_PACGUM], Vec2i{10, 26});
         if (mTimer < 15.5f) {
-            API::Draw(SPRITES[TILE_PACGUM], {4, 20});
+            API::Draw(SPRITES[TILE_PACGUM], Vec2i{4, 20});
         }
     } else {
-        API::Draw(SPRITES[TILE_EMPTY], {10, 26});
-        API::Draw(SPRITES[TILE_EMPTY], {4, 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{10, 26});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{4, 20});
     }
 
     if (mTimer > 12.f && mTimer < 15.5f) {
         float pacmanX = Lerp(30.f, 4.f, 3.5f, mTimer - 12.0f);
         int ghostX = static_cast<int>(Lerp(33.f, 6.f, 3.5f, mTimer - 12.0f));
 
-        API::Draw(SPRITES[TILE_EMPTY], {static_cast<int>(pacmanX) + 1, 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(pacmanX) + 1, 20});
         API::Draw(PACMAN_XY(2, flick * 2),
-            {static_cast<int>(pacmanX), 20});
+        Vec2i{static_cast<int>(pacmanX), 20});
 
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 1, 20});
-        API::Draw(SPRITES[RED_L1 + flick], {ghostX, 20});
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 3, 20});
-        API::Draw(SPRITES[PINK_L1 + flick], {ghostX + 2, 20});
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 5, 20});
-        API::Draw(SPRITES[CYAN_L1 + flick], {ghostX + 4, 20});
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 7, 20});
-        API::Draw(SPRITES[ORANGE_L1 + flick], {ghostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 1, 20});
+        API::Draw(SPRITES[RED_L1 + flick], Vec2i{ghostX, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 3, 20});
+        API::Draw(SPRITES[PINK_L1 + flick], Vec2i{ghostX + 2, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 5, 20});
+        API::Draw(SPRITES[CYAN_L1 + flick], Vec2i{ghostX + 4, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 7, 20});
+        API::Draw(SPRITES[ORANGE_L1 + flick], Vec2i{ghostX + 6, 20});
 
         lastGhostX = ghostX;
     }
@@ -217,137 +217,139 @@ void Menu::DrawMenuTextAnimated(void)
         float currentX = Lerp(4.f, 30.f, 3.5f, mTimer - 15.5f);
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 15.5f));
 
-        API::Draw(SPRITES[TILE_EMPTY], {static_cast<int>(currentX) - 1, 20});
-        API::Draw(PACMAN_XY(0, flick * 2),
-            {static_cast<int>(currentX), 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
+        API::Draw(PACMAN_XY(
+            0, flick * 2),
+            Vec2i{static_cast<int>(currentX), 20}
+        );
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 10;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX - 1, 20});
-        API::Draw(ghost, {ghostX, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX - 1, 20});
+        API::Draw(ghost, Vec2i{ghostX, 20});
         ghost.id = 11;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 1, 20});
-        API::Draw(ghost, {ghostX + 2, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 1, 20});
+        API::Draw(ghost, Vec2i{ghostX + 2, 20});
         ghost.id = 12;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 3, 20});
-        API::Draw(ghost, {ghostX + 4, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 3, 20});
+        API::Draw(ghost, Vec2i{ghostX + 4, 20});
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 5, 20});
-        API::Draw(ghost, {ghostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 5, 20});
+        API::Draw(ghost, Vec2i{ghostX + 6, 20});
 
         lastGhostX = ghostX;
     }
 
     if (mTimer > 16.0f && mTimer < 18.0f) {
-        API::Draw(SPRITES[SCORE_200], {lastGhostX, 20});
+        API::Draw(SPRITES[SCORE_200], Vec2i{lastGhostX, 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 11;
-        API::Draw(SPRITES[TILE_NOTHING], {lastGhostX + 1, 20});
-        API::Draw(ghost, {lastGhostX + 2, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{lastGhostX + 1, 20});
+        API::Draw(ghost, Vec2i{lastGhostX + 2, 20});
         ghost.id = 12;
-        API::Draw(SPRITES[TILE_NOTHING], {lastGhostX + 3, 20});
-        API::Draw(ghost, {lastGhostX + 4, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{lastGhostX + 3, 20});
+        API::Draw(ghost, Vec2i{lastGhostX + 4, 20});
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {lastGhostX + 5, 20});
-        API::Draw(ghost, {lastGhostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{lastGhostX + 5, 20});
+        API::Draw(ghost, Vec2i{lastGhostX + 6, 20});
     }
 
     if (mTimer > 18.0f && mTimer < 18.5f) {
         float currentX = Lerp(4.f, 30.f, 3.5f, mTimer - 17.5f);
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 17.5f));
 
-        API::Draw(SPRITES[TILE_EMPTY], {static_cast<int>(currentX) - 1, 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
         API::Draw(PACMAN_XY(0, flick * 2),
-            {static_cast<int>(currentX), 20});
+            Vec2i{static_cast<int>(currentX), 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 11;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 1, 20});
-        API::Draw(ghost, {ghostX + 2, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 1, 20});
+        API::Draw(ghost, Vec2i{ghostX + 2, 20});
         ghost.id = 12;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 3, 20});
-        API::Draw(ghost, {ghostX + 4, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 3, 20});
+        API::Draw(ghost, Vec2i{ghostX + 4, 20});
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 5, 20});
-        API::Draw(ghost, {ghostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 5, 20});
+        API::Draw(ghost, Vec2i{ghostX + 6, 20});
 
         lastGhostX = ghostX;
     }
 
     if (mTimer > 18.5f && mTimer < 20.5f) {
-        API::Draw(SPRITES[SCORE_400], {lastGhostX + 2, 20});
+        API::Draw(SPRITES[SCORE_400], Vec2i{lastGhostX + 2, 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 12;
-        API::Draw(SPRITES[TILE_NOTHING], {lastGhostX + 3, 20});
-        API::Draw(ghost, {lastGhostX + 4, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{lastGhostX + 3, 20});
+        API::Draw(ghost, Vec2i{lastGhostX + 4, 20});
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {lastGhostX + 5, 20});
-        API::Draw(ghost, {lastGhostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{lastGhostX + 5, 20});
+        API::Draw(ghost, Vec2i{lastGhostX + 6, 20});
     }
 
     if (mTimer > 20.5f && mTimer < 21.0f) {
         float currentX = Lerp(4.f, 30.f, 3.5f, mTimer - 19.5f);
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 19.5f));
 
-        API::Draw(SPRITES[TILE_EMPTY], {static_cast<int>(currentX) - 1, 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
         API::Draw(PACMAN_XY(0, flick * 2),
-            {static_cast<int>(currentX), 20});
+            Vec2i{static_cast<int>(currentX), 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 12;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 3, 20});
-        API::Draw(ghost, {ghostX + 4, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 3, 20});
+        API::Draw(ghost, Vec2i{ghostX + 4, 20});
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 5, 20});
-        API::Draw(ghost, {ghostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 5, 20});
+        API::Draw(ghost, Vec2i{ghostX + 6, 20});
 
         lastGhostX = ghostX;
     }
 
     if (mTimer > 21.0f && mTimer < 23.0f) {
-        API::Draw(SPRITES[SCORE_800], {lastGhostX + 4, 20});
+        API::Draw(SPRITES[SCORE_800], Vec2i{lastGhostX + 4, 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {lastGhostX + 5, 20});
-        API::Draw(ghost, {lastGhostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{lastGhostX + 5, 20});
+        API::Draw(ghost, Vec2i{lastGhostX + 6, 20});
     }
 
     if (mTimer > 23.0f && mTimer < 23.5f) {
         float currentX = Lerp(4.f, 30.f, 3.5f, mTimer - 21.5f);
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 21.5f));
 
-        API::Draw(SPRITES[TILE_EMPTY], {static_cast<int>(currentX) - 1, 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
         API::Draw(PACMAN_XY(0, flick * 2),
-            {static_cast<int>(currentX), 20});
+            Vec2i{static_cast<int>(currentX), 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
 
         ghost.id = 13;
-        API::Draw(SPRITES[TILE_NOTHING], {ghostX + 5, 20});
-        API::Draw(ghost, {ghostX + 6, 20});
+        API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 5, 20});
+        API::Draw(ghost, Vec2i{ghostX + 6, 20});
 
         lastGhostX = ghostX;
     }
 
     if (mTimer > 23.5f && mTimer < 25.5f) {
-        API::Draw(SPRITES[SCORE_1600], {lastGhostX + 6, 20});
+        API::Draw(SPRITES[SCORE_1600], Vec2i{lastGhostX + 6, 20});
     }
 
     if (mTimer > 25.5f && mTimer < 30.0f) {
         float currentX = Lerp(4.f, 30.f, 3.5f, mTimer - 23.5f);
 
-        API::Draw(SPRITES[TILE_EMPTY], {static_cast<int>(currentX) - 1, 20});
+        API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
         API::Draw(PACMAN_XY(0, flick * 2),
-            {static_cast<int>(currentX), 20});
+            Vec2i{static_cast<int>(currentX), 20});
     }
 
     if (mTimer > 30.f) {

@@ -21,7 +21,7 @@ namespace Arc
 #define ARCADE_SCREEN_HEIGHT    36
 #define ARCADE_GAME_WIDTH       28
 #define ARCADE_GAME_HEIGHT      31
-#define ARCADE_OFFSET_Y         (ARCADE_SCREEN_HEIGHT - ARCADE_GAME_HEIGHT)
+#define ARCADE_OFFSET_Y         (ARCADE_SCREEN_HEIGHT - ARCADE_GAME_HEIGHT - 2)
 
 ///////////////////////////////////////////////////////////////////////////////
 //

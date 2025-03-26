@@ -15,7 +15,7 @@ namespace Arc::Pacman
 Player::Player(void)
     : mDesiredDirection(0)
     , mDirection(0)
-    , mPosition(14, 17)
+    , mPosition(13.5f, 23)
     , mAnimationOffset(0)
     , mDirectionOffset(0)
     , mMovementSpeed(7.5f)
@@ -67,7 +67,7 @@ void Player::Draw(float timer)
 
     API::Draw(
         PACMAN_XY(mDirectionOffset, mAnimationOffset),
-        mPosition + Vec2i(0, ARCADE_OFFSET_Y)
+        mPosition + Vec2f(0, ARCADE_OFFSET_Y)
     );
 }
 
@@ -83,7 +83,8 @@ void Player::Update(float deltaSeconds)
     }
 
     mMovementAccumulator -= moveThreshold;
-    Vec2i nextPosition = mPosition + mDesiredDirection;
+    Vec2f nextPosition = mPosition +
+        Vec2f(mDesiredDirection.x, mDesiredDirection.y);
 
     if (nextPosition.x < 0) {
         nextPosition.x = ARCADE_GAME_WIDTH - 1;
@@ -91,12 +92,17 @@ void Player::Update(float deltaSeconds)
         nextPosition.x = 0;
     }
 
-    if (PACMAN_MAP[nextPosition.y][nextPosition.x] == TILE_EMPTY) {
+    int x = static_cast<int>(nextPosition.x);
+    int y = static_cast<int>(nextPosition.y);
+
+    if (PACMAN_MAP[y][x] == TILE_EMPTY) {
         mDirection = mDesiredDirection;
         mPosition = nextPosition;
     } else {
-        nextPosition = mPosition + mDirection;
-        if (PACMAN_MAP[nextPosition.y][nextPosition.x] == TILE_EMPTY) {
+        nextPosition = mPosition + Vec2f(mDirection.x, mDirection.y);
+        x = static_cast<int>(nextPosition.x);
+        y = static_cast<int>(nextPosition.y);
+        if (PACMAN_MAP[y][x] == TILE_EMPTY) {
             mPosition = nextPosition;
         }
     }

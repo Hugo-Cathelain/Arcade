@@ -16,7 +16,7 @@ namespace Arc::Pacman
 ///////////////////////////////////////////////////////////////////////////////
 Game::Game(void)
     : mTimer(0.f)
-    , mPlaying(false)
+    , mState(State::PRESS_START)
     , mScore(0)
 {}
 
@@ -33,6 +33,10 @@ void Game::SetDefaultGums(void)
     for (int y = 0; y < ARCADE_GAME_HEIGHT; y++) {
         for (int x = 0; x < ARCADE_GAME_WIDTH; x++) {
             if (y >= 9 && y <= 19 && x != 6 && x != 21) {
+                continue;
+            }
+
+            if ((x == 13 || x == 14) && y == 23) {
                 continue;
             }
 
@@ -54,11 +58,18 @@ void Game::DrawMapBaseLayer(void)
 {
     for (int y = 0; y < ARCADE_GAME_HEIGHT; y++) {
         for (int x = 0; x < ARCADE_GAME_WIDTH; x++) {
-            API::Draw(SPRITES[PACMAN_MAP[y][x]], {x, y + ARCADE_OFFSET_Y});
+            API::Draw(SPRITES[PACMAN_MAP[y][x]], Vec2i{x, y + ARCADE_OFFSET_Y});
         }
     }
 
-    if (!mPlaying) {
+    if (mState != State::PLAYING) {
+        if (mState == State::PRESS_START) {
+            Menu::Text(
+                "PLAYER ONE", Menu::TextColor::TEXT_CYAN,
+                Vec2i{9, 11 + ARCADE_OFFSET_Y}
+            );
+        }
+
         Menu::Text(
             "READY!", Menu::TextColor::TEXT_YELLOW,
             Vec2i{11, 17 + ARCADE_OFFSET_Y}
@@ -69,11 +80,10 @@ void Game::DrawMapBaseLayer(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::DrawScore(void)
 {
-    Menu::Text("1UP   HIGH SCORE   2UP",
+    Menu::Text("1UP   HIGH SCORE",
         Menu::TextColor::TEXT_WHITE, Vec2i{3, 0});
 
     std::string score = std::to_string(mScore);
-
     if (mScore < 10) {
         score = "0" + score;
     }
@@ -119,9 +129,17 @@ void Game::HandleEvents(void)
                 direction = Vec2i{1, 0};
             }
 
-            if (direction != 0) {
+            if (key->code == EKeyboardKey::SPACE && mState == State::PRESS_START) {
+                mState = State::START_PRESSED;
+            }
+
+            if (direction != 0 && mState == State::START_PRESSED) {
+                mState = State::PLAYING;
+                mPlayer->SetPosition({14 + direction.x, 23});
+            }
+
+            if (direction != 0 && mState == State::PLAYING) {
                 mPlayer->SetDesiredDirection(direction);
-                mPlaying = true;
             }
         }
     }
@@ -150,7 +168,7 @@ void Game::CheckForGumsEaten(void)
 void Game::BeginPlay(void)
 {
     mTimer = 0.0f;
-    mPlaying = false;
+    mState = State::PRESS_START;
     mPlayer.reset(new Player());
     mBlinky.reset(new Ghost(Ghost::Type::BLINKY));
     mPinky.reset(new Ghost(Ghost::Type::PINKY));
@@ -163,7 +181,7 @@ void Game::BeginPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::Tick(float deltaSeconds)
 {
-    if (mPlaying) {
+    if (mState != State::PRESS_START) {
         mTimer += deltaSeconds;
     }
 
@@ -171,7 +189,7 @@ void Game::Tick(float deltaSeconds)
     HandleEvents();
 
     // Updating
-    if (mPlaying) {
+    if (mState == State::PLAYING) {
         mPlayer->Update(deltaSeconds);
         mBlinky->Update(deltaSeconds);
         mPinky->Update(deltaSeconds);
@@ -184,12 +202,12 @@ void Game::Tick(float deltaSeconds)
     DrawMapBaseLayer();
     DrawGums();
 
-    if (mPlaying) {
-        mPlayer->Draw(mTimer);
+    if (mState != State::PRESS_START) {
         mBlinky->Draw(mTimer);
         mPinky->Draw(mTimer);
         mInky->Draw(mTimer);
         mClyde->Draw(mTimer);
+        mPlayer->Draw(mTimer);
     }
 
     DrawScore();

@@ -14,9 +14,13 @@ namespace Arc::Pacman
 ///////////////////////////////////////////////////////////////////////////////
 Ghost::Ghost(Type type)
     : mType(type)
-    , mPosition(static_cast<int>(type) + 12, 14)
+    , mPosition(static_cast<float>(type) * 2.f + 9.5f, 14.f)
     , mDirection(0, 0)
-{}
+{
+    if (type == Type::BLINKY) {
+        mPosition = Vec2f(13.5f, 11.f);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Ghost::Update(float deltaSeconds)
@@ -54,7 +58,7 @@ void Ghost::Draw(float timer)
             "/\\", GHOST_COLORS[index], {16, 16},
             index * 4
         ),
-        mPosition + Vec2i(0, ARCADE_OFFSET_Y)
+        mPosition + Vec2f(0, ARCADE_OFFSET_Y)
     );
 }
 

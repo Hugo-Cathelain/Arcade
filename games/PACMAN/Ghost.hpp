@@ -38,7 +38,7 @@ private:
     //
     ///////////////////////////////////////////////////////////////////////////
     Type mType;             //<!
-    Vec2i mPosition;        //<!
+    Vec2f mPosition;        //<!
     Vec2i mDirection;       //<!
 
 public:
