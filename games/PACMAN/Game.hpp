@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "../../Arcade/interfaces/IGameState.hpp"
 #include "games/PACMAN/Player.hpp"
+#include "games/PACMAN/Ghost.hpp"
 #include <map>
 #include <memory>
 
@@ -43,6 +44,10 @@ private:
     std::map<int, GumType> mGums;       //<!
     std::unique_ptr<Player> mPlayer;    //<!
     int mScore;                         //<!
+    std::unique_ptr<Ghost> mBlinky;     //<!
+    std::unique_ptr<Ghost> mPinky;      //<!
+    std::unique_ptr<Ghost> mInky;       //<!
+    std::unique_ptr<Ghost> mClyde;      //!<
 
 public:
     ///////////////////////////////////////////////////////////////////////////

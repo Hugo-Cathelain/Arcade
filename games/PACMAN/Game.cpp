@@ -71,7 +71,18 @@ void Game::DrawScore(void)
 {
     Menu::Text("1UP   HIGH SCORE   2UP",
         Menu::TextColor::TEXT_WHITE, Vec2i{3, 0});
-    Menu::Text("00", Menu::TextColor::TEXT_WHITE, Vec2i{5, 1});
+
+    std::string score = std::to_string(mScore);
+
+    if (mScore < 10) {
+        score = "0" + score;
+    }
+
+    Menu::Text(
+        score,
+        Menu::TextColor::TEXT_WHITE,
+        Vec2i{7 - static_cast<int>(score.size()), 1}
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -141,6 +152,10 @@ void Game::BeginPlay(void)
     mTimer = 0.0f;
     mPlaying = false;
     mPlayer.reset(new Player());
+    mBlinky.reset(new Ghost(Ghost::Type::BLINKY));
+    mPinky.reset(new Ghost(Ghost::Type::PINKY));
+    mInky.reset(new Ghost(Ghost::Type::INKY));
+    mClyde.reset(new Ghost(Ghost::Type::CLYDE));
     mScore = 0;
     SetDefaultGums();
 }
@@ -158,6 +173,10 @@ void Game::Tick(float deltaSeconds)
     // Updating
     if (mPlaying) {
         mPlayer->Update(deltaSeconds);
+        mBlinky->Update(deltaSeconds);
+        mPinky->Update(deltaSeconds);
+        mInky->Update(deltaSeconds);
+        mClyde->Update(deltaSeconds);
     }
     CheckForGumsEaten();
 
@@ -167,6 +186,10 @@ void Game::Tick(float deltaSeconds)
 
     if (mPlaying) {
         mPlayer->Draw(mTimer);
+        mBlinky->Draw(mTimer);
+        mPinky->Draw(mTimer);
+        mInky->Draw(mTimer);
+        mClyde->Draw(mTimer);
     }
 
     DrawScore();
