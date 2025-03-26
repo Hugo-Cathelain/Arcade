@@ -184,10 +184,18 @@ void Game::CheckForGumsEaten(void)
             } else {
                 mPowerPillTimer = 10.f;
                 mScore += 50;
-                mBlinky->SetState(Ghost::State::FRIGHTENED);
-                mPinky->SetState(Ghost::State::FRIGHTENED);
-                mInky->SetState(Ghost::State::FRIGHTENED);
-                mClyde->SetState(Ghost::State::FRIGHTENED);
+                if (mBlinky->GetState() == Ghost::State::CHASING) {
+                    mBlinky->SetState(Ghost::State::FRIGHTENED);
+                }
+                if (mPinky->GetState() == Ghost::State::CHASING) {
+                    mPinky->SetState(Ghost::State::FRIGHTENED);
+                }
+                if (mInky->GetState() == Ghost::State::CHASING) {
+                    mInky->SetState(Ghost::State::FRIGHTENED);
+                }
+                if (mClyde->GetState() == Ghost::State::CHASING) {
+                    mClyde->SetState(Ghost::State::FRIGHTENED);
+                }
             }
 
             mGums.erase(index);
@@ -225,10 +233,10 @@ void Game::Tick(float deltaSeconds)
     HandlePowerPill(deltaSeconds);
     if (mState == State::PLAYING) {
         mPlayer->Update(deltaSeconds);
-        mBlinky->Update(deltaSeconds);
-        mPinky->Update(deltaSeconds);
-        mInky->Update(deltaSeconds);
-        mClyde->Update(deltaSeconds);
+        mBlinky->Update(deltaSeconds, mPlayer->GetPosition());
+        mPinky->Update(deltaSeconds, mPlayer->GetPosition());
+        mInky->Update(deltaSeconds, mPlayer->GetPosition());
+        mClyde->Update(deltaSeconds, mPlayer->GetPosition());
     }
     CheckForGumsEaten();
 
