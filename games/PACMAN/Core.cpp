@@ -57,6 +57,7 @@ void Core::Tick(float deltaSeconds)
                     mGameState->BeginPlay();
                 }
             } else if (auto gameOver = event->GetIf<API::Event::GameOver>()) {
+                (void)gameOver;
                 mInGame = false;
                 mGameState->EndPlay();
                 mGameState.reset(new Menu(false));

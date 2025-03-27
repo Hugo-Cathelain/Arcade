@@ -3,6 +3,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "games/PACMAN/Ghost.hpp"
 #include "games/PACMAN/Assets.hpp"
+#include "games/PACMAN/Random.hpp"
+#include "games/PACMAN/Player.hpp"
 #include "../../Arcade/core/API.hpp"
 #include <algorithm>
 
@@ -12,19 +14,37 @@
 namespace Arc::Pacman
 {
 
+
+///////////////////////////////////////////////////////////////////////////////
+const Vec2i Ghost::CORNER_TARGETS[4] = {
+    Vec2i(ARCADE_GAME_WIDTH - 3, -4),                       // BLINKY
+    Vec2i(2, -4),                                           // PINKY
+    Vec2i(0, ARCADE_SCREEN_HEIGHT),                         // INKY
+    Vec2i(ARCADE_GAME_WIDTH - 1, ARCADE_SCREEN_HEIGHT)      // CLYDE
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 Ghost::Ghost(Type type)
     : mType(type)
-    , mState(State::IDLING)
+    , mState(State::SCATTER)
     , mPosition(static_cast<float>(type) * 2.f + 9.5f, 14.f)
     , mDirection(0, 0)
     , mMovementSpeed(8.f)
     , mMovementAccumulator(0.f)
+    , mInGhostHouse(true)
+    , mAccumulator(0.f)
 {
     if (type == Type::BLINKY) {
-        mState = State::CHASING;
+        mInGhostHouse = false;
+        mState = State::CHASE;
         mPosition = Vec2f(13.5f, 11.f);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+Ghost::Type Ghost::GetType(void) const
+{
+    return (mType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,118 +72,190 @@ void Ghost::SetState(Ghost::State state)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-Vec2i Ghost::GetNextPosition(Vec2i pacmanPos)
+void Ghost::CalculateBlinkyTarget(std::unique_ptr<Player>& pacman)
 {
-    Vec2i currentPos = Vec2i(mPosition);
-
-    const std::vector<Vec2i> directions = {
-        Vec2i(1, 0),
-        Vec2i(-1, 0),
-        Vec2i(0, -1),
-        Vec2i(0, 1)
-    };
-
-    Vec2i oppositeDir(-mDirection.x, -mDirection.y);
-
-    std::vector<std::pair<Vec2i, float>> validMoves;
-
-    for (const auto& dir : directions) {
-        if (dir == oppositeDir && mState != State::FRIGHTENED) {
-            continue;
-        }
-
-        Vec2i nextPos = currentPos + dir;
-
-        if (nextPos.x < 0) {
-            nextPos.x = ARCADE_GAME_WIDTH - 1;
-        } else if (nextPos.x >= ARCADE_GAME_WIDTH) {
-            nextPos.x = 0;
-        }
-
-        if (nextPos.y >= 0 && nextPos.y < ARCADE_GAME_HEIGHT &&
-            PACMAN_MAP[nextPos.y][nextPos.x] == TILE_EMPTY) {
-
-            float distance = std::abs(nextPos.x - pacmanPos.x) +
-                             std::abs(nextPos.y - pacmanPos.y);
-
-            if (mState == State::FRIGHTENED) {
-                distance = -distance;
-            }
-
-            float randomFactor = 1.0f + (static_cast<float>(rand() % 10) / 100.0f);
-            distance *= randomFactor;
-
-            validMoves.push_back({nextPos, distance});
-        }
-    }
-
-    if (!validMoves.empty()) {
-        std::sort(validMoves.begin(), validMoves.end(),
-            [](const auto& a, const auto& b) {
-                return a.second < b.second;
-            });
-
-        Vec2i bestPos = validMoves[0].first;
-        mDirection = Vec2i(bestPos.x - currentPos.x, bestPos.y - currentPos.y);
-
-        if (std::abs(mDirection.x) > 1) {
-            mDirection.x = (mDirection.x > 0) ? -1 : 1;
-        }
-
-        return (bestPos);
-    }
-
-    Vec2i backupPos = currentPos + oppositeDir;
-
-    if (backupPos.x < 0) {
-        backupPos.x = ARCADE_GAME_WIDTH - 1;
-    } else if (backupPos.x >= ARCADE_GAME_WIDTH) {
-        backupPos.x = 0;
-    }
-
-    if (backupPos.y >= 0 && backupPos.y < ARCADE_GAME_HEIGHT &&
-        PACMAN_MAP[backupPos.y][backupPos.x] == TILE_EMPTY) {
-        mDirection = oppositeDir;
-        return (backupPos);
-    }
-
-    return (currentPos);
+    mTarget = pacman->GetPosition();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Ghost::Update(float deltaSeconds, Vec2i pacmanPos)
+void Ghost::CalculatePinkyTarget(std::unique_ptr<Player>& pacman)
 {
-    if (mState == State::IDLING) {
+    Vec2i pacmanPos = pacman->GetPosition();
+    Vec2i pacmanDir = pacman->GetDirection();
+
+    if (pacmanDir.y == -1) {
+        mTarget = Vec2i(pacmanPos.x - 4, pacmanPos.y - 4);
+    } else {
+        mTarget = Vec2i(pacmanPos.x + pacmanDir.x * 4, pacmanPos.y + pacmanDir.y * 4);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::CalculateInkyTarget(std::unique_ptr<Player>& pacman, const Vec2i& blinkyPos)
+{
+    Vec2i pacmanPos = pacman->GetPosition();
+    Vec2i pacmanDir = pacman->GetDirection();
+    Vec2i intermediate;
+
+    if (pacmanDir.y == -1) {
+        intermediate = Vec2i(pacmanPos.x - 2, pacmanPos.y - 2);
+    } else {
+        intermediate = Vec2i(
+            pacmanPos.x + pacmanDir.x * 2,
+            pacmanPos.y + pacmanDir.y * 2
+        );
+    }
+
+    Vec2i vector = Vec2i(
+        intermediate.x - blinkyPos.x,
+        intermediate.y - blinkyPos.y
+    );
+    mTarget = Vec2i(intermediate.x + vector.x, intermediate.y + vector.y);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::CalculateClydeTarget(std::unique_ptr<Player>& pacman)
+{
+    Vec2i pacmanPos = pacman->GetPosition();
+    Vec2i ghostPos = Vec2i(mPosition);
+
+    float distance = (Vec2f(ghostPos) - Vec2f(pacmanPos)).Length();
+
+    if (distance >= 8.0f) {
+        mTarget = pacmanPos;
+    } else {
+        mTarget = CORNER_TARGETS[static_cast<int>(Type::CLYDE)];
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::CalculateFrightenedDirection(void)
+{
+    static const std::vector<Vec2i> PRIORITISED_DIRECTION = {
+        Vec2i(0, -1), Vec2i(-1, 0), Vec2i(0, 1), Vec2i(1, 0)
+    };
+
+    Vec2i forbidden = -mDirection;
+    unsigned int index = RNG::Get() % 4;
+
+    while (true) {
+        Vec2i dir = PRIORITISED_DIRECTION[index];
+        Vec2i next = Vec2i(mPosition + Vec2f(dir));
+
+        if (dir != forbidden && PACMAN_MAP[next.y][next.x] == TILE_EMPTY) {
+            mDirection = dir;
+            return;
+        }
+
+        index = (index + 1) % 4;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::HandleTunnelPassage(void)
+{
+    if (static_cast<int>(mPosition.x) <= 0) {
+        mPosition.x = ARCADE_GAME_WIDTH - 1;
+    } else if (static_cast<int>(mPosition.x) >= ARCADE_GAME_WIDTH - 1) {
+        mPosition.x = 0;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::CalculateBestDirection(void)
+{
+    static const std::vector<Vec2i> PRIORITISED_DIRECTION = {
+        Vec2i(0, -1), Vec2i(-1, 0), Vec2i(0, 1), Vec2i(1, 0)
+    };
+
+    Vec2i forbidden = -mDirection;
+    std::map<float, Vec2i> directions;
+
+    for (const auto& dir : PRIORITISED_DIRECTION) {
+        int x = static_cast<int>(mPosition.x + dir.x);
+        int y = static_cast<int>(mPosition.y + dir.y);
+
+        if (dir == forbidden || PACMAN_MAP[y][x] != TILE_EMPTY) {
+            continue;
+        }
+
+        float distance = (Vec2f(x, y) - Vec2f(mTarget)).Length();
+        directions[distance] = dir;
+    }
+
+    if (directions.empty()) {
+        for (const auto& dir : PRIORITISED_DIRECTION) {
+            int x = static_cast<int>(mPosition.x + dir.x);
+            int y = static_cast<int>(mPosition.y + dir.y);
+
+            if (PACMAN_MAP[y][x] == TILE_EMPTY) {
+                mDirection = dir;
+                return;
+            }
+        }
         return;
     }
 
-    float speed = mMovementSpeed;
+    mDirection = directions.begin()->second;
+}
 
-    if (mState == State::FRIGHTENED) {
-        speed = mMovementSpeed / 2.f;
-    } else if (mState == State::KILLED) {
-        speed = mMovementSpeed * 1.5f;
-    }
-
-    float moveThreshold = 1.0f / speed;
-
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::Update(
+    float deltaSeconds,
+    std::unique_ptr<Player>& pacman,
+    const Vec2i& blinkyPos
+)
+{
+    float moveThreshold = 1.0f / mMovementSpeed;
     mMovementAccumulator += deltaSeconds;
 
     if (mMovementAccumulator < moveThreshold) {
         return;
     }
     mMovementAccumulator -= moveThreshold;
-    mPosition = GetNextPosition(pacmanPos);;
+
+    if (mInGhostHouse) {
+        return;
+    }
+
+    switch (mState) {
+        case State::CHASE:
+            if (mType == Type::BLINKY) {
+                CalculateBlinkyTarget(pacman);
+            } else if (mType == Type::PINKY) {
+                CalculatePinkyTarget(pacman);
+            } else if (mType == Type::INKY) {
+                CalculateInkyTarget(pacman, blinkyPos);
+            } else if (mType == Type::CLYDE) {
+                CalculateClydeTarget(pacman);
+            }
+            CalculateBestDirection();
+            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            break;
+        case State::SCATTER:
+            mTarget = CORNER_TARGETS[static_cast<int>(mType)];
+            CalculateBestDirection();
+            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            break;
+        case State::EATEN:
+            mTarget = Vec2i(13, 11);
+            CalculateBestDirection();
+            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            break;
+        case State::FRIGHTENED:
+            CalculateFrightenedDirection();
+            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            break;
+    }
+
+    HandleTunnelPassage();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Ghost::Draw(float timer)
 {
     static const Color GHOST_COLORS[] = {
-        CLR_RED,
-        CLR_PINK,
-        CLR_CYAN,
-        CLR_ORANGE
+        CLR_RED, CLR_PINK, CLR_CYAN, CLR_ORANGE
     };
 
     int index = static_cast<int>(mType);
@@ -180,32 +272,35 @@ void Ghost::Draw(float timer)
         directionOffset = 12;
     }
 
-    if (mState == State::FRIGHTENED) {
-        auto scared = SPRITES[SCARED_1 + flickering / 2];
-        scared.id = index * 4;
+    Vec2f position = mPosition + Vec2f(0, ARCADE_OFFSET_Y);
 
-        API::Draw(
-            scared,
-            mPosition + Vec2f(0, ARCADE_OFFSET_Y)
-        );
-    } else if (mState == State::KILLED) {
-        API::Draw(
-            IGameModule::Asset(
-                {20 + directionOffset / 2, 8},
-                "oo", CLR_WHITE, {16, 16},
-                index * 4
-            ),
-            mPosition + Vec2f(0, ARCADE_OFFSET_Y)
-        );
-    } else {
-        API::Draw(
-            IGameModule::Asset(
-                {12 + directionOffset + flickering, index * 2},
-                "/\\", GHOST_COLORS[index], {16, 16},
-                index * 4
-            ),
-            mPosition + Vec2f(0, ARCADE_OFFSET_Y)
-        );
+    switch (mState) {
+        case State::CHASE:
+        case State::SCATTER:
+            API::Draw(
+                IGameModule::Asset(
+                    {12 + directionOffset + flickering, index * 2},
+                    "/\\", GHOST_COLORS[index], {16, 16},
+                    index * 4
+                ),
+                position
+            );
+            break;
+        case State::EATEN:
+            API::Draw(
+                IGameModule::Asset(
+                    {20 + directionOffset / 2, 8},
+                    "oo", CLR_WHITE, {16, 16},
+                    index * 4
+                ),
+                position
+            );
+            break;
+        case State::FRIGHTENED:
+            IGameModule::Asset scared = SPRITES[SCARED_1 + flickering / 2];
+            scared.id = index * 4;
+            API::Draw(scared, position);
+            break;
     }
 }
 

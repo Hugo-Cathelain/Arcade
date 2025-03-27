@@ -18,9 +18,11 @@ Game::Game(void)
     : mTimer(0.f)
     , mState(State::PRESS_START)
     , mScore(0)
+    , mEatenGhost(Ghost::Type::NONE)
     , mPowerPillTimer(0.f)
     , mKillCount(0)
     , mHealth(4)
+    , mLevel(1)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,6 +135,10 @@ void Game::DrawEatScore(void)
             std::get<1>(timer) + Vec2i(0, ARCADE_OFFSET_Y)
         );
     }
+
+    if (mEatTimer.size() == 0) {
+        mEatenGhost = Ghost::Type::NONE;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,16 +186,16 @@ void Game::HandlePowerPill(float deltaSeconds)
         mPowerPillTimer = 0.f;
         mKillCount = 0;
         if (mBlinky->GetState() == Ghost::State::FRIGHTENED) {
-            mBlinky->SetState(Ghost::State::CHASING);
+            mBlinky->SetState(Ghost::State::CHASE);
         }
         if (mPinky->GetState() == Ghost::State::FRIGHTENED) {
-            mPinky->SetState(Ghost::State::CHASING);
+            mPinky->SetState(Ghost::State::CHASE);
         }
         if (mInky->GetState() == Ghost::State::FRIGHTENED) {
-            mInky->SetState(Ghost::State::CHASING);
+            mInky->SetState(Ghost::State::CHASE);
         }
         if (mClyde->GetState() == Ghost::State::FRIGHTENED) {
-            mClyde->SetState(Ghost::State::CHASING);
+            mClyde->SetState(Ghost::State::CHASE);
         }
     }
 }
@@ -206,16 +212,16 @@ void Game::CheckForGumsEaten(void)
             } else {
                 mPowerPillTimer = 10.f;
                 mScore += 50;
-                if (mBlinky->GetState() == Ghost::State::CHASING) {
+                if (mBlinky->GetState() == Ghost::State::CHASE) {
                     mBlinky->SetState(Ghost::State::FRIGHTENED);
                 }
-                if (mPinky->GetState() == Ghost::State::CHASING) {
+                if (mPinky->GetState() == Ghost::State::CHASE) {
                     mPinky->SetState(Ghost::State::FRIGHTENED);
                 }
-                if (mInky->GetState() == Ghost::State::CHASING) {
+                if (mInky->GetState() == Ghost::State::CHASE) {
                     mInky->SetState(Ghost::State::FRIGHTENED);
                 }
-                if (mClyde->GetState() == Ghost::State::CHASING) {
+                if (mClyde->GetState() == Ghost::State::CHASE) {
                     mClyde->SetState(Ghost::State::FRIGHTENED);
                 }
             }
@@ -236,8 +242,13 @@ void Game::BeginPlay(void)
     mPinky.reset(new Ghost(Ghost::Type::PINKY));
     mInky.reset(new Ghost(Ghost::Type::INKY));
     mClyde.reset(new Ghost(Ghost::Type::CLYDE));
+    mEatenGhost = Ghost::Type::NONE;
     mScore = 0;
     mPowerPillTimer = 0.f;
+    mKillCount = 0;
+    mEatTimer.clear();
+    mHealth = 4;
+    mLevel = 1;
     SetDefaultGums();
 }
 
@@ -249,12 +260,13 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
     }
 
     if (ghost->GetState() == Ghost::State::FRIGHTENED) {
-        ghost->SetState(Ghost::State::KILLED);
+        mEatenGhost = ghost->GetType();
+        ghost->SetState(Ghost::State::EATEN);
         mScore += 200 << mKillCount;
         mEatTimer[200 << mKillCount] =
             std::make_tuple(0.f, mPlayer->GetPosition());
         mKillCount++;
-    } else if (ghost->GetState() == Ghost::State::CHASING) {
+    } else if (ghost->GetState() != Ghost::State::EATEN) {
         mHealth--;
         mTimer = 0.f;
         mState = State::START_PRESSED;
@@ -283,10 +295,12 @@ void Game::Tick(float deltaSeconds)
         HandlePowerPill(deltaSeconds);
         if (mEatTimer.size() == 0) {
             mPlayer->Update(deltaSeconds);
-            mBlinky->Update(deltaSeconds, mPlayer->GetPosition());
-            mPinky->Update(deltaSeconds, mPlayer->GetPosition());
-            mInky->Update(deltaSeconds, mPlayer->GetPosition());
-            mClyde->Update(deltaSeconds, mPlayer->GetPosition());
+
+            Vec2i blinkyPos = mBlinky->GetPosition();
+            mBlinky->Update(deltaSeconds, mPlayer, blinkyPos);
+            mPinky->Update(deltaSeconds, mPlayer, blinkyPos);
+            mInky->Update(deltaSeconds, mPlayer, blinkyPos);
+            mClyde->Update(deltaSeconds, mPlayer, blinkyPos);
         }
         CheckForGhostsCollisions(mBlinky);
         CheckForGhostsCollisions(mPinky);
@@ -302,10 +316,18 @@ void Game::Tick(float deltaSeconds)
 
     if (mState != State::PRESS_START) {
         if (mState != State::DEATH_ANIMATION) {
-            mBlinky->Draw(mTimer);
-            mPinky->Draw(mTimer);
-            mInky->Draw(mTimer);
-            mClyde->Draw(mTimer);
+            if (mEatTimer.size() == 0 || mBlinky->GetType() != mEatenGhost) {
+                mBlinky->Draw(mTimer);
+            }
+            if (mEatTimer.size() == 0 || mPinky->GetType() != mEatenGhost) {
+                mPinky->Draw(mTimer);
+            }
+            if (mEatTimer.size() == 0 || mInky->GetType() != mEatenGhost) {
+                mInky->Draw(mTimer);
+            }
+            if (mEatTimer.size() == 0 || mClyde->GetType() != mEatenGhost) {
+                mClyde->Draw(mTimer);
+            }
         }
         if (mEatTimer.size() == 0) {
             mPlayer->Draw(mTimer);

@@ -60,10 +60,12 @@ private:
     std::unique_ptr<Ghost> mPinky;                      //<!
     std::unique_ptr<Ghost> mInky;                       //<!
     std::unique_ptr<Ghost> mClyde;                      //<!
+    Ghost::Type mEatenGhost;                            //<!
     float mPowerPillTimer;                              //<!
     int mKillCount;                                     //<!
     std::map<int, std::tuple<float, Vec2i>> mEatTimer;  //<!
     int mHealth;                                        //<!
+    int mLevel;                                         //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
