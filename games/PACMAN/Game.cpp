@@ -20,6 +20,7 @@ Game::Game(void)
     , mScore(0)
     , mPowerPillTimer(0.f)
     , mKillCount(0)
+    , mHealth(4)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -254,8 +255,12 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
             std::make_tuple(0.f, mPlayer->GetPosition());
         mKillCount++;
     } else if (ghost->GetState() == Ghost::State::CHASING) {
+        mHealth--;
         mTimer = 0.f;
-        mState = State::PRESS_START;
+        mState = State::START_PRESSED;
+        if (mHealth == 0) {
+            API::PushEvent(API::Event::GAME, API::Event::GameOver{mScore});
+        }
     }
 }
 
@@ -274,19 +279,21 @@ void Game::Tick(float deltaSeconds)
     HandleEvents();
 
     // Updating
-    HandlePowerPill(deltaSeconds);
     if (mState == State::PLAYING) {
-        mPlayer->Update(deltaSeconds);
-        mBlinky->Update(deltaSeconds, mPlayer->GetPosition());
-        mPinky->Update(deltaSeconds, mPlayer->GetPosition());
-        mInky->Update(deltaSeconds, mPlayer->GetPosition());
-        mClyde->Update(deltaSeconds, mPlayer->GetPosition());
+        HandlePowerPill(deltaSeconds);
+        if (mEatTimer.size() == 0) {
+            mPlayer->Update(deltaSeconds);
+            mBlinky->Update(deltaSeconds, mPlayer->GetPosition());
+            mPinky->Update(deltaSeconds, mPlayer->GetPosition());
+            mInky->Update(deltaSeconds, mPlayer->GetPosition());
+            mClyde->Update(deltaSeconds, mPlayer->GetPosition());
+        }
+        CheckForGhostsCollisions(mBlinky);
+        CheckForGhostsCollisions(mPinky);
+        CheckForGhostsCollisions(mInky);
+        CheckForGhostsCollisions(mClyde);
+        CheckForGumsEaten();
     }
-    CheckForGhostsCollisions(mBlinky);
-    CheckForGhostsCollisions(mPinky);
-    CheckForGhostsCollisions(mInky);
-    CheckForGhostsCollisions(mClyde);
-    CheckForGumsEaten();
 
     // Drawing
     DrawMapBaseLayer();
@@ -294,11 +301,15 @@ void Game::Tick(float deltaSeconds)
     DrawEatScore();
 
     if (mState != State::PRESS_START) {
-        mBlinky->Draw(mTimer);
-        mPinky->Draw(mTimer);
-        mInky->Draw(mTimer);
-        mClyde->Draw(mTimer);
-        mPlayer->Draw(mTimer);
+        if (mState != State::DEATH_ANIMATION) {
+            mBlinky->Draw(mTimer);
+            mPinky->Draw(mTimer);
+            mInky->Draw(mTimer);
+            mClyde->Draw(mTimer);
+        }
+        if (mEatTimer.size() == 0) {
+            mPlayer->Draw(mTimer);
+        }
     }
 
     DrawScore();
@@ -306,6 +317,14 @@ void Game::Tick(float deltaSeconds)
 
 ///////////////////////////////////////////////////////////////////////////////
 void Game::EndPlay(void)
-{}
+{
+    mGums.clear();
+    mPlayer.reset();
+    mBlinky.reset();
+    mPinky.reset();
+    mInky.reset();
+    mClyde.reset();
+    mEatTimer.clear();
+}
 
 } // namespace Arc::Pacman

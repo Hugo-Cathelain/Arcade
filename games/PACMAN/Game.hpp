@@ -43,7 +43,8 @@ private:
     {
         PRESS_START,
         START_PRESSED,
-        PLAYING
+        PLAYING,
+        DEATH_ANIMATION
     };
 
 private:
@@ -62,6 +63,7 @@ private:
     float mPowerPillTimer;                              //<!
     int mKillCount;                                     //<!
     std::map<int, std::tuple<float, Vec2i>> mEatTimer;  //<!
+    int mHealth;                                        //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

@@ -140,7 +140,9 @@ void Ghost::Update(float deltaSeconds, Vec2i pacmanPos)
     float speed = mMovementSpeed;
 
     if (mState == State::FRIGHTENED) {
-        speed = 3.75f;
+        speed = mMovementSpeed / 2.f;
+    } else if (mState == State::KILLED) {
+        speed = mMovementSpeed * 1.5f;
     }
 
     float moveThreshold = 1.0f / speed;
@@ -187,7 +189,14 @@ void Ghost::Draw(float timer)
             mPosition + Vec2f(0, ARCADE_OFFSET_Y)
         );
     } else if (mState == State::KILLED) {
-
+        API::Draw(
+            IGameModule::Asset(
+                {20 + directionOffset / 2, 8},
+                "oo", CLR_WHITE, {16, 16},
+                index * 4
+            ),
+            mPosition + Vec2f(0, ARCADE_OFFSET_Y)
+        );
     } else {
         API::Draw(
             IGameModule::Asset(
