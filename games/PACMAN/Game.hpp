@@ -50,16 +50,18 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-    float mTimer;                       //<!
-    State mState;                       //<!
-    std::map<int, GumType> mGums;       //<!
-    std::unique_ptr<Player> mPlayer;    //<!
-    int mScore;                         //<!
-    std::unique_ptr<Ghost> mBlinky;     //<!
-    std::unique_ptr<Ghost> mPinky;      //<!
-    std::unique_ptr<Ghost> mInky;       //<!
-    std::unique_ptr<Ghost> mClyde;      //<!
-    float mPowerPillTimer;              //<!
+    float mTimer;                                       //<!
+    State mState;                                       //<!
+    std::map<int, GumType> mGums;                       //<!
+    std::unique_ptr<Player> mPlayer;                    //<!
+    int mScore;                                         //<!
+    std::unique_ptr<Ghost> mBlinky;                     //<!
+    std::unique_ptr<Ghost> mPinky;                      //<!
+    std::unique_ptr<Ghost> mInky;                       //<!
+    std::unique_ptr<Ghost> mClyde;                      //<!
+    float mPowerPillTimer;                              //<!
+    int mKillCount;                                     //<!
+    std::map<int, std::tuple<float, Vec2i>> mEatTimer;  //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
@@ -103,6 +105,12 @@ private:
     /// \brief
     ///
     ///////////////////////////////////////////////////////////////////////////
+    void DrawEatScore(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     void HandleEvents(void);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -116,6 +124,12 @@ private:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void CheckForGumsEaten(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost);
 
 public:
     ///////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,7 @@ Game::Game(void)
     , mState(State::PRESS_START)
     , mScore(0)
     , mPowerPillTimer(0.f)
+    , mKillCount(0)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,6 +115,26 @@ void Game::DrawGums(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::DrawEatScore(void)
+{
+    static const SpriteType SCORES[] = {
+        SCORE_200, SCORE_400, SCORE_800, SCORE_1600
+    };
+
+    for (const auto& [score, timer] : mEatTimer) {
+        if (std::get<0>(timer) >= 2.f) {
+            mEatTimer.erase(score);
+            continue;
+        }
+
+        API::Draw(
+            SPRITES[SCORES[score / 200 - 1]],
+            std::get<1>(timer) + Vec2i(0, ARCADE_OFFSET_Y)
+        );
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::HandleEvents(void)
 {
     while (auto event = API::PollEvent(API::Event::GAME)) {
@@ -156,7 +177,7 @@ void Game::HandlePowerPill(float deltaSeconds)
     mPowerPillTimer -= deltaSeconds;
     if (mPowerPillTimer < 0.f) {
         mPowerPillTimer = 0.f;
-
+        mKillCount = 0;
         if (mBlinky->GetState() == Ghost::State::FRIGHTENED) {
             mBlinky->SetState(Ghost::State::CHASING);
         }
@@ -220,10 +241,33 @@ void Game::BeginPlay(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
+{
+    if (ghost->GetPosition() != mPlayer->GetPosition()) {
+        return;
+    }
+
+    if (ghost->GetState() == Ghost::State::FRIGHTENED) {
+        ghost->SetState(Ghost::State::KILLED);
+        mScore += 200 << mKillCount;
+        mEatTimer[200 << mKillCount] =
+            std::make_tuple(0.f, mPlayer->GetPosition());
+        mKillCount++;
+    } else if (ghost->GetState() == Ghost::State::CHASING) {
+        mTimer = 0.f;
+        mState = State::PRESS_START;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::Tick(float deltaSeconds)
 {
     if (mState != State::PRESS_START) {
         mTimer += deltaSeconds;
+    }
+
+    for (auto& [score, timer] : mEatTimer) {
+        std::get<0>(timer) += deltaSeconds;
     }
 
     // Handle Events
@@ -238,11 +282,16 @@ void Game::Tick(float deltaSeconds)
         mInky->Update(deltaSeconds, mPlayer->GetPosition());
         mClyde->Update(deltaSeconds, mPlayer->GetPosition());
     }
+    CheckForGhostsCollisions(mBlinky);
+    CheckForGhostsCollisions(mPinky);
+    CheckForGhostsCollisions(mInky);
+    CheckForGhostsCollisions(mClyde);
     CheckForGumsEaten();
 
     // Drawing
     DrawMapBaseLayer();
     DrawGums();
+    DrawEatScore();
 
     if (mState != State::PRESS_START) {
         mBlinky->Draw(mTimer);
