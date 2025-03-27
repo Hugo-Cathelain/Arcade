@@ -15,6 +15,26 @@ LIB_DIR					=	lib
 INCLUDES				=	-I.
 
 ###############################################################################
+## Metadata
+###############################################################################
+
+TARGET					?=	arcade
+QUIET					?=	0
+FLAGS					?=	
+
+AUTHOR					=	mallory-scotton
+DATE					=	
+HASH					=	
+
+ifeq ($(shell git rev-parse HEAD > /dev/null; echo $$?),0)
+	AUTHOR				:=	$(shell git log --format='%aN' | sort -u | awk \
+							'{printf "%s, ", $$0}' | rev | cut -c 3- | rev)
+	DATE				:=	$(shell git log -1 --date=format:"%Y/%m/%d %T" \
+							--format="%ad")
+	HASH				:=	$(shell git rev-parse --short HEAD)
+endif
+
+###############################################################################
 ## Utility function
 ###############################################################################
 
@@ -90,10 +110,45 @@ INCLUDES				+=	$(addprefix -I, $(CORE_DIR))
 CORE_OBJECTS			=	$(CORE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 
 ###############################################################################
+## Color configuration
+###############################################################################
+
+COM_COLOR				=	\033[0;34m
+OBJ_COLOR				=	\033[0;36m
+OK_COLOR				=	\033[0;32m
+ERROR_COLOR				=	\033[0;31m
+WARN_COLOR				=	\033[0;33m
+NO_COLOR				=	\033[m
+
+###############################################################################
 ## Makefile rules
 ###############################################################################
 
-all: core graphicals games
+all:
+	@make QUIET=0 -s core
+	@make QUIET=1 -s graphicals
+	@make QUIET=1 -s games
+
+header:
+	@printf "%b" "$(OK_COLOR)"
+ifeq ($(QUIET),0)
+	@cat .art
+endif
+	@echo
+ifneq ($(HASH),)
+	@printf "%b" "$(OBJ_COLOR)Name:	$(WARN_COLOR)$(TARGET)@$(HASH)\n"
+else
+	@printf "%b" "$(OBJ_COLOR)Name:	$(WARN_COLOR)$(TARGET)\n"
+endif
+ifeq ($(QUIET),0)
+	@printf "%b" "$(OBJ_COLOR)Author:	$(WARN_COLOR)$(AUTHOR)\n"
+	@printf "%b" "$(OBJ_COLOR)Date: 	$(WARN_COLOR)$(DATE)\n\033[m"
+endif
+	@printf "%b" "$(OBJ_COLOR)CC: 	$(WARN_COLOR)$(CXX)\n\033[m"
+ifneq ($(FLAGS),)
+	@printf "%b" "$(OBJ_COLOR)Flags: 	$(WARN_COLOR)$(FLAGS)\n\033[m"
+endif
+	@echo
 
 directories:
 	@mkdir -p $(BUILD_DIR)
@@ -106,22 +161,41 @@ graphicals: directories $(BACKEND_TARGETS)
 games: directories $(GAME_TARGETS)
 
 $(LIB_DIR)/arcade_%.so:
-	@make $($*_OBJECTS) | grep -v "Entering" | grep -v "Leaving"
-	$(CXX) -shared $($*_OBJECTS) -o $(call lowercase,$@) $($*_FLAGS)
+	@make QUIET=1 TARGET=$(call lowercase,$@) FLAGS="$($*_FLAGS)" -s header
+	@make -s $($*_OBJECTS)
+	@$(CXX) -shared $($*_OBJECTS) -o $(call lowercase,$@) $($*_FLAGS)
 
 $(BUILD_DIR)/%.o: %.cpp
+	@printf "%b%-64b" "$(COM_COLOR)compiling " "$(OBJ_COLOR)$<$(NO_COLOR)"
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ 2> "$<.log" \
+		 | grep -v '\[.*%\]' | tee -a "$<.log"
+	@RESULT=$?; \
+	if [[ $RESULT -ne 0 ]]; then \
+		printf "%b%b\n" "$(ERROR_COLOR)" "[✖]$(NO_COLOR)          "; \
+		echo; \
+	elif [ -s "$2.log" ]; then \
+		printf "%b%b\n" "$(WARN_COLOR)" "[⚠]$(NO_COLOR)          "; \
+	else \
+		printf "%b%b\n" "$(OK_COLOR)" "[✓]$(NO_COLOR)          "; \
+	fi; \
+	if [ -f "$<.log" ]; then \
+		cat "$<.log"; \
+	fi; \
+	rm -f "$<.log";
 
-$(CORE_TARGET): $(CORE_OBJECTS)
-	$(CXX) $^ -o $@ $(CORE_FLAGS)
+
+$(CORE_TARGET):
+	@make TARGET=$(CORE_TARGET) QUIET=0 FLAGS="$(CORE_FLAGS)" -s header
+	@make -s $(CORE_OBJECTS)
+	@$(CXX) $(CORE_OBJECTS) -o $@ $(CORE_FLAGS)
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 
 fclean: clean
-	rm -rf $(LIB_DIR)
-	rm -f $(ARC_TARGET)
+	@rm -rf $(LIB_DIR)
+	@rm -f $(CORE_TARGET)
 
 re: fclean all
 
@@ -135,10 +209,10 @@ $(BUILD_DIR)/%.d: %.cpp
 		sed 's,\($*\)\.o[ :]*,$(BUILD_DIR)/\1.o $@ : ,g' > $@
 
 run: all
-	./$(ARC_TARGET)
+	./$(CORE_TARGET)
 
 debug: CXXFLAGS += -g3 -DARC_DEBUG
 debug: re
 
 valgrind: debug
-	valgrind --leak-check=full ./$(ARC_TARGET)
+	valgrind --leak-check=full ./$(CORE_TARGET)
