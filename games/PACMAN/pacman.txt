@@ -1,0 +1,80 @@
+enum class BehaviorState
+{
+    CHASE,
+    SCATTER,
+    FRIGHTENED,
+    EATEN
+};
+
+// LVL SCATTER CHASE SCATTER CHASE SCATTER    CHASE SCATTER
+//   1      7"   20"      7"   20"      5"      20"      5"
+// 2-4      7"   20"      5"   20"      5" 17'13"14    0"01
+//  5+      5"   20"      5"   20"      5" 17'17"14    0"01
+
+// BLINKY Act in CHASE when SCATTER when a certain amount of dots remaining
+// 1 - 20
+// 2 - 30
+// 3-5 - 40
+// 6-8 - 50
+// 9-11 - 60
+// 12-14 - 80
+// 15-18 - 100
+// 19+ - 120
+
+// Targeting system
+
+// Ghost can not turn back around
+// The next tile is the closest tile linearly
+// If there's the same length, the up is prioritary, then left, down, right
+
+// During scatter mod, each ghost target a specific tile in the maze
+// This target never change during the scatter state
+// The four's target are in the 4 corner of the maze
+
+// Blinky Top right         (25, -4)
+// Pinky Top Left           (2, -4)
+// Inky bottom right        (0, 31)
+// Clyde bottom left        (27, 31)
+
+
+// FRIGTHNEEDED
+// 1-16 and 18
+
+// Uppon entering state, all turns around 180°
+// Random direction at intersection between the fours
+// If the position cannot be reached, the next position in a clock wise order is choose
+// /!\ Ghost cannot turn 180° in this mode
+
+// EATEN
+// Force the target to be in front left of the gate
+
+// CHASE
+
+// Uppon entering state, all turns around 180°
+// Same when entering scatter mode
+
+// A target is calculated each time before moving
+
+// Blinky: The tile where pacman is located
+// Pinky: The tile 4 time before pacman location (Exception when facing UP, the tile target is +4 up and +4 left )
+
+// Inky:
+    // First an intermediate tiles 2 tiles in front of pacman is found (UP: +2 up, +2 left)
+    // Then the vector from the intermediate position to blinky is rotated 180°
+
+// Clyde:
+    // Same as for Blinky, is target is the pacman position when 8 or more tiles away from pacman
+    // Otherwise, it's the same one as scattered mode (bottom left corner)
+
+
+// /!\ The ghost cannot turn up on the 4th intersection above ghost box and pacman spawn point
+
+
+// RNG:
+    //  Seed set to 0 at the start of the game/level
+    // Operation are:
+        // Multiply by 5
+        // Add 1
+        // Modulo 8192
+    // Each RNG change the seed to the new value
+    // THen use this value as an index of the first 8192 ROM data
