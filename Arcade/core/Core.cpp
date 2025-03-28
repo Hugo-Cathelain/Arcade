@@ -30,7 +30,7 @@ void Core::HandleEvents(void)
         "lib/arcade_ncurses.so"
     };
     static std::vector<std::string> GAMES = {
-        "lib/arcade_nibbler.so",
+        "lib/arcade_snake.so",
         "lib/arcade_pacman.so"
     };
 
