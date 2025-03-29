@@ -230,6 +230,8 @@ void Game::CheckForGumsEaten(void)
             break;
         }
     }
+
+    CheckForAllGumsEaten();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -277,6 +279,33 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::CheckForAllGumsEaten(void)
+{
+    if (mGums.size() == 0) {
+        ResetGame(mLevel + 1);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Game::ResetGame(int level)
+{
+    (void)level;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Game::DrawPacmanLives(void)
+{
+    auto liveSprite = IGameModule::Asset({2, 2}, "()", CLR_YELLOW, {16, 16});
+
+    for (int i = 0; i < mHealth; i++) {
+        API::Draw(liveSprite, Vec2f(
+            2.5f + 2.f * i,
+            ARCADE_SCREEN_HEIGHT - 1.5f
+        ));
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::Tick(float deltaSeconds)
 {
     if (mState != State::PRESS_START) {
@@ -311,6 +340,7 @@ void Game::Tick(float deltaSeconds)
 
     // Drawing
     DrawMapBaseLayer();
+    DrawPacmanLives();
     DrawGums();
     DrawEatScore();
 

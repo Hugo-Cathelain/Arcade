@@ -234,7 +234,7 @@ static const std::vector<IGameModule::Asset> SPRITES = {
 ///
 ///////////////////////////////////////////////////////////////////////////////
 #define PACMAN_XY(x, y) \
-    IGameModule::Asset({x, y}, "()", CLR_YELLOW, {16, 16}, 1)
+    IGameModule::Asset({x, y}, "()", CLR_YELLOW, {16, 16}, -1)
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief

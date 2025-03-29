@@ -74,38 +74,91 @@ void Player::Draw(float timer)
 ///////////////////////////////////////////////////////////////////////////////
 void Player::Update(float deltaSeconds)
 {
-    float moveThreshold = 1.0f / mMovementSpeed;
+    Vec2i currentTile(
+        static_cast<int>(std::floor(mPosition.x + 0.5f)),
+        static_cast<int>(std::floor(mPosition.y + 0.5f))
+    );
 
-    mMovementAccumulator += deltaSeconds;
+    if (mDesiredDirection != mDirection) {
+        Vec2i nextTile = currentTile + mDesiredDirection;
 
-    if (mMovementAccumulator < moveThreshold) {
-        return;
-    }
+        if (nextTile.x < 0) nextTile.x = ARCADE_GAME_WIDTH - 1;
+        else if (nextTile.x >= ARCADE_GAME_WIDTH) nextTile.x = 0;
 
-    mMovementAccumulator -= moveThreshold;
-    Vec2f nextPosition = mPosition +
-        Vec2f(mDesiredDirection.x, mDesiredDirection.y);
+        if (PACMAN_MAP[nextTile.y][nextTile.x] == TILE_EMPTY) {
+            bool alignedForTurn = false;
 
-    if (nextPosition.x < 0) {
-        nextPosition.x = ARCADE_GAME_WIDTH - 1;
-    } else if (nextPosition.x >= ARCADE_GAME_WIDTH) {
-        nextPosition.x = 0;
-    }
+            if (mDesiredDirection.x != 0) {
+                alignedForTurn = (std::abs(mPosition.y - currentTile.y) < 0.05f);
+                if (alignedForTurn) mPosition.y = static_cast<float>(currentTile.y);
+            } else {
+                alignedForTurn = (std::abs(mPosition.x - currentTile.x) < 0.05f);
+                if (alignedForTurn) mPosition.x = static_cast<float>(currentTile.x);
+            }
 
-    int x = static_cast<int>(nextPosition.x);
-    int y = static_cast<int>(nextPosition.y);
-
-    if (PACMAN_MAP[y][x] == TILE_EMPTY) {
-        mDirection = mDesiredDirection;
-        mPosition = nextPosition;
-    } else {
-        nextPosition = mPosition + Vec2f(mDirection.x, mDirection.y);
-        x = static_cast<int>(nextPosition.x);
-        y = static_cast<int>(nextPosition.y);
-        if (PACMAN_MAP[y][x] == TILE_EMPTY) {
-            mPosition = nextPosition;
+            if (alignedForTurn) {
+                mDirection = mDesiredDirection;
+                mPosition.x = static_cast<float>(currentTile.x);
+                mPosition.y = static_cast<float>(currentTile.y);
+            }
         }
     }
+
+    Vec2f movement = Vec2f(mDirection) * deltaSeconds * mMovementSpeed;
+    Vec2f newPosition = mPosition + movement;
+
+    bool xCollision = false, yCollision = false;
+
+    if (movement.x != 0.0f) {
+        if (newPosition.x < 0) {
+            newPosition.x = ARCADE_GAME_WIDTH - 1;
+        }
+        else if (newPosition.x >= ARCADE_GAME_WIDTH) {
+            newPosition.x = 0;
+        }
+        else {
+            Vec2i checkTile(
+                static_cast<int>(
+                    std::floor(newPosition.x + 0.5f + 0.3f * mDirection.x)
+                ),
+                currentTile.y
+            );
+
+            if (PACMAN_MAP[checkTile.y][checkTile.x] != TILE_EMPTY) {
+                xCollision = true;
+                newPosition.x = mDirection.x > 0
+                    ? std::floor(newPosition.x) + 0.5f
+                    : std::ceil(newPosition.x) - 0.5f;
+            }
+        }
+    }
+
+    if (movement.y != 0.0f) {
+        Vec2i checkTile(
+            currentTile.x,
+            static_cast<int>(
+                std::floor(newPosition.y + 0.5f + 0.3f * mDirection.y)
+            )
+        );
+
+        if (PACMAN_MAP[checkTile.y][checkTile.x] != TILE_EMPTY) {
+            yCollision = true;
+            newPosition.y = mDirection.y > 0
+                ? std::floor(newPosition.y) + 0.5f
+                : std::ceil(newPosition.y) - 0.5f;
+        }
+    }
+
+    if (xCollision || yCollision) {
+        if (xCollision) {
+            newPosition.x = static_cast<float>(currentTile.x);
+        }
+        if (yCollision) {
+            newPosition.y = static_cast<float>(currentTile.y);
+        }
+    }
+
+    mPosition = newPosition;
 }
 
 } // namespace Arc::Pacman
