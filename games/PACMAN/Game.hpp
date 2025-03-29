@@ -47,6 +47,28 @@ private:
         DEATH_ANIMATION
     };
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    enum class SpeedType
+    {
+        PACMAN_NORM,
+        PACMAN_NORM_DOTS,
+        PACMAN_FRIGHT,
+        PACMAN_FIGHT_DOTS,
+        GHOST_NORM,
+        GHOST_FRIGHT,
+        GHOST_TUNNEL,
+        SPEED_TYPE_COUNT
+    };
+
+private:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    static const std::vector<float> SPEEDS[4];          //<!
+
 private:
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -66,6 +88,7 @@ private:
     std::map<int, std::tuple<float, Vec2i>> mEatTimer;  //<!
     int mHealth;                                        //<!
     int mLevel;                                         //<!
+    std::vector<float> mSpeeds;                         //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

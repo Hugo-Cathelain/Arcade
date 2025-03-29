@@ -13,6 +13,13 @@
 namespace Arc::Pacman
 {
 
+const std::vector<float> Game::SPEEDS[4] = {
+    {.80, .71, .90, .79, .75, .50, .40},
+    {.90, .79, .95, .83, .85, .55, .45},
+    {1.0, .87, 1.0, .87, .95, .60, .50},
+    {.90, .79, .90, .90, .95, .95, .50}
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 Game::Game(void)
     : mTimer(0.f)
@@ -187,15 +194,27 @@ void Game::HandlePowerPill(float deltaSeconds)
         mKillCount = 0;
         if (mBlinky->GetState() == Ghost::State::FRIGHTENED) {
             mBlinky->SetState(Ghost::State::CHASE);
+            mBlinky->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
+            );
         }
         if (mPinky->GetState() == Ghost::State::FRIGHTENED) {
             mPinky->SetState(Ghost::State::CHASE);
+            mPinky->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
+            );
         }
         if (mInky->GetState() == Ghost::State::FRIGHTENED) {
             mInky->SetState(Ghost::State::CHASE);
+            mInky->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
+            );
         }
         if (mClyde->GetState() == Ghost::State::FRIGHTENED) {
             mClyde->SetState(Ghost::State::CHASE);
+            mClyde->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
+            );
         }
     }
 }
@@ -203,6 +222,8 @@ void Game::HandlePowerPill(float deltaSeconds)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::CheckForGumsEaten(void)
 {
+    bool isEaten = false;
+
     for (auto& [index, type] : mGums) {
         Vec2i position(index % ARCADE_GAME_WIDTH, index / ARCADE_GAME_WIDTH);
 
@@ -214,20 +235,55 @@ void Game::CheckForGumsEaten(void)
                 mScore += 50;
                 if (mBlinky->GetState() == Ghost::State::CHASE) {
                     mBlinky->SetState(Ghost::State::FRIGHTENED);
+                    mBlinky->SetMovementPercentage(
+                        mSpeeds[static_cast<int>(SpeedType::GHOST_FRIGHT)]
+                    );
                 }
                 if (mPinky->GetState() == Ghost::State::CHASE) {
                     mPinky->SetState(Ghost::State::FRIGHTENED);
+                    mPinky->SetMovementPercentage(
+                        mSpeeds[static_cast<int>(SpeedType::GHOST_FRIGHT)]
+                    );
                 }
                 if (mInky->GetState() == Ghost::State::CHASE) {
                     mInky->SetState(Ghost::State::FRIGHTENED);
+                    mInky->SetMovementPercentage(
+                        mSpeeds[static_cast<int>(SpeedType::GHOST_FRIGHT)]
+                    );
                 }
                 if (mClyde->GetState() == Ghost::State::CHASE) {
                     mClyde->SetState(Ghost::State::FRIGHTENED);
+                    mClyde->SetMovementPercentage(
+                        mSpeeds[static_cast<int>(SpeedType::GHOST_FRIGHT)]
+                    );
                 }
             }
 
+            isEaten = true;
             mGums.erase(index);
             break;
+        }
+    }
+
+    if (isEaten) {
+        if (mPowerPillTimer > 0.f) {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_FIGHT_DOTS)]
+            );
+        } else {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_NORM_DOTS)]
+            );
+        }
+    } else {
+        if (mPowerPillTimer > 0.f) {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_FRIGHT)]
+            );
+        } else {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_NORM)]
+            );
         }
     }
 
@@ -251,6 +307,7 @@ void Game::BeginPlay(void)
     mEatTimer.clear();
     mHealth = 4;
     mLevel = 1;
+    ResetGame(mLevel);
     SetDefaultGums();
 }
 
@@ -268,6 +325,9 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
         mEatTimer[200 << mKillCount] =
             std::make_tuple(0.f, mPlayer->GetPosition());
         mKillCount++;
+        ghost->SetMovementPercentage(
+            mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
+        );
     } else if (ghost->GetState() != Ghost::State::EATEN) {
         mHealth--;
         mTimer = 0.f;
@@ -289,7 +349,29 @@ void Game::CheckForAllGumsEaten(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::ResetGame(int level)
 {
-    (void)level;
+    mLevel = level;
+
+    if (level == 1) {
+        mSpeeds = SPEEDS[0];
+    } else if (level >= 2 && level <= 4) {
+        mSpeeds = SPEEDS[1];
+    } else if (level >= 5 && level <= 20) {
+        mSpeeds = SPEEDS[2];
+    } else {
+        mSpeeds = SPEEDS[3];
+    }
+
+    mTimer = 0.0f;
+    mState = State::START_PRESSED;
+    mPlayer.reset(new Player());
+    mBlinky.reset(new Ghost(Ghost::Type::BLINKY));
+    mPinky.reset(new Ghost(Ghost::Type::PINKY));
+    mInky.reset(new Ghost(Ghost::Type::INKY));
+    mClyde.reset(new Ghost(Ghost::Type::CLYDE));
+    mEatenGhost = Ghost::Type::NONE;
+    mPowerPillTimer = 0.f;
+    mKillCount = 0;
+    mEatTimer.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -331,11 +413,11 @@ void Game::Tick(float deltaSeconds)
             mInky->Update(deltaSeconds, mPlayer, blinkyPos);
             mClyde->Update(deltaSeconds, mPlayer, blinkyPos);
         }
+        CheckForGumsEaten();
         CheckForGhostsCollisions(mBlinky);
         CheckForGhostsCollisions(mPinky);
         CheckForGhostsCollisions(mInky);
         CheckForGhostsCollisions(mClyde);
-        CheckForGumsEaten();
     }
 
     // Drawing

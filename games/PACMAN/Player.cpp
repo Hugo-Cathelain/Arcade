@@ -18,9 +18,16 @@ Player::Player(void)
     , mPosition(13.5f, 23)
     , mAnimationOffset(0)
     , mDirectionOffset(0)
-    , mMovementSpeed(7.5f)
+    , mMovementPercentage(1.f)
+    , mMovementSpeed(10.f)
     , mMovementAccumulator(0.f)
 {}
+
+///////////////////////////////////////////////////////////////////////////////
+void Player::SetMovementPercentage(float percentage)
+{
+    mMovementPercentage = percentage;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Player::SetPosition(const Vec2i& position)
@@ -104,7 +111,7 @@ void Player::Update(float deltaSeconds)
         }
     }
 
-    Vec2f movement = Vec2f(mDirection) * deltaSeconds * mMovementSpeed;
+    Vec2f movement = Vec2f(mDirection) * deltaSeconds * mMovementSpeed * mMovementPercentage;
     Vec2f newPosition = mPosition + movement;
 
     bool xCollision = false, yCollision = false;

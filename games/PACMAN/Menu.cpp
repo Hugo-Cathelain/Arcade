@@ -198,7 +198,7 @@ void Menu::DrawMenuTextAnimated(void)
         int ghostX = static_cast<int>(Lerp(33.f, 6.f, 3.5f, mTimer - 12.0f));
 
         API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(pacmanX) + 1, 20});
-        API::Draw(PACMAN_XY(2, flick * 2),
+        API::Draw(PACMAN_XYI(2, flick * 2),
         Vec2i{static_cast<int>(pacmanX), 20});
 
         API::Draw(SPRITES[TILE_NOTHING], Vec2i{ghostX + 1, 20});
@@ -218,7 +218,7 @@ void Menu::DrawMenuTextAnimated(void)
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 15.5f));
 
         API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
-        API::Draw(PACMAN_XY(
+        API::Draw(PACMAN_XYI(
             0, flick * 2),
             Vec2i{static_cast<int>(currentX), 20}
         );
@@ -262,7 +262,7 @@ void Menu::DrawMenuTextAnimated(void)
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 17.5f));
 
         API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
-        API::Draw(PACMAN_XY(0, flick * 2),
+        API::Draw(PACMAN_XYI(0, flick * 2),
             Vec2i{static_cast<int>(currentX), 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
@@ -298,7 +298,7 @@ void Menu::DrawMenuTextAnimated(void)
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 19.5f));
 
         API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
-        API::Draw(PACMAN_XY(0, flick * 2),
+        API::Draw(PACMAN_XYI(0, flick * 2),
             Vec2i{static_cast<int>(currentX), 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
@@ -328,7 +328,7 @@ void Menu::DrawMenuTextAnimated(void)
         int ghostX = static_cast<int>(Lerp(6.f, 33.f, 7.f, mTimer - 21.5f));
 
         API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
-        API::Draw(PACMAN_XY(0, flick * 2),
+        API::Draw(PACMAN_XYI(0, flick * 2),
             Vec2i{static_cast<int>(currentX), 20});
 
         auto ghost = SPRITES[SCARED_1 + flick];
@@ -348,7 +348,7 @@ void Menu::DrawMenuTextAnimated(void)
         float currentX = Lerp(4.f, 30.f, 3.5f, mTimer - 23.5f);
 
         API::Draw(SPRITES[TILE_EMPTY], Vec2i{static_cast<int>(currentX) - 1, 20});
-        API::Draw(PACMAN_XY(0, flick * 2),
+        API::Draw(PACMAN_XYI(0, flick * 2),
             Vec2i{static_cast<int>(currentX), 20});
     }
 

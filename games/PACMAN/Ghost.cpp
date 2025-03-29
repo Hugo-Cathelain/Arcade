@@ -29,7 +29,8 @@ Ghost::Ghost(Type type)
     , mState(State::SCATTER)
     , mPosition(static_cast<float>(type) * 2.f + 9.5f, 14.f)
     , mDirection(0, 0)
-    , mMovementSpeed(8.f)
+    , mMovementPercentage(1.f)
+    , mMovementSpeed(10.f)
     , mMovementAccumulator(0.f)
     , mInGhostHouse(true)
     , mAccumulator(0.f)
@@ -51,6 +52,12 @@ Ghost::Type Ghost::GetType(void) const
 Vec2i Ghost::GetPosition(void) const
 {
     return (mPosition);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::SetMovementPercentage(float percentage)
+{
+    mMovementPercentage = percentage;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,12 +93,18 @@ void Ghost::CalculatePinkyTarget(std::unique_ptr<Player>& pacman)
     if (pacmanDir.y == -1) {
         mTarget = Vec2i(pacmanPos.x - 4, pacmanPos.y - 4);
     } else {
-        mTarget = Vec2i(pacmanPos.x + pacmanDir.x * 4, pacmanPos.y + pacmanDir.y * 4);
+        mTarget = Vec2i(
+            pacmanPos.x + pacmanDir.x * 4,
+            pacmanPos.y + pacmanDir.y * 4
+        );
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Ghost::CalculateInkyTarget(std::unique_ptr<Player>& pacman, const Vec2i& blinkyPos)
+void Ghost::CalculateInkyTarget(
+    std::unique_ptr<Player>& pacman,
+    const Vec2i& blinkyPos
+)
 {
     Vec2i pacmanPos = pacman->GetPosition();
     Vec2i pacmanDir = pacman->GetDirection();
@@ -206,17 +219,11 @@ void Ghost::Update(
     const Vec2i& blinkyPos
 )
 {
-    float moveThreshold = 1.0f / mMovementSpeed;
-    mMovementAccumulator += deltaSeconds;
-
-    if (mMovementAccumulator < moveThreshold) {
-        return;
-    }
-    mMovementAccumulator -= moveThreshold;
-
     if (mInGhostHouse) {
         return;
     }
+
+    float speed = deltaSeconds * mMovementSpeed * mMovementPercentage;
 
     switch (mState) {
         case State::CHASE:
@@ -230,25 +237,37 @@ void Ghost::Update(
                 CalculateClydeTarget(pacman);
             }
             CalculateBestDirection();
-            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            mPosition += Vec2f(mDirection) * speed;
             break;
         case State::SCATTER:
             mTarget = CORNER_TARGETS[static_cast<int>(mType)];
             CalculateBestDirection();
-            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            mPosition += Vec2f(mDirection) * speed;
             break;
         case State::EATEN:
             mTarget = Vec2i(13, 11);
             CalculateBestDirection();
-            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            mPosition += Vec2f(mDirection) * speed;
             break;
         case State::FRIGHTENED:
             CalculateFrightenedDirection();
-            mPosition = Vec2i(mPosition + Vec2f(mDirection));
+            mPosition += Vec2f(mDirection) * speed;
             break;
     }
 
     HandleTunnelPassage();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::IncrementCounter(void)
+{
+    mCounter++;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::ResetCounter(void)
+{
+    mCounter = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -280,8 +299,7 @@ void Ghost::Draw(float timer)
             API::Draw(
                 IGameModule::Asset(
                     {12 + directionOffset + flickering, index * 2},
-                    "/\\", GHOST_COLORS[index], {16, 16},
-                    index * 4
+                    "/\\", GHOST_COLORS[index], {16, 16}
                 ),
                 position
             );
@@ -290,15 +308,14 @@ void Ghost::Draw(float timer)
             API::Draw(
                 IGameModule::Asset(
                     {20 + directionOffset / 2, 8},
-                    "oo", CLR_WHITE, {16, 16},
-                    index * 4
+                    "oo", CLR_WHITE, {16, 16}
                 ),
                 position
             );
             break;
         case State::FRIGHTENED:
             IGameModule::Asset scared = SPRITES[SCARED_1 + flickering / 2];
-            scared.id = index * 4;
+            scared.id = -1;
             API::Draw(scared, position);
             break;
     }
