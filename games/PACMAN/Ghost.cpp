@@ -27,7 +27,6 @@ const Vec2i Ghost::CORNER_TARGETS[4] = {
 Ghost::Ghost(Type type)
     : mType(type)
     , mState(State::SCATTER)
-    , mPosition(static_cast<float>(type) * 2.f + 9.5f, 14.f)
     , mDirection(0, 0)
     , mMovementPercentage(1.f)
     , mMovementSpeed(10.f)
@@ -35,7 +34,13 @@ Ghost::Ghost(Type type)
     , mInGhostHouse(true)
     , mAccumulator(0.f)
 {
-    if (type == Type::BLINKY) {
+    if (type == Type::PINKY) {
+        mPosition = Vec2f(13.5f, 14.f);
+    } else if (type == Type::INKY) {
+        mPosition = Vec2f(11.5f, 14.f);
+    } else if (type == Type::CLYDE) {
+        mPosition = Vec2f(15.5f, 14.f);
+    } else if (type == Type::BLINKY) {
         mInGhostHouse = false;
         mState = State::CHASE;
         mPosition = Vec2f(13.5f, 11.f);
@@ -219,11 +224,31 @@ void Ghost::Update(
     const Vec2i& blinkyPos
 )
 {
+    float speed = deltaSeconds * mMovementSpeed * mMovementPercentage;
+
     if (mInGhostHouse) {
+        if (mDirection.y == 0 && mType != Type::PINKY) {
+            mDirection = Vec2i(0, -1);
+        } else if (mDirection.y == 0) {
+            mDirection = Vec2i(0, 1);
+        }
+
+        Vec2f newPosition = mPosition + Vec2f(mDirection) * speed * 0.5f;
+
+        const float UPPER_BOUND = 13.0f;
+        const float LOWER_BOUND = 14.5f;
+
+        if (newPosition.y < UPPER_BOUND && mDirection.y < 0) {
+            mDirection.y = 1;
+            newPosition.y = UPPER_BOUND;
+        } else if (newPosition.y > LOWER_BOUND && mDirection.y > 0) {
+            mDirection.y = -1;
+            newPosition.y = LOWER_BOUND;
+        }
+
+        mPosition = newPosition;
         return;
     }
-
-    float speed = deltaSeconds * mMovementSpeed * mMovementPercentage;
 
     switch (mState) {
         case State::CHASE:
