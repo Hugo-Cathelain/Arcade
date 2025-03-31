@@ -42,8 +42,8 @@ Snake::~Snake()
 void Snake::respawnApple()
 {
     // Random position for apple
-    int x = (std::rand() % 14) * 2;
-    int y = (std::rand() % 15) * 2;
+    int x = (std::rand() % 15) * 2;
+    int y = (std::rand() % 12) * 2 + 4;
 
     // Make sure apple doesn't spawn on snake
     for (const auto& part : mSnakeParts) {
@@ -106,7 +106,7 @@ void Snake::Tick(float deltaSeconds)
     }
 
     // Clear screen
-    for (size_t y = 0; y < 28; y += 2) {
+    for (size_t y = 4; y < 28; y += 2) {
         for (size_t x = 0; x < 31; x += 2) {
             API::Draw(SPRITES[EMPTY], Vec2i(x, y));
         }
@@ -127,10 +127,10 @@ void Snake::Tick(float deltaSeconds)
             newHead.x = 0;   // Leftmost position
         }
 
-        if (newHead.y < 0) {
+        if (newHead.y < 4) {
             newHead.y = 26;  // Bottom position (28-2)
         } else if (newHead.y >= 28) {
-            newHead.y = 0;   // Top position
+            newHead.y = 4;   // Top position
         }
 
         // Check for collisions with self (skip the tail since it will move)
@@ -182,6 +182,10 @@ void Snake::Tick(float deltaSeconds)
             Vec2i diff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
                           mSnakeParts[i-1].y - mSnakeParts[i].y};
 
+            // Handle teleportation for tail
+            if (std::abs(diff.x) > 15) diff.x = diff.x > 0 ? -1 : 1;
+            if (std::abs(diff.y) > 12) diff.y = diff.y > 0 ? -1 : 1;
+
             if (diff.x > 0) sprite = SNAKE_TAIL_R;
             else if (diff.x < 0) sprite = SNAKE_TAIL_L;
             else if (diff.y > 0) sprite = SNAKE_TAIL_T;
@@ -192,6 +196,14 @@ void Snake::Tick(float deltaSeconds)
                              mSnakeParts[i-1].y - mSnakeParts[i].y};
             Vec2i nextDiff = {mSnakeParts[i].x - mSnakeParts[i+1].x,
                              mSnakeParts[i].y - mSnakeParts[i+1].y};
+
+            // Handle teleportation for prevDiff
+            if (std::abs(prevDiff.x) > 15) prevDiff.x = prevDiff.x > 0 ? -1 : 1;
+            if (std::abs(prevDiff.y) > 12) prevDiff.y = prevDiff.y > 0 ? -1 : 1;
+
+            // Handle teleportation for nextDiff
+            if (std::abs(nextDiff.x) > 15) nextDiff.x = nextDiff.x > 0 ? -1 : 1;
+            if (std::abs(nextDiff.y) > 12) nextDiff.y = nextDiff.y > 0 ? -1 : 1;
 
             // Straight body
             if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
