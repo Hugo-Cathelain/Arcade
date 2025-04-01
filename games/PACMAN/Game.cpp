@@ -271,7 +271,6 @@ void Game::CheckForGumsEaten(void)
                 }
             }
 
-            isEaten = true;
             mGums.erase(index);
             break;
         }
