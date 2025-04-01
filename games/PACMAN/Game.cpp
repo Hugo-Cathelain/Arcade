@@ -148,7 +148,7 @@ void Game::DrawEatScore(void)
         }
 
         API::Draw(
-            SPRITES[SCORES[score / 200 - 1]],
+            SPRITES[SCORES[static_cast<int>(std::log2(score / 200))]],
             std::get<1>(timer) + Vec2i(0, ARCADE_OFFSET_Y)
         );
     }

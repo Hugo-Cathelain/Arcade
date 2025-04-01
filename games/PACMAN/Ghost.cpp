@@ -32,6 +32,7 @@ Ghost::Ghost(Type type)
     , mMovementAccumulator(0.f)
     , mInGhostHouse(true)
     , mAccumulator(0.f)
+    , mDirectionChange(false)
 {
     if (type == Type::PINKY) {
         mPosition = Vec2f(13.5f, 14.f);
@@ -90,11 +91,7 @@ void Ghost::SetState(Ghost::State state)
     if ((state == State::CHASE && mState == State::SCATTER) ||
         (state == State::SCATTER && mState == State::CHASE)
     ) {
-        mDirection = -mDirection;
-        mNextTile = Vec2i(
-            static_cast<int>(std::floor(mPosition.x + 0.5f)),
-            static_cast<int>(std::floor(mPosition.y + 0.5f))
-        );
+        mDirectionChange = true;
     }
 
     mState = state;
@@ -182,6 +179,9 @@ void Ghost::CalculateFrightenedDirection(void)
     while (true) {
         Vec2i dir = PRIORITISED_DIRECTION[index];
         Vec2i next = Vec2i(mPosition + Vec2f(dir));
+
+        if (next.x < 0) next.x = ARCADE_GAME_WIDTH - 1;
+        else if (next.x > (ARCADE_GAME_WIDTH - 1)) next.x = 0;
 
         if (dir != forbidden && PACMAN_MAP[next.y][next.x] == TILE_EMPTY) {
             direction = dir;
@@ -340,6 +340,27 @@ void Ghost::HandleGhostInHouse(float speed)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Ghost::HandleGhostDirectionChange(void)
+{
+    Vec2i currentTile = GetPosition();
+    Vec2i nextTile = currentTile + mDirection;
+
+    if (nextTile.x < 0) nextTile.x = ARCADE_GAME_WIDTH - 1;
+    else if (nextTile.x > (ARCADE_GAME_WIDTH - 1)) nextTile.x = 0;
+
+    if (PACMAN_MAP[nextTile.y][nextTile.x] != TILE_EMPTY) {
+        return;
+    }
+
+    mDirection = -mDirection;
+    mNextTile = Vec2i(
+        static_cast<int>(std::floor(mPosition.x + 0.5f)),
+        static_cast<int>(std::floor(mPosition.y + 0.5f))
+    );
+    mDirectionChange = false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Ghost::Update(
     float deltaSeconds,
     std::unique_ptr<Player>& pacman,
@@ -351,6 +372,10 @@ void Ghost::Update(
     if (mInGhostHouse) {
         HandleGhostInHouse(speed);
         return;
+    }
+
+    if (mDirectionChange) {
+        HandleGhostDirectionChange();
     }
 
     switch (mState) {
