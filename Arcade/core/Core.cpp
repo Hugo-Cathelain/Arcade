@@ -72,6 +72,7 @@ void Core::HandleEvents(void)
     static std::vector<std::string> GRAPHICS = {
         "lib/arcade_sfml.so",
         "lib/arcade_sdl2.so",
+        "lib/arcade_opengl.so",
         "lib/arcade_ncurses.so"
     };
     static std::vector<std::string> GAMES = {
