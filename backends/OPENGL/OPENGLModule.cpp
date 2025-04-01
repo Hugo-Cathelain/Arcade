@@ -14,8 +14,7 @@ namespace Arc
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-OPENGLModule::OPENGLModule(void) :  mRatio(4.f)
-                                   ,mInterpolationFactor(0.f)
+OPENGLModule::OPENGLModule(void) : mInterpolationFactor(0.f)
                                    ,mLastFrameTime(0),
                                    mWindowWidth(600),
                                    mWindowHeight(600)
@@ -29,37 +28,30 @@ OPENGLModule::OPENGLModule(void) :  mRatio(4.f)
 
     mWindow = glfwCreateWindow(mWindowWidth, mWindowHeight, "Arcade - OPENGL", nullptr, nullptr);
     if (!mWindow){
-        //std::cout << "herro\n";
         glfwTerminate();
         return;
     }
+
     glfwMakeContextCurrent(mWindow);
     glewInit();
-    glViewport(0, 0, 800, 600); //set the coords. top left (0,0) with height and width of window
+    glViewport(0, 0, 800, 600);
     glfwSetKeyCallback(mWindow, KeyCallback);
     glfwSetMouseButtonCallback(mWindow, MouseCallback);
 
     glfwSetWindowUserPointer(mWindow, this);
 
     CompileShaders();
-
-
 }
 
 OPENGLModule::~OPENGLModule(void)
 {
-    //std::cout << "closing\n";
     glDeleteTextures(1, &mSpriteSheet);
     glDeleteVertexArrays(1, &mVAO);
-    // glDeleteBuffers(1, &mVBO);
-    // glDeleteBuffers(1, &mEBO);
 
     if (mWindow) glfwDestroyWindow(mWindow);
     if (mShaderProgram) glDeleteProgram(mShaderProgram);
 
     glfwTerminate();
-    //std::cout << "closing finish\n";
-
 }
 
 
@@ -116,6 +108,7 @@ EKeyboardKey OPENGLModule::GetKey(int key)
     }
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 EMouseButton OPENGLModule::GetMousePress(int click)
 {
@@ -131,19 +124,15 @@ EMouseButton OPENGLModule::GetMousePress(int click)
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    //std::cout << "keycallback\n";
     OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
     if (action == GLFW_PRESS)
         API::PushEvent(API::Event::Channel::CORE, API::Event::KeyPressed{ instance->GetKey(key) });
-
-    //std::cout << "callback finish\n";
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    //std::cout << "mousecallback\n";
     OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
 
     double mouseX, mouseY;
@@ -154,21 +143,12 @@ void OPENGLModule::MouseCallback(GLFWwindow* window, int button, int action, int
             static_cast<int>(mouseX / (GRID_TILE_SIZE * instance->mRatio)),
             static_cast<int>(mouseY / (GRID_TILE_SIZE * instance->mRatio))
         });
-        float ndcX = 2.0f / instance->mWindowWidth;
-        float ndcY = 2.0f / instance->mWindowHeight;
-        float mouseNdcX = (mouseX * ndcX) - 1.0f;
-        float mouseNdcY = 1.0f - (mouseY * ndcY);
-
-        std::cout << "Mouse Position in Pixels: (" << mouseX << ", " << mouseY << ")" << std::endl;
-        std::cout << "Mouse Position in NDC: (" << mouseNdcX << ", " << mouseNdcY << ")" << std::endl;
-
 }
 
 void OPENGLModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
-            std::cout << "hello im here \n";
             const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
             int screenWidth = mode->width;
             int screenHeight = mode->height;
@@ -178,46 +158,29 @@ void OPENGLModule::Update(void)
             float gridHeight = gridSize->height * GRID_TILE_SIZE;
             mgridWidth = gridWidth;
             mgridHeight = gridHeight;
-            std::cout << "update value: \n";
-            std::cout << "gridsize: (" << gridSize->width << ", " << gridSize->height << ")\n";
-            std::cout << "tile size: (" << GRID_TILE_SIZE << ", " << GRID_TILE_SIZE << ")\n";
-            std::cout << "combine them innit: " << Vec2f(gridWidth, gridHeight) << std::endl;
 
-            // Compute mRatio based on actual screen size
+            // get ratio and standardize it
             mRatio = std::min(
                 static_cast<float>(screenWidth - (screenWidth / 4.f)) / gridWidth,
                 static_cast<float>(screenHeight - (screenHeight / 4.f)) / gridHeight
             );
-
             mRatio = std::floor(mRatio);
-            // Apply the ratio to determine the new window size
+
             mWindowWidth = static_cast<int>(gridWidth * mRatio);
             mWindowHeight = static_cast<int>(gridHeight * mRatio);
 
-            // Resize the GLFW window
             glfwSetWindowSize(mWindow, mWindowWidth, mWindowHeight);
-
-            // Update projection matrix
-            mProjection = glm::ortho(
-                0.0f, gridWidth,
-                gridHeight, 0.0f,  // Keep y-axis flipped (OpenGL expects bottom-left origin)
-                -1.0f, 1.0f
-            );
-
-            // Apply new viewport
             glViewport(0, 0, mWindowWidth, mWindowHeight);
-            GLuint projectionLoc = glGetUniformLocation(mShaderProgram, "projection");
-            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(mProjection));
 
-        } else if (event->Is<API::Event::ChangeGame>()) {
+        } else if (event->Is<API::Event::ChangeGame>())
                     mSpritePositions.clear();
-                }
-            }
+    }
 
     glfwPollEvents();
     if (glfwWindowShouldClose(mWindow))
         API::PushEvent(API::Event::Channel::CORE, API::Event::Closed());
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::Clear(void)
@@ -229,15 +192,11 @@ void OPENGLModule::Clear(void)
 
 void OPENGLModule::CompileShaders()
 {
-    //std::cout << "shading\n";
-
-
     // Vertex Shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
     glCompileShader(vertexShader);
 
-    // Check for compilation errors
     GLint success;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
@@ -251,7 +210,6 @@ void OPENGLModule::CompileShaders()
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
     glCompileShader(fragmentShader);
 
-    // Check for compilation errors
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         char infoLog[512];
@@ -266,36 +224,18 @@ void OPENGLModule::CompileShaders()
     glLinkProgram(mShaderProgram);
 
     // Delete the shaders as they're linked into our program now and no longer necessary
-
     glDetachShader(mShaderProgram, vertexShader);
     glDetachShader(mShaderProgram, fragmentShader);
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // // Vertex data for a rectangle (two triangles)
-    // glm::vec2 vertices[6] = {
-
-    //     glm::vec2(-0.5f,  0.5f),  // Top Left
-    //     glm::vec2(-0.5f, -0.5f),  // Bottom Left
-    //     glm::vec2(0.5f,  0.5f),   // Top Right
-    //     glm::vec2(0.5f, -0.5f),   // Bottom Right
-    //     glm::vec2(0.5f, -0.5f),   // Bottom Right (for the second triangle)
-    //     glm::vec2(-0.5f, -0.5f)   // Bottom Left (for the second triangle)
-    // };
-
-    // // Create VAO
     glGenVertexArrays(1, &mVAO);
-    // glGenBuffers(1, &mVBO);
-    // glGenBuffers(1, &mEBO);
-
     glBindVertexArray(mVAO);
-
-    // Generate and bind VBO
-    // glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::Render()
 {
 
@@ -344,12 +284,8 @@ void OPENGLModule::Render()
             currentPos.y + (targetPos.y - currentPos.y) * mSpritePositions[entityId].factor
         };
 
-        // original
-
-        // If you want the origin point to be the top-left corner:
+        // set origin point to top-left corner:
         glm::vec2 originPoint = {asset.position.x * GRID_TILE_SIZE, asset.position.y * GRID_TILE_SIZE};
-
-        // If you want the origin point to be the center of the sprite:
 
         glm::vec2 textureCoords[6] = {
             glm::vec2 ({originPoint}),    // vec2 (left, top),
@@ -358,77 +294,21 @@ void OPENGLModule::Render()
             glm::vec2 (originPoint.x + asset.size.x, originPoint.y), // vec2 (right, top),
             glm::vec2 (originPoint.x, originPoint.y + asset.size.y), // vec2 (left, bottom),
             glm::vec2 (originPoint.x + asset.size.x, originPoint.y + asset.size.y) // vec2 (right, bottom),
-
         };
 
-
-        // Create model matrix for each object you render
-        glm::mat4 model = glm::mat4(1.0f); // Identity matrix to start
-        // Transform the model based on position, scale, rotation
-        model = glm::translate(model, glm::vec3(interpolatedPos.x, interpolatedPos.y, 0.0f)); // Position
-        model = glm::scale(model, glm::vec3(asset.size.x, asset.size.y, 1.0f)); // Scale
-
-        // Send model matrix to shader
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-        GLuint textureCoordsLocation = glGetUniformLocation(mShaderProgram, "textureCoords");
-        glUniform2fv(textureCoordsLocation, 6, glm::value_ptr(textureCoords[0]));
-
-        // model based graphics:
-        // Assuming asset.size is the original size of the asset
-        // glm::vec2 scaleFactor(mWindowWidth / mAtlasWidth, mWindowHeight / mAtlasHeight); // Scaling factor
-
-        // // based on asset/window
-        // float scaledWidth = asset.size.x * scaleFactor.x;
-        // float scaledHeight = asset.size.y * scaleFactor.y;
-        // float ndcX = 2.0f / mWindowWidth;
-        // float ndcY = 2.0f / mWindowHeight;
-        // float left = (interpolatedPos.x * ndcX) - 1.0f; // Position in NDC
-        // float top = 1.0f - (interpolatedPos.y * ndcY); // Position in NDC
-        // float right = ((interpolatedPos.x + scaledWidth) * ndcX) - 1.0f; // Position in NDC
-        // float bottom = 1.0f - ((interpolatedPos.y + scaledHeight) * ndcY); // Position in NDC
-
-        // // base value
-        // float left = (interpolatedPos.x * ndcX) - 1.0f; // Position in NDC
-        // float top = 1.0f - (interpolatedPos.y * ndcY); // Position in NDC
-        // float right = ((interpolatedPos.x + asset.size.x) * ndcX) - 1.0f; // Position in NDC
-        // float bottom = 1.0f - ((interpolatedPos.y + asset.size.y) * ndcY); // Position in NDC
-
-
-        //fully ratioed:
-        // Apply the ratio to scale both position and size
         float ndcX = 2.0f / mWindowWidth;
         float ndcY = 2.0f / mWindowHeight;
 
-        // Apply scaling ratio to position and size
         float scaledX = interpolatedPos.x * mRatio;
         float scaledY = interpolatedPos.y * mRatio;
         float scaledWidth = asset.size.x * mRatio;
         float scaledHeight = asset.size.y * mRatio;
 
-        // Convert to NDC
         float left = (scaledX * ndcX) - 1.0f;
         float top = 1.0f - (scaledY * ndcY);
         float right = ((scaledX + scaledWidth) * ndcX) - 1.0f;
         float bottom = 1.0f - ((scaledY + scaledHeight) * ndcY);
 
-        if (asset.position == Vec2i{11, 9}){
-
-                std::cout << "left: " << left << std::endl
-                << "right: " << right << std::endl
-                << "top: " << top << std::endl
-                << "bottom: " << bottom << std::endl
-                << "window height: " << mWindowHeight << std::endl
-                << "window width: " << mWindowWidth << std::endl
-                << "asset size: " << asset.size << std::endl
-                << "ratio: " << mRatio << std::endl
-                << "gridsize: " << Vec2f(mgridWidth, mgridHeight) << std::endl
-                // << "scalefactor: " << Vec2f(scaleFactor.x, scaleFactor.y) << std::endl
-                << "interpolatedPos: (" << interpolatedPos.x << ", " << interpolatedPos.y << ")\n" << std::endl;
-        }
-
-        // potential scaling
         glm::vec2 vertices[6] = {
             glm::vec2(left, top),  // Top Left
             glm::vec2(left, bottom),  // Bottom Left
@@ -438,11 +318,13 @@ void OPENGLModule::Render()
             glm::vec2(right, bottom) // Bottom Right
         };
 
+        GLuint textureCoordsLocation = glGetUniformLocation(mShaderProgram, "textureCoords");
+        glUniform2fv(textureCoordsLocation, 6, glm::value_ptr(textureCoords[0]));
+
         GLuint vertexPositionsLocation = glGetUniformLocation(mShaderProgram, "vertices");
         glUniform2fv(vertexPositionsLocation, 6, glm::value_ptr(vertices[0]));
-        // Convert grid position to pixel position
-        glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     glBindVertexArray(0);
@@ -450,17 +332,13 @@ void OPENGLModule::Render()
     glfwSwapBuffers(mWindow);
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::LoadSpriteSheet(const std::string& path)
 {
     int channels;
     unsigned char* data = stbi_load(path.c_str(), &mAtlasWidth, &mAtlasHeight, &channels, 4);
     if (!data) return;
-    std::cout << "Loaded image: " << path
-              << ", Width: " << mAtlasWidth
-              << ", Height: " << mAtlasHeight
-              << ", Channels: " << channels << std::endl;
-
 
     glGenTextures(1, &mSpriteSheet);
     glActiveTexture(GL_TEXTURE0);
@@ -476,11 +354,13 @@ void OPENGLModule::LoadSpriteSheet(const std::string& path)
     stbi_image_free(data);
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::SetTitle(const std::string& title)
 {
     glfwSetWindowTitle(mWindow, title.c_str());
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 std::string OPENGLModule::GetName(void) const
@@ -489,5 +369,3 @@ std::string OPENGLModule::GetName(void) const
 }
 
 } // Arc
-
-

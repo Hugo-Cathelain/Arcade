@@ -53,16 +53,13 @@ private:
     float mInterpolationFactor;                 //<!
     GLuint mLastFrameTime;                      //<!
     GLuint mVAO;                                //<! The Vertex Array Object
-    GLuint mVBO;                                //<! The Vertex Buffer Object
-    GLuint mEBO;                                //<! The Element Buffer Object
-    GLuint mShaderProgram;
-    int mAtlasHeight;
-    int mAtlasWidth;
-    int mWindowWidth;
-    int mWindowHeight;
-    int mgridWidth;
-    int mgridHeight;
-    glm::mat4 mProjection;
+    GLuint mShaderProgram;                      //<! The shaderProgram pointer
+    int mAtlasHeight;                           //<! The Height of the Atlas
+    int mAtlasWidth;                            //<! The Width of the Atlas
+    int mWindowWidth;                           //<! The Height of the window
+    int mWindowHeight;                          //<! The Width of the window
+    int mgridWidth;                             //<! The Height of the grid
+    int mgridHeight;                            //<! The Height of the grid
 
 public:
     ///////////////////////////////////////////////////////////////////////////
@@ -107,6 +104,10 @@ const char* fragmentShaderSource = R"(
     }
 )";
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief sets and compiles shaders; the logic of how vertices are drawn
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     void CompileShaders();
 
 private:
