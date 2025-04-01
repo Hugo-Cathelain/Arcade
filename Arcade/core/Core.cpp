@@ -22,6 +22,7 @@ namespace Arc
 Core::Core(const std::string& graphicLib, const std::string& gameLib)
     : mGraphics(Library::Load<IGraphicsModule>(graphicLib))
     , mIsWindowOpen(true)
+    , mTimer(0.f)
 {
     mStates.push(Library::Load<IGameModule>(gameLib));
     mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
@@ -223,10 +224,32 @@ void Core::Run(void)
         std::chrono::duration<float> duration = end - start;
         start = end;
 
+        float deltaSeconds = duration.count();
+
+        mTimer += deltaSeconds;
+
+        if (mTimer >= 2.f && mStates.top()->GetName() == "MenuGUI") {
+            mTimer = 0.f;
+            GetLibraries();
+            std::vector<std::string> games, graphicals;
+
+            for (const auto& [path, name] : mGameLibs) {
+                games.push_back(name);
+            }
+            for (const auto& [path, name] : mGraphicLibs) {
+                graphicals.push_back(name);
+            }
+
+            API::PushEvent(
+                API::Event::GAME,
+                API::Event::Libraries{graphicals, games}
+            );
+        }
+
         HandleEvents();
         mGraphics->Update();
         mGraphics->Clear();
-        mStates.top()->Tick(duration.count());
+        mStates.top()->Tick(deltaSeconds);
         mGraphics->Render();
     }
     mStates.top()->EndPlay();
