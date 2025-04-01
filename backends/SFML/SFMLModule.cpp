@@ -228,4 +228,10 @@ void SFMLModule::LoadSpriteSheet(const std::string& path)
     mSpriteSheet.reset(texture);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+std::string SFMLModule::GetName(void) const
+{
+    return ("SFML");
+}
+
 } // namespace Arc

@@ -266,4 +266,10 @@ void NCURSESModule::LoadSpriteSheet(const std::string& path)
     (void)path;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+std::string NCURSESModule::GetName(void) const
+{
+    return ("NCURSES");
+}
+
 } // namespace Arc

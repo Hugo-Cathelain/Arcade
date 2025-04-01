@@ -118,6 +118,16 @@ public:
         /// \brief
         ///
         ///////////////////////////////////////////////////////////////////////
+        struct Libraries
+        {
+            std::vector<std::string> graphicals;
+            std::vector<std::string> games;
+        };
+
+        ///////////////////////////////////////////////////////////////////////
+        /// \brief
+        ///
+        ///////////////////////////////////////////////////////////////////////
         struct Closed
         {};
 
@@ -132,7 +142,8 @@ public:
             ChangeGraphics,
             ChangeGame,
             GameOver,
-            Closed
+            Closed,
+            Libraries
         > mData;
 
     private:

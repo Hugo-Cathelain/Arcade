@@ -16,4 +16,10 @@ std::unique_ptr<Arc::IGameModule> CreateArcadeObject(void)
     return (std::make_unique<Arc::Nibbler>());
 }
 
+///////////////////////////////////////////////////////////////////////////////
+std::string GetGameName(void)
+{
+    return ("NIBBLER");
+}
+
 }

@@ -5,6 +5,12 @@
 #include "Arcade/core/Library.hpp"
 #include "Arcade/core/API.hpp"
 #include <chrono>
+#include <filesystem>
+
+///////////////////////////////////////////////////////////////////////////////
+// Forward namespace std::filesystem
+///////////////////////////////////////////////////////////////////////////////
+namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -19,6 +25,41 @@ Core::Core(const std::string& graphicLib, const std::string& gameLib)
 {
     mStates.push(Library::Load<IGameModule>(gameLib));
     mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::GetLibraries(void)
+{
+    std::map<std::string, std::string> graphicals;
+    std::map<std::string, std::string> games;
+
+    try {
+        for (const auto& entry : fs::directory_iterator("lib")) {
+            if (!entry.is_regular_file() || entry.path().extension() != ".so") {
+                continue;
+            }
+
+            std::string path = entry.path().string();
+
+            if (auto name = Library::Is<IGraphicsModule>(path)) {
+                graphicals[path] = name.value();
+            } else if (auto name = Library::Is<IGameModule>(path)) {
+                games[path] = name.value();
+            }
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Error accessing directory: " << e.what() << std::endl;
+    }
+
+    std::cout << "Graphics libraries:" << std::endl;
+    for (const auto& [lib, name] : graphicals) {
+        std::cout << "    " << lib << " > " << name << std::endl;
+    }
+
+    std::cout << "Game libraries:" << std::endl;
+    for (const auto& [lib, name] : games) {
+        std::cout << "    " << lib << " > " << name << std::endl;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,6 +149,9 @@ void Core::HandleEvents(void)
                 case EKeyboardKey::Q:
                     API::PushEvent(API::Event::Channel::CORE,
                         API::Event::Closed{});
+                    break;
+                case EKeyboardKey::F:
+                    GetLibraries();
                     break;
                 default:
                     API::PushEvent(API::Event::Channel::GAME,

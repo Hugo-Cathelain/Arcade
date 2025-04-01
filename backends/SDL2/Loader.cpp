@@ -16,4 +16,10 @@ std::unique_ptr<Arc::IGraphicsModule> CreateArcadeObject(void)
     return (std::make_unique<Arc::SDL2Module>());
 }
 
+///////////////////////////////////////////////////////////////////////////////
+std::string GetGraphicsName(void)
+{
+    return ("SDL2");
+}
+
 }

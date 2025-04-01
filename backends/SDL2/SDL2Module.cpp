@@ -283,4 +283,10 @@ void SDL2Module::LoadSpriteSheet(const std::string& path)
     mSpriteSheet = texture;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+std::string SDL2Module::GetName(void) const
+{
+    return ("SDL2");
+}
+
 } // namespace Arc

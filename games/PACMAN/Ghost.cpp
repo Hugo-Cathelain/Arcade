@@ -306,7 +306,7 @@ void Ghost::HandleGhostHouseExit(float speed)
 ///////////////////////////////////////////////////////////////////////////////
 void Ghost::HandleGhostInHouse(float speed)
 {
-    if (mType == Type::PINKY && mCounter >= 0) {
+    if ((mType == Type::PINKY || mType == Type::BLINKY) && mCounter >= 0) {
         HandleGhostHouseExit(speed);
         return;
     } else if (mType == Type::INKY && mCounter >= 30) {
@@ -340,6 +340,32 @@ void Ghost::HandleGhostInHouse(float speed)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Ghost::HandleGhostReturnToHouse(float speed)
+{
+    Vec2f center = Vec2f(13.5f, 11.f) - mPosition;
+
+    if (center.x != 0.f) {
+        mDirection = Vec2i(center.x > 0.f ? 1 : -1, 0);
+        mPosition += Vec2f(mDirection) * speed / 2.f;
+        if (mPosition.x > 13.25f && mPosition.x < 13.75f) {
+            mPosition.x = 13.5f;
+        }
+    } else {
+        mDirection = Vec2i(0, 1);
+        mPosition += Vec2f(mDirection) * speed / 2.f;
+        if (mPosition.y > 14.25f) {
+            mPosition.y = 14.f;
+            mNextTile = Vec2i(
+                static_cast<int>(std::floor(mPosition.x + 0.5f)),
+                static_cast<int>(std::floor(mPosition.y + 0.5f))
+            );
+            mState = State::SCATTER;
+            mInGhostHouse = true;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Ghost::HandleGhostDirectionChange(void)
 {
     Vec2i currentTile = GetPosition();
@@ -368,6 +394,12 @@ void Ghost::Update(
 )
 {
     float speed = deltaSeconds * mMovementSpeed * mMovementPercentage;
+
+    if (mState == State::EATEN && mPosition.x >= 13.0f &&
+        mPosition.x <= 14.0f && mPosition.y >= 11.0f && mPosition.y <= 14.5f) {
+        HandleGhostReturnToHouse(speed);
+        return;
+    }
 
     if (mInGhostHouse) {
         HandleGhostInHouse(speed);
