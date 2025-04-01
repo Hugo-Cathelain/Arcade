@@ -36,6 +36,21 @@ private:
     Vec2i mApplePosition;   //<!
     std::deque<Vec2i> mSnakeParts; //<!
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    enum class TextColor
+    {
+        TEXT_WHITE,
+        TEXT_RED,
+        TEXT_PINK,
+        TEXT_CYAN,
+        TEXT_ORANGE,
+        TEXT_BEIGE,
+        TEXT_YELLOW
+    };
+
 public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief
@@ -50,6 +65,16 @@ public:
     ~Snake();
 
 private:
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    void Text(
+        const std::string& text,
+        TextColor color,
+        const Vec2i& position
+    );
+
+
     ///////////////////////////////////////////////////////////////////////////
     /// \brief
     ///

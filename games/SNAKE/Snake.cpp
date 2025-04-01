@@ -70,6 +70,48 @@ void Snake::EndPlay(void)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
+void Snake::Text(
+    const std::string& text,
+    Snake::TextColor color,
+    const Vec2i& position
+)
+{
+    static const int LTRS_OFFSET_Y = 8;
+    static const char LTRS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@..0123456789/-\"";
+    static const int LTRS_ROW_SIZE = 15;
+    static const Color LTS_COLORS[] = {
+        Color{224, 221, 255}, Color{255, 0, 0}, Color{252, 181, 255},
+        Color{0, 255, 255}, Color{248, 187, 85}, Color{250, 185, 176},
+        Color{255, 255, 0}
+    };
+
+    for (size_t i = 0; i < text.size(); i++) {
+        int index = -1;
+        for (size_t j = 0; j < sizeof(LTRS); j++) {
+            if (text[i] == LTRS[j]) {
+                index = j;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            continue;
+        }
+
+        int row = index / LTRS_ROW_SIZE + static_cast<int>(color) * 4;
+        int col = index % LTRS_ROW_SIZE;
+
+        IGameModule::Asset sprite(
+            {col, LTRS_OFFSET_Y + row},
+            std::string(1, text[i]),
+            LTS_COLORS[static_cast<int>(color)]
+        );
+
+        API::Draw(sprite, position + Vec2i{static_cast<int>(i), 0});
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Snake::handleKeyPressed(EKeyboardKey key)
 {
     mNewOffset = mOffset;
@@ -218,7 +260,8 @@ void Snake::moveSnake(void)
 void Snake::drawScore(void)
 {
     // Draw score
-    std::string score = "Score: " + std::to_string(mScore);
+    Text("SCORE", TextColor::TEXT_WHITE, Vec2i{0, 0});
+    Text(std::to_string(mScore), TextColor::TEXT_WHITE, Vec2i{6, 0});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -248,6 +291,7 @@ void Snake::Tick(float deltaSeconds)
         // Draw snake
     } else {
     }
+    drawScore();
     drawSpritesSnake();
 }
 
