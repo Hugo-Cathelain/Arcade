@@ -230,6 +230,10 @@ void Ghost::CalculateBestDirection(void)
             continue;
         }
 
+        if (dir == Vec2i(0, -1) && currentTile.y == 11 && currentTile.x >= 10 && currentTile.x <= 19) {
+            continue;
+        }
+
         float distance = (Vec2f(nextTile) - Vec2f(mTarget)).Length();
 
         if (distance < minDistance) {

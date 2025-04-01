@@ -232,8 +232,6 @@ void Game::HandlePowerPill(float deltaSeconds)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::CheckForGumsEaten(void)
 {
-    bool isEaten = false;
-
     for (auto& [index, type] : mGums) {
         Vec2i position(index % ARCADE_GAME_WIDTH, index / ARCADE_GAME_WIDTH);
 
@@ -276,28 +274,6 @@ void Game::CheckForGumsEaten(void)
             isEaten = true;
             mGums.erase(index);
             break;
-        }
-    }
-
-    if (isEaten) {
-        if (mPowerPillTimer > 0.f) {
-            mPlayer->SetMovementPercentage(
-                mSpeeds[static_cast<int>(SpeedType::PACMAN_FIGHT_DOTS)]
-            );
-        } else {
-            mPlayer->SetMovementPercentage(
-                mSpeeds[static_cast<int>(SpeedType::PACMAN_NORM_DOTS)]
-            );
-        }
-    } else {
-        if (mPowerPillTimer > 0.f) {
-            mPlayer->SetMovementPercentage(
-                mSpeeds[static_cast<int>(SpeedType::PACMAN_FRIGHT)]
-            );
-        } else {
-            mPlayer->SetMovementPercentage(
-                mSpeeds[static_cast<int>(SpeedType::PACMAN_NORM)]
-            );
         }
     }
 
@@ -406,6 +382,37 @@ void Game::DrawPacmanLives(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::HandlePacmanSpeed(void)
+{
+    Vec2i direction = mPlayer->GetDirection();
+    Vec2i position = mPlayer->GetPosition();
+    Vec2i nextTile = position + direction;
+    int index = nextTile.y * ARCADE_GAME_WIDTH + nextTile.x;
+
+    if (mGums.count(index)) {
+        if (mPowerPillTimer > 0.f) {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_FIGHT_DOTS)]
+            );
+        } else {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_NORM_DOTS)]
+            );
+        }
+    } else {
+        if (mPowerPillTimer > 0.f) {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_FRIGHT)]
+            );
+        } else {
+            mPlayer->SetMovementPercentage(
+                mSpeeds[static_cast<int>(SpeedType::PACMAN_NORM)]
+            );
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::Tick(float deltaSeconds)
 {
     if (mState != State::PRESS_START) {
@@ -417,7 +424,6 @@ void Game::Tick(float deltaSeconds)
     }
 
     if (mState == State::PLAYING) {
-
         mModeTimer += deltaSeconds;
         if (mModeTimer >= mModeTimers[mModeIndex]) {
             mModeTimer = 0.f;
@@ -472,6 +478,7 @@ void Game::Tick(float deltaSeconds)
     if (mState == State::PLAYING) {
         HandlePowerPill(deltaSeconds);
         if (mEatTimer.size() == 0) {
+            HandlePacmanSpeed();
             mPlayer->Update(deltaSeconds);
 
             Vec2i blinkyPos = mBlinky->GetPosition();
