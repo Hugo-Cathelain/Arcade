@@ -20,12 +20,15 @@ Snake::Snake(void)
     : mGameOver(false)
     , mAccumulatedTime(0.0f)
     , mOffset({1, 0})
+    , mNewOffset({1, 0})
     , mPosition({16, 14})
     , mScore(0)
 {
     // Initialize snake with head and tail
     mSnakeParts.push_back(mPosition);
-    mSnakeParts.push_back({mPosition.x - mOffset.x, mPosition.y - mOffset.y});
+    mSnakeParts.push_back(Vec2i{mPosition.x - 2, mPosition.y});
+    mSnakeParts.push_back(Vec2i{mPosition.x - 4, mPosition.y});
+    mSnakeParts.push_back(Vec2i{mPosition.x - 6, mPosition.y});
 
     // Initialize random seed for apple placement
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -39,7 +42,7 @@ Snake::~Snake()
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-void Snake::respawnApple()
+void Snake::respawnApple(void)
 {
     // Random position for apple
     int x = (std::rand() % 15) * 2;
@@ -69,94 +72,28 @@ void Snake::EndPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::handleKeyPressed(EKeyboardKey key)
 {
-    Vec2i newOffset = mOffset;
-
+    mNewOffset = mOffset;
     switch (key) {
         case EKeyboardKey::UP:
-            newOffset = {0, -1};
+            mNewOffset = {0, -1};
             break;
         case EKeyboardKey::DOWN:
-            newOffset = {0, 1};
+            mNewOffset = {0, 1};
             break;
         case EKeyboardKey::LEFT:
-            newOffset = {-1, 0};
+            mNewOffset = {-1, 0};
             break;
         case EKeyboardKey::RIGHT:
-            newOffset = {1, 0};
+            mNewOffset = {1, 0};
             break;
         default:
             break;
     }
-
-    // Prevent 180-degree turns (can't go directly backwards)
-    if (newOffset.x != -mOffset.x || newOffset.y != -mOffset.y)
-        mOffset = newOffset;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Snake::Tick(float deltaSeconds)
+void Snake::drawSpritesSnake(void)
 {
-    mAccumulatedTime += deltaSeconds;
-
-    // Process input
-    while (auto event = API::PollEvent(API::Event::GAME)) {
-        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
-            handleKeyPressed(key->code);
-        }
-    }
-
-    // Clear screen
-    for (size_t y = 4; y < 28; y += 2) {
-        for (size_t x = 0; x < 31; x += 2) {
-            API::Draw(SPRITES[EMPTY], Vec2i(x, y));
-        }
-    }
-
-    // Move snake when accumulated time reaches threshold
-    if (mAccumulatedTime >= 0.2f) {
-        mAccumulatedTime = 0.0f;
-
-        // Calculate new head position
-        Vec2i newHead = {mSnakeParts.front().x + mOffset.x * 2,
-                 mSnakeParts.front().y + mOffset.y * 2};
-
-        // Teleport to opposite side when hitting walls
-        if (newHead.x < 0) {
-            newHead.x = 30;  // Rightmost position (31-1)
-        } else if (newHead.x >= 31) {
-            newHead.x = 0;   // Leftmost position
-        }
-
-        if (newHead.y < 4) {
-            newHead.y = 26;  // Bottom position (28-2)
-        } else if (newHead.y >= 28) {
-            newHead.y = 4;   // Top position
-        }
-
-        // Check for collisions with self (skip the tail since it will move)
-        for (size_t i = 0; i < mSnakeParts.size() - 1; i++) {
-            if (newHead.x == mSnakeParts[i].x && newHead.y == mSnakeParts[i].y) {
-                mGameOver = true;
-                return;
-            }
-        }
-
-        // Add new head
-        mSnakeParts.push_front(newHead);
-
-        // Check if snake ate the apple
-        if (newHead.x == mApplePosition.x && newHead.y == mApplePosition.y) {
-            mScore += 10;
-            respawnApple();
-        } else {
-            // Remove tail if no apple was eaten
-            mSnakeParts.pop_back();
-        }
-    }
-
-    // Draw apple
-    API::Draw(SPRITES[APPLE], mApplePosition);
-
     // Draw snake parts
     for (size_t i = 0; i < mSnakeParts.size(); i++) {
         SpriteType sprite;
@@ -224,6 +161,94 @@ void Snake::Tick(float deltaSeconds)
         }
         API::Draw(SPRITES[sprite], mSnakeParts[i]);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Snake::moveSnake(void)
+{
+
+    // Move snake when accumulated time reaches threshold
+    if (mAccumulatedTime >= 0.2f) {
+        mAccumulatedTime = 0.0f;
+
+        // Prevent 180-degree turns (can't go directly backwards)
+        if (mNewOffset.x != -mOffset.x || mNewOffset.y != -mOffset.y)
+            mOffset = mNewOffset;
+
+        // Calculate new head position
+        Vec2i newHead = {mSnakeParts.front().x + mOffset.x * 2,
+                 mSnakeParts.front().y + mOffset.y * 2};
+
+        // Teleport to opposite side when hitting walls
+        if (newHead.x < 0) {
+            newHead.x = 30;  // Rightmost position (31-1)
+        } else if (newHead.x >= 31) {
+            newHead.x = 0;   // Leftmost position
+        }
+
+        if (newHead.y < 4) {
+            newHead.y = 26;  // Bottom position (28-2)
+        } else if (newHead.y >= 28) {
+            newHead.y = 4;   // Top position
+        }
+
+        // Check for collisions with self (skip the tail since it will move)
+        for (size_t i = 0; i < mSnakeParts.size() - 1; i++) {
+            if (newHead.x == mSnakeParts[i].x && newHead.y == mSnakeParts[i].y) {
+                mGameOver = true;
+                return;
+            }
+        }
+
+        // Add new head
+        mSnakeParts.push_front(newHead);
+
+        // Check if snake ate the apple
+        if (newHead.x == mApplePosition.x && newHead.y == mApplePosition.y) {
+            mScore += 10;
+            respawnApple();
+        } else {
+            // Remove tail if no apple was eaten
+            mSnakeParts.pop_back();
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Snake::drawScore(void)
+{
+    // Draw score
+    std::string score = "Score: " + std::to_string(mScore);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Snake::Tick(float deltaSeconds)
+{
+    mAccumulatedTime += deltaSeconds;
+
+    // Process input
+    while (auto event = API::PollEvent(API::Event::GAME)) {
+        if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+            handleKeyPressed(key->code);
+        }
+    }
+
+    // Clear screen
+    for (size_t y = 4; y < 28; y += 2) {
+        for (size_t x = 0; x < 31; x += 2) {
+            API::Draw(SPRITES[EMPTY], Vec2i(x, y));
+        }
+    }
+
+    if (!mGameOver) {
+        // Move snake
+        moveSnake();
+        // Draw apple
+        API::Draw(SPRITES[APPLE], mApplePosition);
+        // Draw snake
+    } else {
+    }
+    drawSpritesSnake();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
