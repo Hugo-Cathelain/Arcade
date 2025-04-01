@@ -136,6 +136,18 @@ void SDL2Module::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
+            SDL_DisplayMode dm;
+            SDL_GetDesktopDisplayMode(0, &dm);
+
+            mRatio = std::min(
+                static_cast<float>(dm.w - dm.w / 4) /
+                    (gridSize->width * GRID_TILE_SIZE),
+                static_cast<float>(dm.h - dm.h / 4) /
+                    (gridSize->height * GRID_TILE_SIZE)
+            );
+
+            mRatio = std::floor(mRatio);
+
             SDL_SetWindowSize(mWindow,
                 static_cast<unsigned int>(
                     gridSize->width * GRID_TILE_SIZE * mRatio),
