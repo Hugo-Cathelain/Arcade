@@ -68,6 +68,7 @@ private:
     //
     ///////////////////////////////////////////////////////////////////////////
     static const std::vector<float> SPEEDS[4];          //<!
+    static const std::vector<float> MODES[3];           //<!
 
 private:
     ///////////////////////////////////////////////////////////////////////////
@@ -89,6 +90,9 @@ private:
     int mHealth;                                        //<!
     int mLevel;                                         //<!
     std::vector<float> mSpeeds;                         //<!
+    std::vector<float> mModeTimers;                     //<!
+    float mModeTimer;                                   //<!
+    int mModeIndex;                                     //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

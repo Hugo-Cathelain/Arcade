@@ -14,7 +14,6 @@
 namespace Arc::Pacman
 {
 
-
 ///////////////////////////////////////////////////////////////////////////////
 const Vec2i Ghost::CORNER_TARGETS[4] = {
     Vec2i(ARCADE_GAME_WIDTH - 3, -4),                       // BLINKY
@@ -45,6 +44,11 @@ Ghost::Ghost(Type type)
         mState = State::CHASE;
         mPosition = Vec2f(13.5f, 11.f);
     }
+
+    mNextTile = Vec2i(
+        static_cast<int>(std::floor(mPosition.x + 0.5f)),
+        static_cast<int>(std::floor(mPosition.y + 0.5f))
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +60,10 @@ Ghost::Type Ghost::GetType(void) const
 ///////////////////////////////////////////////////////////////////////////////
 Vec2i Ghost::GetPosition(void) const
 {
-    return (mPosition);
+    return (Vec2i(
+        static_cast<int>(std::floor(mPosition.x + 0.5f)),
+        static_cast<int>(std::floor(mPosition.y + 0.5f))
+    ));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,6 +87,16 @@ Ghost::State Ghost::GetState(void) const
 ///////////////////////////////////////////////////////////////////////////////
 void Ghost::SetState(Ghost::State state)
 {
+    if ((state == State::CHASE && mState == State::SCATTER) ||
+        (state == State::SCATTER && mState == State::CHASE)
+    ) {
+        mDirection = -mDirection;
+        mNextTile = Vec2i(
+            static_cast<int>(std::floor(mPosition.x + 0.5f)),
+            static_cast<int>(std::floor(mPosition.y + 0.5f))
+        );
+    }
+
     mState = state;
 }
 
@@ -153,6 +170,12 @@ void Ghost::CalculateFrightenedDirection(void)
         Vec2i(0, -1), Vec2i(-1, 0), Vec2i(0, 1), Vec2i(1, 0)
     };
 
+    Vec2i currentTile(
+        static_cast<int>(std::floor(mPosition.x + 0.5f)),
+        static_cast<int>(std::floor(mPosition.y + 0.5f))
+    );
+
+    Vec2i direction = mDirection;
     Vec2i forbidden = -mDirection;
     unsigned int index = RNG::Get() % 4;
 
@@ -161,20 +184,22 @@ void Ghost::CalculateFrightenedDirection(void)
         Vec2i next = Vec2i(mPosition + Vec2f(dir));
 
         if (dir != forbidden && PACMAN_MAP[next.y][next.x] == TILE_EMPTY) {
-            mDirection = dir;
-            return;
+            direction = dir;
+            break;
         }
 
         index = (index + 1) % 4;
     }
+
+    mTarget = Vec2i(currentTile + direction);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Ghost::HandleTunnelPassage(void)
 {
-    if (static_cast<int>(mPosition.x) <= 0) {
+    if (static_cast<int>(mPosition.x) < 0) {
         mPosition.x = ARCADE_GAME_WIDTH - 1;
-    } else if (static_cast<int>(mPosition.x) >= ARCADE_GAME_WIDTH - 1) {
+    } else if (static_cast<int>(mPosition.x) > ARCADE_GAME_WIDTH - 1) {
         mPosition.x = 0;
     }
 }
@@ -186,35 +211,128 @@ void Ghost::CalculateBestDirection(void)
         Vec2i(0, -1), Vec2i(-1, 0), Vec2i(0, 1), Vec2i(1, 0)
     };
 
+    Vec2i currentTile(
+        static_cast<int>(std::floor(mPosition.x + 0.5f)),
+        static_cast<int>(std::floor(mPosition.y + 0.5f))
+    );
+
     Vec2i forbidden = -mDirection;
-    std::map<float, Vec2i> directions;
+    float minDistance = std::numeric_limits<float>::max();
+    Vec2i direction(0);
 
     for (const auto& dir : PRIORITISED_DIRECTION) {
-        int x = static_cast<int>(mPosition.x + dir.x);
-        int y = static_cast<int>(mPosition.y + dir.y);
+        Vec2i nextTile = currentTile + dir;
 
-        if (dir == forbidden || PACMAN_MAP[y][x] != TILE_EMPTY) {
+        if (nextTile.x < 0) nextTile.x = ARCADE_GAME_WIDTH - 1;
+        else if (nextTile.x > (ARCADE_GAME_WIDTH - 1)) nextTile.x = 0;
+
+        if (dir == forbidden || PACMAN_MAP[nextTile.y][nextTile.x] != TILE_EMPTY) {
             continue;
         }
 
-        float distance = (Vec2f(x, y) - Vec2f(mTarget)).Length();
-        directions[distance] = dir;
-    }
+        float distance = (Vec2f(nextTile) - Vec2f(mTarget)).Length();
 
-    if (directions.empty()) {
-        for (const auto& dir : PRIORITISED_DIRECTION) {
-            int x = static_cast<int>(mPosition.x + dir.x);
-            int y = static_cast<int>(mPosition.y + dir.y);
+        if (distance < minDistance) {
+            minDistance = distance;
+            direction = dir;
+        } else if (distance == minDistance) {
+            size_t currentIndex = 0;
+            size_t newIndex = 0;
 
-            if (PACMAN_MAP[y][x] == TILE_EMPTY) {
-                mDirection = dir;
-                return;
+            for (size_t i = 0; i < PRIORITISED_DIRECTION.size(); i++) {
+                if (PRIORITISED_DIRECTION[i] == mDirection) {
+                    currentIndex = i;
+                }
+                if (PRIORITISED_DIRECTION[i] == dir) {
+                    newIndex = i;
+                }
+            }
+
+            if (newIndex < currentIndex) {
+                direction = dir;
             }
         }
+    }
+
+    if (direction != mDirection && mNextTile == currentTile) {
+        float length = (mPosition - Vec2f(currentTile)).Length() - 0.5f;
+
+        if (length > 0.001f) {
+            return;
+        }
+
+        if (direction.x != 0) {
+            mPosition.y = static_cast<float>(currentTile.y);
+        } else if (direction.y != 0) {
+            mPosition.x = static_cast<float>(currentTile.x);
+        }
+
+        mDirection = direction;
+        mNextTile = currentTile + direction;
+    } else if (mNextTile == currentTile) {
+        mNextTile = currentTile + direction;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::HandleGhostHouseExit(float speed)
+{
+    Vec2f center = Vec2f(13.5f, 0.f) - mPosition;
+
+    if (center.x != 0.f) {
+        mDirection = Vec2i(center.x > 0.f ? 1 : -1, 0);
+        mPosition += Vec2f(mDirection) * speed / 2.f;
+        if (mPosition.x > 13.25f && mPosition.x < 13.75f) {
+            mPosition.x = 13.5f;
+        }
+    } else {
+        mDirection = Vec2i(0, -1);
+        mPosition += Vec2f(mDirection) * speed / 2.f;
+        if (mPosition.y < 11.25f) {
+            mPosition.y = 11.f;
+            mNextTile = Vec2i(
+                static_cast<int>(std::floor(mPosition.x + 0.5f)),
+                static_cast<int>(std::floor(mPosition.y + 0.5f))
+            );
+            mInGhostHouse = false;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Ghost::HandleGhostInHouse(float speed)
+{
+    if (mType == Type::PINKY && mCounter >= 0) {
+        HandleGhostHouseExit(speed);
+        return;
+    } else if (mType == Type::INKY && mCounter >= 30) {
+        HandleGhostHouseExit(speed);
+        return;
+    } else if (mType == Type::CLYDE && mCounter >= 60) {
+        HandleGhostHouseExit(speed);
         return;
     }
 
-    mDirection = directions.begin()->second;
+    if (mDirection.y == 0 && mType != Type::PINKY) {
+        mDirection = Vec2i(0, -1);
+    } else if (mDirection.y == 0) {
+        mDirection = Vec2i(0, 1);
+    }
+
+    Vec2f newPosition = mPosition + Vec2f(mDirection) * speed * 0.5f;
+
+    const float UPPER_BOUND = 13.0f;
+    const float LOWER_BOUND = 14.5f;
+
+    if (newPosition.y < UPPER_BOUND && mDirection.y < 0) {
+        mDirection.y = 1;
+        newPosition.y = UPPER_BOUND;
+    } else if (newPosition.y > LOWER_BOUND && mDirection.y > 0) {
+        mDirection.y = -1;
+        newPosition.y = LOWER_BOUND;
+    }
+
+    mPosition = newPosition;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,26 +345,7 @@ void Ghost::Update(
     float speed = deltaSeconds * mMovementSpeed * mMovementPercentage;
 
     if (mInGhostHouse) {
-        if (mDirection.y == 0 && mType != Type::PINKY) {
-            mDirection = Vec2i(0, -1);
-        } else if (mDirection.y == 0) {
-            mDirection = Vec2i(0, 1);
-        }
-
-        Vec2f newPosition = mPosition + Vec2f(mDirection) * speed * 0.5f;
-
-        const float UPPER_BOUND = 13.0f;
-        const float LOWER_BOUND = 14.5f;
-
-        if (newPosition.y < UPPER_BOUND && mDirection.y < 0) {
-            mDirection.y = 1;
-            newPosition.y = UPPER_BOUND;
-        } else if (newPosition.y > LOWER_BOUND && mDirection.y > 0) {
-            mDirection.y = -1;
-            newPosition.y = LOWER_BOUND;
-        }
-
-        mPosition = newPosition;
+        HandleGhostInHouse(speed);
         return;
     }
 
@@ -261,26 +360,20 @@ void Ghost::Update(
             } else if (mType == Type::CLYDE) {
                 CalculateClydeTarget(pacman);
             }
-            CalculateBestDirection();
-            mPosition += Vec2f(mDirection) * speed;
             break;
         case State::SCATTER:
             mTarget = CORNER_TARGETS[static_cast<int>(mType)];
-            CalculateBestDirection();
-            mPosition += Vec2f(mDirection) * speed;
             break;
         case State::EATEN:
             mTarget = Vec2i(13, 11);
-            CalculateBestDirection();
-            mPosition += Vec2f(mDirection) * speed;
             break;
         case State::FRIGHTENED:
             CalculateFrightenedDirection();
-            mPosition += Vec2f(mDirection) * speed;
             break;
     }
 
-    HandleTunnelPassage();
+    CalculateBestDirection();
+    mPosition += Vec2f(mDirection) * speed;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

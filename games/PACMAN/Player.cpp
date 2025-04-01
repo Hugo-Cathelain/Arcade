@@ -21,6 +21,7 @@ Player::Player(void)
     , mMovementPercentage(1.f)
     , mMovementSpeed(10.f)
     , mMovementAccumulator(0.f)
+    , isDead(false)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,6 +80,25 @@ void Player::Draw(float timer)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Player::DrawDeathAnimation(float timer)
+{
+    int idx = static_cast<int>((timer * 7.5f)) % 11 * 2;
+
+    if ((idx == 0 && timer > 0.5f) || isDead) {
+        isDead = true;
+        return;
+    }
+
+    API::Draw(
+        IGameModule::Asset(
+            {17, 16 + idx},
+            "XX", CLR_YELLOW, {16, 16}
+        ),
+        mPosition + Vec2f(0, ARCADE_OFFSET_Y)
+    );
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Player::Update(float deltaSeconds)
 {
     Vec2i currentTile(
@@ -90,7 +110,7 @@ void Player::Update(float deltaSeconds)
         Vec2i nextTile = currentTile + mDesiredDirection;
 
         if (nextTile.x < 0) nextTile.x = ARCADE_GAME_WIDTH - 1;
-        else if (nextTile.x >= ARCADE_GAME_WIDTH) nextTile.x = 0;
+        else if (nextTile.x > (ARCADE_GAME_WIDTH - 1)) nextTile.x = 0;
 
         if (PACMAN_MAP[nextTile.y][nextTile.x] == TILE_EMPTY) {
             bool alignedForTurn = false;
@@ -119,11 +139,9 @@ void Player::Update(float deltaSeconds)
     if (movement.x != 0.0f) {
         if (newPosition.x < 0) {
             newPosition.x = ARCADE_GAME_WIDTH - 1;
-        }
-        else if (newPosition.x >= ARCADE_GAME_WIDTH) {
+        } else if (newPosition.x > (ARCADE_GAME_WIDTH - 1)) {
             newPosition.x = 0;
-        }
-        else {
+        } else {
             Vec2i checkTile(
                 static_cast<int>(
                     std::floor(newPosition.x + 0.5f + 0.3f * mDirection.x)
