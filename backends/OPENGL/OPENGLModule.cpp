@@ -35,6 +35,10 @@ OPENGLModule::OPENGLModule(void) : mInterpolationFactor(0.f)
     glfwMakeContextCurrent(mWindow);
     glewInit();
     glViewport(0, 0, 800, 600);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glfwSetKeyCallback(mWindow, KeyCallback);
     glfwSetMouseButtonCallback(mWindow, MouseCallback);
 
