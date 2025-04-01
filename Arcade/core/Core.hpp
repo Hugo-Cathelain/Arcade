@@ -30,9 +30,14 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     std::shared_ptr<Arc::IGraphicsModule> mGraphics;        //<!
     std::stack<std::shared_ptr<Arc::IGameModule>> mStates;  //<!
-    bool mIsWindowOpen;
-    int mGraphicLibIdx{0};
-    int mGameLibIdx{0};
+    bool mIsWindowOpen;                                     //<!
+    int mGraphicLibIdx{0};                                  //<!
+    int mGameLibIdx{0};                                     //<!
+    float mTimer;                                           //<!
+    std::map<std::string, std::string> mGraphicLibs;        //<!
+    std::map<std::string, std::string> mGameLibs;           //<!
+    std::string mGraphicLib;                                //<!
+    std::string mGameLib;                                   //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

@@ -25,13 +25,26 @@ Core::Core(const std::string& graphicLib, const std::string& gameLib)
 {
     mStates.push(Library::Load<IGameModule>(gameLib));
     mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+
+    GetLibraries();
+
+    std::vector<std::string> games, graphicals;
+
+    for (const auto& [path, name] : mGameLibs) {
+        games.push_back(name);
+    }
+    for (const auto& [path, name] : mGraphicLibs) {
+        graphicals.push_back(name);
+    }
+
+    API::PushEvent(API::Event::GAME, API::Event::Libraries{graphicals, games});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Core::GetLibraries(void)
 {
-    std::map<std::string, std::string> graphicals;
-    std::map<std::string, std::string> games;
+    mGraphicLibs.clear();
+    mGameLibs.clear();
 
     try {
         for (const auto& entry : fs::directory_iterator("lib")) {
@@ -42,23 +55,13 @@ void Core::GetLibraries(void)
             std::string path = entry.path().string();
 
             if (auto name = Library::Is<IGraphicsModule>(path)) {
-                graphicals[path] = name.value();
+                mGraphicLibs[path] = name.value();
             } else if (auto name = Library::Is<IGameModule>(path)) {
-                games[path] = name.value();
+                mGameLibs[path] = name.value();
             }
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Error accessing directory: " << e.what() << std::endl;
-    }
-
-    std::cout << "Graphics libraries:" << std::endl;
-    for (const auto& [lib, name] : graphicals) {
-        std::cout << "    " << lib << " > " << name << std::endl;
-    }
-
-    std::cout << "Game libraries:" << std::endl;
-    for (const auto& [lib, name] : games) {
-        std::cout << "    " << lib << " > " << name << std::endl;
     }
 }
 
@@ -112,7 +115,7 @@ void Core::HandleEvents(void)
 
             mStates.top()->EndPlay();
 
-            if (mStates.top()->GetName() != "GUI") {
+            if (mStates.top()->GetName().find_first_of("GUI") == std::string::npos) {
                 mStates.pop();
             }
 
@@ -157,6 +160,47 @@ void Core::HandleEvents(void)
                     API::PushEvent(API::Event::Channel::GAME,
                         API::Event::KeyPressed{key->code});
                     break;
+            }
+        } else if (auto lib = event->GetIf<API::Event::SetGame>()) {
+            std::string path = "";
+            for (const auto& [p, name] : mGameLibs) {
+                if (name == lib->game) {
+                    path = p;
+                    break;
+                }
+            }
+            if (path.empty()) {
+                continue;
+            }
+
+            mGameLib = path;
+            mStates.top()->EndPlay();
+            mStates.pop();
+            mStates.push(Library::Load<IGameModule>(path));
+            mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+            mGraphics->SetTitle(mStates.top()->GetName());
+            mStates.top()->BeginPlay();
+        } else if (auto lib = event->GetIf<API::Event::SetGraphics>()) {
+            std::string path = "";
+            for (const auto& [p, name] : mGraphicLibs) {
+                if (name == lib->graphical) {
+                    path = p;
+                    break;
+                }
+            }
+            if (path.empty()) {
+                continue;
+            }
+
+            mGraphicLib = path;
+            mGraphics.reset();
+            try {
+                mGraphics = Library::Load<IGraphicsModule>(path);
+                mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+                mGraphics->SetTitle(mStates.top()->GetName());
+                mStates.top()->BeginPlay();
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to load graphics library: " << e.what() << std::endl;
             }
         }
     }

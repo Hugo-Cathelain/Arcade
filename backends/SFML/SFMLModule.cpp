@@ -98,6 +98,14 @@ void SFMLModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
+
+            sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+
+            mRatio = std::min(
+                static_cast<float>(desktop.width - 128) / (gridSize->width * GRID_TILE_SIZE),
+                static_cast<float>(desktop.height - 128) / (gridSize->height * GRID_TILE_SIZE)
+            );
+
             mWindow->setSize(sf::Vector2u(
                 static_cast<unsigned int>(
                     gridSize->width * GRID_TILE_SIZE * mRatio),

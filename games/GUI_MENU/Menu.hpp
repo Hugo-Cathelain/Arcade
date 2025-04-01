@@ -24,10 +24,29 @@ class MenuGUI : public IGameModule
 {
 private:
     ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    enum class TextColor
+    {
+        TEXT_WHITE,
+        TEXT_RED,
+        TEXT_PINK,
+        TEXT_CYAN,
+        TEXT_ORANGE,
+        TEXT_BEIGE,
+        TEXT_YELLOW
+    };
+
+private:
+    ///////////////////////////////////////////////////////////////////////////
     // Member data
     ///////////////////////////////////////////////////////////////////////////
-    bool mGameOver;     //<!
-    int mCurrentGame;   //<!
+    bool mGameOver;                         //<!
+    int mCurrentGame;                       //<!
+    std::vector<std::string> mGames;        //<!
+    std::vector<std::string> mGraphicals;   //<!
+    float mTimer;                           //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
@@ -47,10 +66,15 @@ private:
     /// \brief
     ///
     /// \param text
+    /// \param color
     /// \param position
     ///
     ///////////////////////////////////////////////////////////////////////////
-    void Write(const std::string& text, const Vec2i& position);
+    static void Text(
+        const std::string& text,
+        TextColor color,
+        const Vec2i& position
+    );
 
 public:
     ///////////////////////////////////////////////////////////////////////////
