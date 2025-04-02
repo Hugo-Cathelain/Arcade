@@ -6,6 +6,7 @@
 #include "Arcade/core/API.hpp"
 #include <chrono>
 #include <filesystem>
+#include "Arcade/shared/Joystick.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Forward namespace std::filesystem
@@ -209,6 +210,78 @@ void Core::HandleEvents(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+int Core::IsAxisPressed(Joystick::Axis axis)
+{
+    float value = Joystick::GetAxisPosition(0, axis);
+    float absValue = std::abs(value);
+
+    if (mAxisPressed[axis] && absValue < 70.f) {
+        mAxisPressed.erase(axis);
+        return (0);
+    }
+
+    if (mAxisPressed[axis]) {
+        return (0);
+    }
+
+    if (absValue > 70.f) {
+        mAxisPressed[axis] = true;
+        return (value < 0.f ? -1 : 1);
+    }
+    return (0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::HandleJoystick(void)
+{
+    for (unsigned int i = 0; i < Joystick::GetButtonCount(0); i++) {
+        if (Joystick::IsButtonPressed(0, i)) {
+            std::cout << "Pressed " << i << std::endl;
+        }
+    }
+
+    // Z => LT
+    // R => RT
+
+    // X => JOYSTICK LEFT HORIZONTAL
+    // Y => JOYSTICK LEFT VERTICAL
+
+    // U => JOYSTICK RIGHT HORIZONTAL
+    // V => JOYSTICK RIGHT VERTICAL
+
+    // PovX => D-PAD HORIZONTAL
+    // PovY => D-PAD VERTICAL
+
+    if (auto delta = IsAxisPressed(Joystick::Axis::PovX)) {
+        API::PushEvent(API::Event::Channel::GAME, API::Event::KeyPressed{
+            delta < 0 ? EKeyboardKey::LEFT : EKeyboardKey::RIGHT
+        });
+    } else if (auto delta = IsAxisPressed(Joystick::Axis::X)) {
+        API::PushEvent(API::Event::Channel::GAME, API::Event::KeyPressed{
+            delta < 0 ? EKeyboardKey::LEFT : EKeyboardKey::RIGHT
+        });
+    } else if (auto delta = IsAxisPressed(Joystick::Axis::U)) {
+        API::PushEvent(API::Event::Channel::GAME, API::Event::KeyPressed{
+            delta < 0 ? EKeyboardKey::LEFT : EKeyboardKey::RIGHT
+        });
+    }
+
+    if (auto delta = IsAxisPressed(Joystick::Axis::PovY)) {
+        API::PushEvent(API::Event::Channel::GAME, API::Event::KeyPressed{
+            delta < 0 ? EKeyboardKey::UP : EKeyboardKey::DOWN
+        });
+    } else if (auto delta = IsAxisPressed(Joystick::Axis::Y)) {
+        API::PushEvent(API::Event::Channel::GAME, API::Event::KeyPressed{
+            delta < 0 ? EKeyboardKey::UP : EKeyboardKey::DOWN
+        });
+    } else if (auto delta = IsAxisPressed(Joystick::Axis::V)) {
+        API::PushEvent(API::Event::Channel::GAME, API::Event::KeyPressed{
+            delta < 0 ? EKeyboardKey::UP : EKeyboardKey::DOWN
+        });
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Core::Run(void)
 {
     auto start = std::chrono::high_resolution_clock::now();
@@ -221,6 +294,8 @@ void Core::Run(void)
 
     mStates.top()->BeginPlay();
     while (mIsWindowOpen && mStates.size() > 0) {
+        Joystick::Update();
+
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> duration = end - start;
         start = end;
@@ -247,11 +322,17 @@ void Core::Run(void)
             );
         }
 
+        if (Joystick::IsConnected(0)) {
+            HandleJoystick();
+        }
         HandleEvents();
+
         mGraphics->Update();
         mGraphics->Clear();
         mStates.top()->Tick(deltaSeconds);
         mGraphics->Render();
+
+        
     }
     mStates.top()->EndPlay();
 }
