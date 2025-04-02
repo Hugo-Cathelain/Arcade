@@ -100,7 +100,7 @@ $(foreach game,$(notdir $(GAME_DIRS)),$(eval $(call GAME_TEMPLATE,$(game))))
 CORE_TARGET				=	arcade
 CORE_DIR				=	Arcade
 CORE_SOURCES			=	$(shell find $(CORE_DIR) $(FINDFLAGS))
-CORE_FLAGS				=	$(LDFLAGS) -ludev
+CORE_FLAGS				=	$(LDFLAGS) -ludev -lwiiuse -lbluetooth
 
 ###############################################################################
 ## Objects

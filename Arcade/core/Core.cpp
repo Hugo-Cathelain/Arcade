@@ -7,6 +7,7 @@
 #include <chrono>
 #include <filesystem>
 #include "Arcade/shared/Joystick.hpp"
+#include "Arcade/shared/WiiMote.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Forward namespace std::filesystem
@@ -27,6 +28,8 @@ Core::Core(const std::string& graphicLib, const std::string& gameLib)
 {
     mStates.push(Library::Load<IGameModule>(gameLib));
     mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+
+    WiiMote::Initialize();
 
     GetLibraries();
 
@@ -158,6 +161,11 @@ void Core::HandleEvents(void)
                     break;
                 case EKeyboardKey::F:
                     GetLibraries();
+                    break;
+                case EKeyboardKey::W:
+                    if (WiiMote::Find()) {
+                        WiiMote::Connect();
+                    }
                     break;
                 default:
                     API::PushEvent(API::Event::Channel::GAME,
@@ -322,6 +330,46 @@ void Core::Run(void)
             );
         }
 
+        if (WiiMote::IsConnected(0)) {
+            WiiMote::Update();
+
+            WiiMote::Accelerometer accel = WiiMote::GetAccelerometer(0);
+
+            if (accel.pitch > 50) {
+                API::PushEvent(
+                    API::Event::Channel::GAME,
+                    API::Event::KeyPressed{EKeyboardKey::LEFT}
+                );
+            } else if (accel.pitch < -50) {
+                API::PushEvent(
+                    API::Event::Channel::GAME,
+                    API::Event::KeyPressed{EKeyboardKey::RIGHT}
+                );
+            } else if (accel.roll > 0 && accel.roll < 50) {
+                API::PushEvent(
+                    API::Event::Channel::GAME,
+                    API::Event::KeyPressed{EKeyboardKey::DOWN}
+                );
+            } else if (accel.roll < -130) {
+                API::PushEvent(
+                    API::Event::Channel::GAME,
+                    API::Event::KeyPressed{EKeyboardKey::UP}
+                );
+            }
+
+            if (WiiMote::IsButtonPressed(0, WiiMote::Button::A)) {
+                if (!mButtonPressed[WiiMote::Button::A]) {
+                    mButtonPressed[WiiMote::Button::A] = true;
+                    API::PushEvent(
+                        API::Event::Channel::GAME,
+                        API::Event::KeyPressed{EKeyboardKey::SPACE}
+                    );
+                }
+            } else {
+                mButtonPressed[WiiMote::Button::A] = false;
+            }
+        }
+
         if (Joystick::IsConnected(0)) {
             HandleJoystick();
         }
@@ -331,10 +379,10 @@ void Core::Run(void)
         mGraphics->Clear();
         mStates.top()->Tick(deltaSeconds);
         mGraphics->Render();
-
-        
     }
     mStates.top()->EndPlay();
+
+    WiiMote::Cleanup();
 }
 
 } // namespace Arc

@@ -9,6 +9,8 @@
 #include "Arcade/interfaces/IGraphicsModule.hpp"
 #include "Arcade/interfaces/IGameModule.hpp"
 #include "Arcade/shared/Joystick.hpp"
+#include "Arcade/shared/WiiMote.hpp"
+#include "Arcade/enums/Inputs.hpp"
 #include <memory>
 #include <string>
 #include <stack>
@@ -27,6 +29,18 @@ class Core
 {
 private:
     ///////////////////////////////////////////////////////////////////////////
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    static constexpr int MOTION_HISTORY_SIZE = 15;          //<!
+    static constexpr float GESTURE_START_THRESHOLD = 60.0f; //<!
+    static constexpr float GESTURE_END_THRESHOLD = 30.0f;   //<!
+    static constexpr float DEADZONE = 20.0f;                //<!
+    static constexpr float COOLDOWN_TIME = 0.3f;            //<!
+    static constexpr float MIN_GESTURE_DURATION = 0.08f;    //<!
+    static constexpr float ALPHA = 0.3f;                    //<!  Weight for EMA filter
+
+private:
+    ///////////////////////////////////////////////////////////////////////////
     // Member data
     ///////////////////////////////////////////////////////////////////////////
     std::shared_ptr<Arc::IGraphicsModule> mGraphics;        //<!
@@ -40,6 +54,9 @@ private:
     std::string mGraphicLib;                                //<!
     std::string mGameLib;                                   //<!
     std::map<Joystick::Axis, bool> mAxisPressed;            //<!
+    priv::EnumArray<
+        WiiMote::Button, bool, WiiMote::buttonCount
+    > mButtonPressed;                                       //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
