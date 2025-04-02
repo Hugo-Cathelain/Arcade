@@ -128,25 +128,33 @@ EMouseButton OPENGLModule::GetMousePress(int click)
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    (void)scancode;
+    (void)action;
+    (void)mods;
+
     OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
-    if (action == GLFW_PRESS)
+    if (action == GLFW_PRESS){
         API::PushEvent(API::Event::Channel::CORE, API::Event::KeyPressed{ instance->GetKey(key) });
+    }
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
+    (void)action;
+    (void)mods;
 
+    OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
-    if (action == GLFW_PRESS)
+    if (action == GLFW_PRESS){
         API::PushEvent(API::Event::Channel::GAME, API::Event::MousePressed{
             instance->GetMousePress(button),
             static_cast<int>(mouseX / (GRID_TILE_SIZE * instance->mRatio)),
             static_cast<int>(mouseY / (GRID_TILE_SIZE * instance->mRatio))
         });
+    }
 }
 
 void OPENGLModule::Update(void)

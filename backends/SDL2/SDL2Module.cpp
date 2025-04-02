@@ -272,9 +272,7 @@ void SDL2Module::SetTitle(const std::string& title)
 ///////////////////////////////////////////////////////////////////////////////
 void SDL2Module::LoadSpriteSheet(const std::string& path)
 {
-    if (!mRenderer) {
-        return;
-    }
+    if (!mRenderer) return;
 
     if (mSpriteSheet) {
         SDL_DestroyTexture(mSpriteSheet);
@@ -282,16 +280,13 @@ void SDL2Module::LoadSpriteSheet(const std::string& path)
     }
 
     SDL_Surface* surface = IMG_Load(path.c_str());
-    if (!surface) {
-        return;
-    }
+    if (!surface) return;
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(mRenderer, surface);
     SDL_FreeSurface(surface);
 
-    if (!texture) {
-        return;
-    }
+    if (!texture) return;
+
     mSpriteSheet = texture;
 }
 
