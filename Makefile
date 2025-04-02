@@ -217,3 +217,9 @@ debug: re
 
 valgrind: debug
 	valgrind --leak-check=full ./$(CORE_TARGET)
+
+install_wii:
+	rm -rf wiiuse
+	git clone git@github.com:wiiuse/wiiuse.git
+	cd wiiuse && mkdir build && cd build && cmake ../src && sudo make install
+	rm -rf wiiuse
