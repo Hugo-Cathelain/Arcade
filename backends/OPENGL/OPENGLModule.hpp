@@ -142,14 +142,17 @@ private:
 
 
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief Convert a OPENGL key to an Arcade key
+    /// \brief Convert a OPENGL key to an Arcade key using scancodes. allowing
+    /// for cross keyboard layout, ansi as well as iso's.
     ///
     /// \param key The OPENGL key
     ///
     /// \return The Arcade key
     ///
     ///////////////////////////////////////////////////////////////////////////
-    EKeyboardKey GetKey(int key);
+    EKeyboardKey GetKeyByCharacter(int key, int scancode);
+
+
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Convert a OPENGL mouse press to an Arcade mouse press

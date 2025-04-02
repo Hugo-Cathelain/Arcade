@@ -58,60 +58,35 @@ OPENGLModule::~OPENGLModule(void)
     glfwTerminate();
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-EKeyboardKey OPENGLModule::GetKey(int key)
+EKeyboardKey OPENGLModule::GetKeyByCharacter(int key, int scancode)
 {
-    switch (key) {
-        case GLFW_KEY_A:           return EKeyboardKey::A;
-        case GLFW_KEY_B:           return EKeyboardKey::B;
-        case GLFW_KEY_C:           return EKeyboardKey::C;
-        case GLFW_KEY_D:           return EKeyboardKey::D;
-        case GLFW_KEY_E:           return EKeyboardKey::E;
-        case GLFW_KEY_F:           return EKeyboardKey::F;
-        case GLFW_KEY_G:           return EKeyboardKey::G;
-        case GLFW_KEY_H:           return EKeyboardKey::H;
-        case GLFW_KEY_I:           return EKeyboardKey::I;
-        case GLFW_KEY_J:           return EKeyboardKey::J;
-        case GLFW_KEY_K:           return EKeyboardKey::K;
-        case GLFW_KEY_L:           return EKeyboardKey::L;
-        case GLFW_KEY_M:           return EKeyboardKey::M;
-        case GLFW_KEY_N:           return EKeyboardKey::N;
-        case GLFW_KEY_O:           return EKeyboardKey::O;
-        case GLFW_KEY_P:           return EKeyboardKey::P;
-        case GLFW_KEY_Q:           return EKeyboardKey::Q;
-        case GLFW_KEY_R:           return EKeyboardKey::R;
-        case GLFW_KEY_S:           return EKeyboardKey::S;
-        case GLFW_KEY_T:           return EKeyboardKey::T;
-        case GLFW_KEY_U:           return EKeyboardKey::U;
-        case GLFW_KEY_V:           return EKeyboardKey::V;
-        case GLFW_KEY_W:           return EKeyboardKey::W;
-        case GLFW_KEY_X:           return EKeyboardKey::X;
-        case GLFW_KEY_Y:           return EKeyboardKey::Y;
-        case GLFW_KEY_Z:           return EKeyboardKey::Z;
-        case GLFW_KEY_UP:          return EKeyboardKey::UP;
-        case GLFW_KEY_DOWN:        return EKeyboardKey::DOWN;
-        case GLFW_KEY_LEFT:        return EKeyboardKey::LEFT;
-        case GLFW_KEY_RIGHT:       return EKeyboardKey::RIGHT;
-        case GLFW_KEY_0:           return EKeyboardKey::NUM0;
-        case GLFW_KEY_1:           return EKeyboardKey::NUM1;
-        case GLFW_KEY_2:           return EKeyboardKey::NUM2;
-        case GLFW_KEY_3:           return EKeyboardKey::NUM3;
-        case GLFW_KEY_4:           return EKeyboardKey::NUM4;
-        case GLFW_KEY_5:           return EKeyboardKey::NUM5;
-        case GLFW_KEY_6:           return EKeyboardKey::NUM6;
-        case GLFW_KEY_7:           return EKeyboardKey::NUM7;
-        case GLFW_KEY_8:           return EKeyboardKey::NUM8;
-        case GLFW_KEY_9:           return EKeyboardKey::NUM9;
-        case GLFW_KEY_SPACE:       return EKeyboardKey::SPACE;
-        case GLFW_KEY_ENTER:       return EKeyboardKey::ENTER;
-        case GLFW_KEY_ESCAPE:      return EKeyboardKey::ESCAPE;
-        case GLFW_KEY_BACKSPACE:   return EKeyboardKey::BACKSPACE;
-        default:                  return EKeyboardKey::UNKNOWN;
+    const char* keyName = glfwGetKeyName(key, scancode);
 
+    if (keyName && keyName[0] && !keyName[1]) {
+        char c = tolower(keyName[0]);
+
+        if (c >= 'a' && c <= 'z') {
+            return (static_cast<EKeyboardKey>(static_cast<int>(EKeyboardKey::A) + (c - 'a')));
+        }
+        if (c >= '0' && c <= '9') {
+            return (static_cast<EKeyboardKey>(static_cast<int>(EKeyboardKey::NUM0) + (c - '0')));
+        }
+    }
+
+    // Fall back to direct key mapping for special keys and when character mapping fails
+    switch (key) {
+        case GLFW_KEY_UP: return EKeyboardKey::UP;
+        case GLFW_KEY_DOWN: return EKeyboardKey::DOWN;
+        case GLFW_KEY_LEFT: return EKeyboardKey::LEFT;
+        case GLFW_KEY_RIGHT: return EKeyboardKey::RIGHT;
+        case GLFW_KEY_SPACE: return EKeyboardKey::SPACE;
+        case GLFW_KEY_ENTER: return EKeyboardKey::ENTER;
+        case GLFW_KEY_ESCAPE: return EKeyboardKey::ESCAPE;
+        case GLFW_KEY_BACKSPACE: return EKeyboardKey::BACKSPACE;
+        // Add other special keys
+        default: return EKeyboardKey::UNKNOWN;
     }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 EMouseButton OPENGLModule::GetMousePress(int click)
@@ -124,17 +99,14 @@ EMouseButton OPENGLModule::GetMousePress(int click)
     }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    (void)scancode;
-    (void)action;
     (void)mods;
 
     OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
     if (action == GLFW_PRESS){
-        API::PushEvent(API::Event::Channel::CORE, API::Event::KeyPressed{ instance->GetKey(key) });
+        API::PushEvent(API::Event::Channel::CORE, API::Event::KeyPressed{ instance->GetKeyByCharacter(key, scancode) });
     }
 }
 
@@ -176,7 +148,7 @@ void OPENGLModule::Update(void)
                 static_cast<float>(screenWidth - (screenWidth / 4.f)) / gridWidth,
                 static_cast<float>(screenHeight - (screenHeight / 4.f)) / gridHeight
             );
-            mRatio = std::floor(mRatio);
+            mRatio = std::round(mRatio);
 
             mWindowWidth = static_cast<int>(gridWidth * mRatio);
             mWindowHeight = static_cast<int>(gridHeight * mRatio);
