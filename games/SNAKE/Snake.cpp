@@ -23,8 +23,11 @@ Snake::Snake(void)
     , mNewOffset({1, 0})
     , mPosition({16, 14})
     , mScore(0)
+    , mIngame(false)
 {
     //TODO: get the best score and keep it in a variable
+    mBestScore = 0;
+
     // Initialize snake with head and tail
     mSnakeParts.push_back(mPosition);
     mSnakeParts.push_back(Vec2i{mPosition.x - 2, mPosition.y});
@@ -130,8 +133,9 @@ void Snake::handleKeyPressed(EKeyboardKey key)
             mNewOffset = {1, 0};
             break;
         case EKeyboardKey::SPACE:
-            if (mGameOver) {
+            if (mGameOver || !mIngame) {
                 mGameOver = false;
+                mIngame = true;
                 mScore = 0;
                 mSnakeParts.clear();
                 mSnakeParts.push_back(mPosition);
@@ -223,7 +227,6 @@ void Snake::drawSpritesSnake(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::moveSnake(void)
 {
-
     // Move snake when accumulated time reaches threshold
     if (mAccumulatedTime >= 0.2f) {
         mAccumulatedTime = 0.0f;
@@ -277,10 +280,9 @@ void Snake::drawScore(void)
 {
     // Draw score
     Text("SCORE", TextColor::TEXT_WHITE, Vec2i{2, 2});
-    Text("BEST SCORE", TextColor::TEXT_WHITE, Vec2i{16, 2});
+    Text("BEST SCORE", TextColor::TEXT_WHITE, Vec2i{15, 2});
     Text(std::to_string(mScore), TextColor::TEXT_WHITE, Vec2i{8, 2});
-    //TODO: draw the best score
-    //Text(std::to_string(mBestScore), TextColor::TEXT_WHITE, Vec2i{24, 2});
+    Text(std::to_string(mBestScore), TextColor::TEXT_WHITE, Vec2i{26, 2});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -303,10 +305,12 @@ void Snake::Tick(float deltaSeconds)
                 API::Draw(SPRITES[EMPTY], Vec2i(x, y));
             }
         }
-        // Move snake
-        moveSnake();
-        // Draw apple
-        API::Draw(SPRITES[APPLE], mApplePosition);
+        if (mIngame) {
+            // Move snake
+            moveSnake();
+            // Draw apple
+            API::Draw(SPRITES[APPLE], mApplePosition);
+        }
         // Draw snake
         drawSpritesSnake();
         drawScore();
