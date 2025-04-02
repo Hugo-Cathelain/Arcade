@@ -36,6 +36,34 @@ namespace Arc
 #define CLR_WHITE  Color{255, 255, 255}
 
 ///////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////
+#define SFX_CREDIT              "assets/PACMAN/sfx/credit.wav"
+#define SFX_DEATH_0             "assets/PACMAN/sfx/death_0.wav"
+#define SFX_DEATH_1             "assets/PACMAN/sfx/death_1.wav"
+#define SFX_EAT_DOT_0           "assets/PACMAN/sfx/eat_dot_0.wav"
+#define SFX_EAT_DOT_1           "assets/PACMAN/sfx/eat_dot_1.wav"
+#define SFX_EAT_FRUIT           "assets/PACMAN/sfx/eat_fruit.wav"
+#define SFX_EAT_GHOST           "assets/PACMAN/sfx/eat_ghost.wav"
+#define SFX_EXTEND              "assets/PACMAN/sfx/extend.wav"
+#define SFX_EYES_FIRSTLOOP      "assets/PACMAN/sfx/eyes_firstloop.wav"
+#define SFX_EYES                "assets/PACMAN/sfx/eyes.wav"
+#define SFX_FRIGHT_FIRSTLOOP    "assets/PACMAN/sfx/fright_firstloop.wav"
+#define SFX_FRIGHT              "assets/PACMAN/sfx/fright.wav"
+#define SFX_INTERMISSION        "assets/PACMAN/sfx/intermission.wav"
+#define SFX_SIREN0_FIRSTLOOP    "assets/PACMAN/sfx/siren0_firstloop.wav"
+#define SFX_SIREN0              "assets/PACMAN/sfx/siren0.wav"
+#define SFX_SIREN1_FIRSTLOOP    "assets/PACMAN/sfx/siren1_firstloop.wav"
+#define SFX_SIREN1              "assets/PACMAN/sfx/siren1.wav"
+#define SFX_SIREN2_FIRSTLOOP    "assets/PACMAN/sfx/siren2_firstloop.wav"
+#define SFX_SIREN2              "assets/PACMAN/sfx/siren2.wav"
+#define SFX_SIREN3_FIRSTLOOP    "assets/PACMAN/sfx/siren3_firstloop.wav"
+#define SFX_SIREN3              "assets/PACMAN/sfx/siren3.wav"
+#define SFX_SIREN4_FIRSTLOOP    "assets/PACMAN/sfx/siren4_firstloop.wav"
+#define SFX_SIREN4              "assets/PACMAN/sfx/siren4.wav"
+#define SFX_START               "assets/PACMAN/sfx/start.wav"
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief
 ///
 ///////////////////////////////////////////////////////////////////////////////

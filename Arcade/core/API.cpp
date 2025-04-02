@@ -2,6 +2,10 @@
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/core/API.hpp"
+#include "Arcade/audio/Audio.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -62,6 +66,12 @@ std::tuple<IGameModule::Asset, Vec2f, Color> API::PopDraw(void)
 bool API::IsDrawQueueEmpty(void)
 {
     return (mDrawables.empty());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void API::PlaySound(const std::string& path)
+{
+    Audio::Play(path);
 }
 
 } // namespace Arc

@@ -6,6 +6,7 @@
 #include "games/PACMAN/Menu.hpp"
 #include "../../Arcade/interfaces/IGameModule.hpp"
 #include "../../Arcade/core/API.hpp"
+#include "games/PACMAN/Random.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc::Pacman
@@ -181,6 +182,7 @@ void Game::HandleEvents(void)
 
             if (direction != 0 && mState == State::START_PRESSED) {
                 mState = State::PLAYING;
+                API::PlaySound(SFX_START);
                 mPlayer->SetPosition({14 + direction.x, 23});
             }
 
@@ -236,6 +238,8 @@ void Game::CheckForGumsEaten(void)
         Vec2i position(index % ARCADE_GAME_WIDTH, index / ARCADE_GAME_WIDTH);
 
         if (mPlayer->GetPosition() == position) {
+            API::PlaySound(!(RNG::Get() % 2) ? SFX_EAT_DOT_0 : SFX_EAT_DOT_1);
+
             if (type == GumType::SMALL) {
                 mBlinky->IncrementCounter();
                 mPinky->IncrementCounter();
