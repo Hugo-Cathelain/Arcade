@@ -319,10 +319,10 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
             std::make_tuple(0.f, mPlayer->GetPosition());
         mKillCount++;
         mKillCount = mKillCount % 4;
-        ghost->SetMovementPercentage(
-            mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
-        );
+        ghost->SetMovementPercentage(1.f);
+        API::PlaySound(SFX_EAT_GHOST);
     } else if (ghost->GetState() != Ghost::State::EATEN) {
+        API::PlaySound(SFX_DEATH_0);
         mHealth--;
         mTimer = 0.f;
         mState = State::DEATH_ANIMATION;

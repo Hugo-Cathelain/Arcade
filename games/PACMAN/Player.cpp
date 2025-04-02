@@ -19,7 +19,7 @@ Player::Player(void)
     , mAnimationOffset(0)
     , mDirectionOffset(0)
     , mMovementPercentage(1.f)
-    , mMovementSpeed(10.f)
+    , mMovementSpeed(9.47f)
     , mMovementAccumulator(0.f)
     , isDead(false)
 {}

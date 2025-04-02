@@ -28,7 +28,7 @@ Ghost::Ghost(Type type)
     , mState(State::SCATTER)
     , mDirection(0, 0)
     , mMovementPercentage(1.f)
-    , mMovementSpeed(10.f)
+    , mMovementSpeed(9.47f)
     , mMovementAccumulator(0.f)
     , mInGhostHouse(true)
     , mAccumulator(0.f)
@@ -346,13 +346,13 @@ void Ghost::HandleGhostReturnToHouse(float speed)
 
     if (center.x != 0.f) {
         mDirection = Vec2i(center.x > 0.f ? 1 : -1, 0);
-        mPosition += Vec2f(mDirection) * speed / 2.f;
+        mPosition += Vec2f(mDirection) * speed;
         if (mPosition.x > 13.25f && mPosition.x < 13.75f) {
             mPosition.x = 13.5f;
         }
     } else {
         mDirection = Vec2i(0, 1);
-        mPosition += Vec2f(mDirection) * speed / 2.f;
+        mPosition += Vec2f(mDirection) * speed;
         if (mPosition.y > 14.25f) {
             mPosition.y = 14.f;
             mNextTile = Vec2i(
