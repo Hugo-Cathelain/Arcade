@@ -24,6 +24,7 @@ Snake::Snake(void)
     , mPosition({16, 14})
     , mScore(0)
 {
+    //TODO: get the best score and keep it in a variable
     // Initialize snake with head and tail
     mSnakeParts.push_back(mPosition);
     mSnakeParts.push_back(Vec2i{mPosition.x - 2, mPosition.y});
@@ -127,6 +128,20 @@ void Snake::handleKeyPressed(EKeyboardKey key)
             break;
         case EKeyboardKey::RIGHT:
             mNewOffset = {1, 0};
+            break;
+        case EKeyboardKey::SPACE:
+            if (mGameOver) {
+                mGameOver = false;
+                mScore = 0;
+                mSnakeParts.clear();
+                mSnakeParts.push_back(mPosition);
+                mSnakeParts.push_back(Vec2i{mPosition.x - 2, mPosition.y});
+                mSnakeParts.push_back(Vec2i{mPosition.x - 4, mPosition.y});
+                mSnakeParts.push_back(Vec2i{mPosition.x - 6, mPosition.y});
+                mOffset = {1, 0};
+                mNewOffset = {1, 0};
+                respawnApple();
+            }
             break;
         default:
             break;
@@ -238,6 +253,7 @@ void Snake::moveSnake(void)
         for (size_t i = 0; i < mSnakeParts.size() - 1; i++) {
             if (newHead.x == mSnakeParts[i].x && newHead.y == mSnakeParts[i].y) {
                 mGameOver = true;
+                //TODO: keep the score if better than best one, and save it
                 return;
             }
         }
@@ -260,8 +276,11 @@ void Snake::moveSnake(void)
 void Snake::drawScore(void)
 {
     // Draw score
-    Text("SCORE", TextColor::TEXT_WHITE, Vec2i{0, 0});
-    Text(std::to_string(mScore), TextColor::TEXT_WHITE, Vec2i{6, 0});
+    Text("SCORE", TextColor::TEXT_WHITE, Vec2i{2, 2});
+    Text("BEST SCORE", TextColor::TEXT_WHITE, Vec2i{16, 2});
+    Text(std::to_string(mScore), TextColor::TEXT_WHITE, Vec2i{8, 2});
+    //TODO: draw the best score
+    //Text(std::to_string(mBestScore), TextColor::TEXT_WHITE, Vec2i{24, 2});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -276,23 +295,28 @@ void Snake::Tick(float deltaSeconds)
         }
     }
 
-    // Clear screen
-    for (size_t y = 4; y < 28; y += 2) {
-        for (size_t x = 0; x < 31; x += 2) {
-            API::Draw(SPRITES[EMPTY], Vec2i(x, y));
-        }
-    }
 
     if (!mGameOver) {
+        // Clear screen
+        for (size_t y = 4; y < 28; y += 2) {
+            for (size_t x = 0; x < 31; x += 2) {
+                API::Draw(SPRITES[EMPTY], Vec2i(x, y));
+            }
+        }
         // Move snake
         moveSnake();
         // Draw apple
         API::Draw(SPRITES[APPLE], mApplePosition);
         // Draw snake
+        drawSpritesSnake();
+        drawScore();
     } else {
+        drawSpritesSnake();
+        Text("GAME OVER", TextColor::TEXT_WHITE, Vec2i{11, 8});
+        Text("SCORE", TextColor::TEXT_WHITE, Vec2i{13, 10});
+        Text(std::to_string(mScore), TextColor::TEXT_WHITE, Vec2i{14, 12});
+        Text("PRESS SPACE TO RESTART", TextColor::TEXT_WHITE, Vec2i{5, 25});
     }
-    drawScore();
-    drawSpritesSnake();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
