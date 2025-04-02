@@ -314,6 +314,7 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
         mEatTimer[200 << mKillCount] =
             std::make_tuple(0.f, mPlayer->GetPosition());
         mKillCount++;
+        mKillCount = mKillCount % 4;
         ghost->SetMovementPercentage(
             mSpeeds[static_cast<int>(SpeedType::GHOST_NORM)]
         );
