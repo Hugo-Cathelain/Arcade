@@ -238,7 +238,7 @@ void Game::CheckForGumsEaten(void)
         Vec2i position(index % ARCADE_GAME_WIDTH, index / ARCADE_GAME_WIDTH);
 
         if (mPlayer->GetPosition() == position) {
-            API::PlaySound(!(RNG::Get() % 2) ? SFX_EAT_DOT_0 : SFX_EAT_DOT_1);
+            API::PlaySound(mGums.size() % 2 ? SFX_EAT_DOT_0 : SFX_EAT_DOT_1);
 
             if (type == GumType::SMALL) {
                 mBlinky->IncrementCounter();
