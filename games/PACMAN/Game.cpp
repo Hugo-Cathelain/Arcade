@@ -144,7 +144,7 @@ void Game::DrawEatScore(void)
     for (const auto& [score, timer] : mEatTimer) {
         if (std::get<0>(timer) >= 2.f) {
             mEatTimer.erase(score);
-            continue;
+            break;
         }
 
         API::Draw(
