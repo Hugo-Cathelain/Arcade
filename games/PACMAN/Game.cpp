@@ -41,6 +41,7 @@ Game::Game(void)
     , mLevel(1)
     , mModeTimer(0.f)
     , mModeIndex(0)
+    , mSoundTimer(0.f)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -176,13 +177,8 @@ void Game::HandleEvents(void)
                 direction = Vec2i{1, 0};
             }
 
-            if (key->code == EKeyboardKey::SPACE && mState == State::PRESS_START) {
-                mState = State::START_PRESSED;
-            }
-
             if (direction != 0 && mState == State::START_PRESSED) {
                 mState = State::PLAYING;
-                API::PlaySound(SFX_START);
                 mPlayer->SetPosition({14 + direction.x, 23});
             }
 
@@ -287,7 +283,6 @@ void Game::CheckForGumsEaten(void)
 void Game::BeginPlay(void)
 {
     mTimer = 0.0f;
-    mState = State::PRESS_START;
     mPlayer.reset(new Player());
     mBlinky.reset(new Ghost(Ghost::Type::BLINKY));
     mPinky.reset(new Ghost(Ghost::Type::PINKY));
@@ -301,6 +296,8 @@ void Game::BeginPlay(void)
     mHealth = 4;
     mLevel = 1;
     ResetGame(mLevel);
+    mState = State::PRESS_START;
+    API::PlaySound(SFX_START);
     SetDefaultGums();
 }
 
@@ -417,10 +414,41 @@ void Game::HandlePacmanSpeed(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::HandleAmbiantSound(void)
+{
+    bool isOneEaten = false;
+
+    isOneEaten = mBlinky->GetState() == Ghost::State::EATEN ? true : isOneEaten;
+    isOneEaten = mPinky->GetState() == Ghost::State::EATEN ? true : isOneEaten;
+    isOneEaten = mInky->GetState() == Ghost::State::EATEN ? true : isOneEaten;
+    isOneEaten = mClyde->GetState() == Ghost::State::EATEN ? true : isOneEaten;
+
+    if (mSoundTimer < 0.15f) {
+        return;
+    }
+
+    mSoundTimer = 0.f;
+
+    if (isOneEaten) {
+        API::PlaySound(SFX_EYES);
+    } else if (mPowerPillTimer > 0.f) {
+        API::PlaySound(SFX_FRIGHT);
+    } else {
+        API::PlaySound(SFX_SIREN0);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::Tick(float deltaSeconds)
 {
-    if (mState != State::PRESS_START) {
-        mTimer += deltaSeconds;
+    mTimer += deltaSeconds;
+    mSoundTimer += deltaSeconds;
+
+    if (mState == State::PRESS_START) {
+        if (mTimer >= 3.f) {
+            mState = State::START_PRESSED;
+            mTimer = 0.f;
+        }
     }
 
     for (auto& [score, timer] : mEatTimer) {
@@ -480,6 +508,7 @@ void Game::Tick(float deltaSeconds)
 
     // Updating
     if (mState == State::PLAYING) {
+        HandleAmbiantSound();
         HandlePowerPill(deltaSeconds);
         if (mEatTimer.size() == 0) {
             HandlePacmanSpeed();
