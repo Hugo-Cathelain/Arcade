@@ -77,7 +77,9 @@ void Core::HandleEvents(void)
         "lib/arcade_sfml.so",
         "lib/arcade_sdl2.so",
         "lib/arcade_opengl.so",
-        "lib/arcade_ncurses.so"
+        "lib/arcade_ncurses.so",
+        "lib/arcade_libcaca.so"
+
     };
     static std::vector<std::string> GAMES = {
         "lib/arcade_snake.so",

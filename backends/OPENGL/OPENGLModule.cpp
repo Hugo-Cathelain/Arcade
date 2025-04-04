@@ -58,6 +58,7 @@ OPENGLModule::~OPENGLModule(void)
     glfwTerminate();
 }
 
+///////////////////////////////////////////////////////////////////////////////
 EKeyboardKey OPENGLModule::GetKeyByCharacter(int key, int scancode)
 {
     const char* keyName = glfwGetKeyName(key, scancode);
@@ -73,7 +74,6 @@ EKeyboardKey OPENGLModule::GetKeyByCharacter(int key, int scancode)
         }
     }
 
-    // Fall back to direct key mapping for special keys and when character mapping fails
     switch (key) {
         case GLFW_KEY_UP: return EKeyboardKey::UP;
         case GLFW_KEY_DOWN: return EKeyboardKey::DOWN;
@@ -83,7 +83,6 @@ EKeyboardKey OPENGLModule::GetKeyByCharacter(int key, int scancode)
         case GLFW_KEY_ENTER: return EKeyboardKey::ENTER;
         case GLFW_KEY_ESCAPE: return EKeyboardKey::ESCAPE;
         case GLFW_KEY_BACKSPACE: return EKeyboardKey::BACKSPACE;
-        // Add other special keys
         default: return EKeyboardKey::UNKNOWN;
     }
 }
@@ -129,6 +128,7 @@ void OPENGLModule::MouseCallback(GLFWwindow* window, int button, int action, int
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {

@@ -57,6 +57,7 @@ BACKEND_SFML_FLAGS		=	-lsfml-graphics -lsfml-window -lsfml-system
 BACKEND_SDL2_FLAGS		=	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 BACKEND_NCURSES_FLAGS	=	-lncurses
 BACKEND_OPENGL_FLAGS	=	-lGL -lGLU -lglut -lGLEW -lglfw
+BACKEND_LIBCACA_FLAGS	=	-lcaca -lSDL2 -lSDL2_image
 
 EMPTY_FLAGS				=
 
