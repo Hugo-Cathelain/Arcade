@@ -15,7 +15,6 @@ namespace Arc
 LIBCACAModule::LIBCACAModule(void)
     : mWindow(nullptr)
     , mCanva(nullptr)
-    , mDither(nullptr)
     , mSpriteSheet(nullptr)
     , mInterpolationFactor(0.f)
     , mLastFrameTime(0)
@@ -34,22 +33,8 @@ LIBCACAModule::LIBCACAModule(void)
 
     mCanva = caca_create_canvas(0, 0);
     mWindow = caca_create_display(mCanva);
-    // caca_set_display_driver(mWindow, "sdl2");
     if (!mCanva || !mWindow) return;
     caca_set_canvas_size(mCanva, 600, 600);
-
-
-    char const * const * fontList = caca_get_font_list();
-    // Check if the font list is not null
-    if (fontList) {
-        std::cout << "Available Fonts:\n";
-        // Iterate through the font list and print each font name
-        for (int i = 0; fontList[i] != nullptr; ++i) {
-            std::cout << fontList[i] << std::endl;
-        }
-    } else {
-        std::cout << "No fonts available." << std::endl;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,10 +47,6 @@ LIBCACAModule::~LIBCACAModule(void)
     if (mWindow){
         caca_free_display(mWindow);
         mWindow = nullptr;
-    }
-    if (mDither){
-        caca_free_dither(mDither);
-        mDither = nullptr;
     }
     if (mSpriteSheet){
         SDL_FreeSurface(mSpriteSheet);

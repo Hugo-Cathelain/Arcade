@@ -48,7 +48,6 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     caca_display_t *mWindow;                    //<! The window/canva
     caca_canvas_t *mCanva;                      //<! The Renderer
-    caca_dither_t *mDither;                     //<! The pointer for pixel to ascii conversion
     SDL_Surface *mSpriteSheet;                  //<! The texture
     SDL_Surface *rgbImage;                      //<! rgb value of image
     float mRatio;                               //<! The scaling ratio
@@ -60,9 +59,6 @@ private:
     uint32_t mLastFrameTime;              //<!
     float mWindowWidth;
     float mWindowHeight;
-    float mGridWidth;
-    float mGridHeight;
-    Vec2i mViewportSize;
 
 public:
     ///////////////////////////////////////////////////////////////////////////
