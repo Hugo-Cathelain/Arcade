@@ -57,6 +57,7 @@ private:
         std::string sourcePath;
         std::shared_ptr<cached_audio> cachedData;
         bool loop;
+        float volume;
     };
 
 private:

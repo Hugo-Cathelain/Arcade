@@ -47,7 +47,37 @@ void Audio::DataCallback(
     ma_decoder* pDecoder = &stream->cachedData->decoder;
     ma_uint64 framesRead;
 
+    void* tempBuffer = pOutput;
+    bool useTemp = stream->volume != 1.0f;
+
+    if (useTemp) {
+        tempBuffer = malloc(frameCount * pDecoder->outputChannels *
+                           ma_get_bytes_per_sample(pDecoder->outputFormat));
+        if (!tempBuffer) {
+            useTemp = false;
+            tempBuffer = pOutput;
+        }
+    }
+
     ma_decoder_read_pcm_frames(pDecoder, pOutput, frameCount, &framesRead);
+
+    if (useTemp && stream->volume != 1.0f) {
+        if (pDecoder->outputFormat == ma_format_f32) {
+            float* samples = (float*)tempBuffer;
+            for (ma_uint32 i = 0; i < framesRead * pDecoder->outputChannels; i++) {
+                samples[i] *= stream->volume;
+            }
+        } else if (pDecoder->outputFormat == ma_format_s16) {
+            int16_t* samples = (int16_t*)tempBuffer;
+            for (ma_uint32 i = 0; i < framesRead * pDecoder->outputChannels; i++) {
+                samples[i] = (int16_t)(samples[i] * stream->volume);
+            }
+        }
+
+        memcpy(pOutput, tempBuffer, framesRead * pDecoder->outputChannels *
+              ma_get_bytes_per_sample(pDecoder->outputFormat));
+        free(tempBuffer);
+    }
 
     if (framesRead < frameCount && !stream->loop) {
         memset(
@@ -138,6 +168,7 @@ void Audio::Play(const std::string& path, const std::string& id, bool loop)
 
     stream->cachedData = cachedData;
 
+    stream->volume = 1.f;
     stream->deviceConfig = ma_device_config_init(ma_device_type_playback);
     stream->deviceConfig.playback.format = cachedData->decoder.outputFormat;
     stream->deviceConfig.playback.channels = cachedData->decoder.outputChannels;
