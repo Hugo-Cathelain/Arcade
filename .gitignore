@@ -38,3 +38,7 @@ vgcore.*
 
 # Old source files
 old/
+
+# Ignore Score Saving
+.saves/
+*.save
