@@ -36,8 +36,11 @@ void Nibbler::Tick(float deltaSeconds)
     (void)deltaSeconds;
     while (std::optional event = API::PollEvent(API::Event::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
-            if (key->code == EKeyboardKey::Q) {
-                mGameOver = true;
+            if (key->code == EKeyboardKey::G) {
+                API::PushEvent(
+                    API::Event::Channel::CORE,
+                    API::Event::GameOver{200}
+                );
                 break;
             }
         }

@@ -4,10 +4,11 @@
 #include "Arcade/core/Core.hpp"
 #include "Arcade/core/Library.hpp"
 #include "Arcade/core/API.hpp"
-#include <chrono>
-#include <filesystem>
 #include "Arcade/shared/Joystick.hpp"
 #include "Arcade/shared/WiiMote.hpp"
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Forward namespace std::filesystem
@@ -214,6 +215,52 @@ void Core::HandleEvents(void)
                 mStates.top()->BeginPlay();
             } catch (const std::exception& e) {
                 std::cerr << "Failed to load graphics library: " << e.what() << std::endl;
+            }
+        } else if (auto info = event->GetIf<API::Event::PlayerInformation>()) {
+            if (!info->username.empty()) {
+                mUserName = info->username;
+            }
+        } else if (auto over = event->GetIf<API::Event::GameOver>()) {
+            if (mUserName.empty()) {
+                continue;
+            }
+
+            if (!fs::exists(".saves")) {
+                fs::create_directory(".saves");
+            }
+
+            std::string savePath = ".saves/" + mUserName + ".save";
+            std::string gameName = mStates.top()->GetName();
+            int currentScore = over->score;
+
+            std::map<std::string, int> scores;
+
+            std::ifstream saveFile(savePath);
+            if (saveFile.is_open()) {
+                std::string line;
+                while (std::getline(saveFile, line)) {
+                    size_t sep = line.find(':');
+                    if (sep != std::string::npos) {
+                        std::string game = line.substr(0, sep);
+                        int score = std::stoi(line.substr(sep + 1));
+                        scores[game] = score;
+                    }
+                }
+                saveFile.close();
+            }
+
+            if (scores.find(gameName) == scores.end() || currentScore > scores[gameName]) {
+                scores[gameName] = currentScore;
+            }
+
+            std::ofstream outFile(savePath);
+            if (outFile.is_open()) {
+                for (const auto& [game, score] : scores) {
+                    outFile << game << ":" << score << std::endl;
+                }
+                outFile.close();
+            } else {
+                std::cerr << "Failed to open save file for writing: " << savePath << std::endl;
             }
         }
     }

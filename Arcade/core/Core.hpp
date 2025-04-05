@@ -37,7 +37,7 @@ private:
     static constexpr float DEADZONE = 20.0f;                //<!
     static constexpr float COOLDOWN_TIME = 0.3f;            //<!
     static constexpr float MIN_GESTURE_DURATION = 0.08f;    //<!
-    static constexpr float ALPHA = 0.3f;                    //<!  Weight for EMA filter
+    static constexpr float ALPHA = 0.3f;                    //<!
 
 private:
     ///////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ private:
     priv::EnumArray<
         WiiMote::Button, bool, WiiMote::buttonCount
     > mButtonPressed;                                       //<!
+    std::string mUserName;                                  //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
