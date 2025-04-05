@@ -149,6 +149,15 @@ public:
         struct Closed
         {};
 
+        ///////////////////////////////////////////////////////////////////////
+        /// \brief
+        ///
+        ///////////////////////////////////////////////////////////////////////
+        struct PlayerInformation
+        {
+            std::string username;
+        };
+
     private:
         ///////////////////////////////////////////////////////////////////////
         // Member data
@@ -163,7 +172,8 @@ public:
             Closed,
             Libraries,
             SetGraphics,
-            SetGame
+            SetGame,
+            PlayerInformation
         > mData;
 
     private:
