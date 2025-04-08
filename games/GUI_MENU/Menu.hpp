@@ -47,6 +47,7 @@ private:
     std::vector<std::string> mGames;        //<!
     std::vector<std::string> mGraphicals;   //<!
     float mTimer;                           //<!
+    std::string mUserName;                  //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

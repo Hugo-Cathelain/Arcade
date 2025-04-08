@@ -162,9 +162,6 @@ void Core::HandleEvents(void)
                     API::PushEvent(API::Event::Channel::CORE,
                         API::Event::Closed{});
                     break;
-                case EKeyboardKey::F:
-                    GetLibraries();
-                    break;
                 case EKeyboardKey::W:
                     if (WiiMote::Find()) {
                         WiiMote::Connect();

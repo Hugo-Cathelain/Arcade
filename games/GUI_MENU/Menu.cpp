@@ -100,6 +100,8 @@ void MenuGUI::Tick(float deltaSeconds)
                 if (mCurrentGame > static_cast<int>(mGames.size() - 1)) {
                     mCurrentGame = 0;
                 }
+            } else if (key->code >= EKeyboardKey::A && key->code <= EKeyboardKey::Z) {
+                mUserName += ('A' + static_cast<int>(key->code) - static_cast<int>(EKeyboardKey::A));
             }
         } else if (auto libraries = event->GetIf<API::Event::Libraries>()) {
             mGames = libraries->games;
@@ -114,6 +116,8 @@ void MenuGUI::Tick(float deltaSeconds)
     }
     API::Draw(gamePoster, Vec2i({15, 16}));
     Text(mGames[mCurrentGame], TextColor::TEXT_WHITE, Vec2i({3, 34}));
+
+    Text(mUserName, TextColor::TEXT_RED, Vec2i({3, 0}));
 
     bool flick = static_cast<int>(mTimer) % 2 ? true : false;
 
