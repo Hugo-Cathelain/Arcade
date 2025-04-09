@@ -356,6 +356,7 @@ void Game::ResetGame(int level)
         mModeTimers = MODES[2];
     }
 
+    SetDefaultGums();
     mTimer = 0.0f;
     mState = State::START_PRESSED;
     mPlayer.reset(new Player());
