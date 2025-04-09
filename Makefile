@@ -219,7 +219,22 @@ debug: re
 valgrind: debug
 	valgrind --leak-check=full ./$(CORE_TARGET)
 
-install_wii:
+install:
+	sudo dnf install \
+		bluez-libs-devel \
+		glew-devel \
+		glfw-devel \
+		glm-devel \
+		libcaca \
+		libcaca-devel \
+		SDL2 \
+		SDL2-devel \
+		SDL2_image \
+		SDL2_image-devel \
+		SDL2_ttf \
+		SDL2_ttf-devel \
+		SFML \
+		SFML-devel
 	rm -rf wiiuse
 	git clone git@github.com:wiiuse/wiiuse.git
 	cd wiiuse && mkdir build && cd build && cmake ../src && sudo make install
