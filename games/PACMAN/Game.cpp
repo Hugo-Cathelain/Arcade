@@ -427,15 +427,15 @@ void Game::HandleAmbiantSound(void)
         return;
     }
 
-    mSoundTimer = 0.f;
-
     if (isOneEaten) {
         API::PlaySound(SFX_EYES);
     } else if (mPowerPillTimer > 0.f) {
-        API::PlaySound(SFX_FRIGHT);
+        API::PlaySound(SFX_FRIGHT_FIRSTLOOP);
     } else {
         API::PlaySound(SFX_SIREN0);
     }
+
+    mSoundTimer = 0.f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
