@@ -5,7 +5,6 @@
 #include "Arcade/core/API.hpp"
 #include "games/SNAKE/Assets.hpp"
 #include <iostream>
-#include <deque>
 #include <cstdlib>
 #include <ctime>
 
@@ -26,6 +25,7 @@ Snake::Snake(void)
     , mIngame(false)
 {
     //TODO: get the best score and keep it in a variable
+
     mBestScore = 0;
 
     // Initialize snake with head and tail
@@ -171,6 +171,9 @@ void Snake::drawSpritesSnake(void)
                 currentDirection = mOffset;
             }
 
+            if (std::abs(currentDirection.x) > 15) currentDirection.x = currentDirection.x > 0 ? -1 : 1;
+            if (std::abs(currentDirection.y) > 12) currentDirection.y = currentDirection.y > 0 ? -1 : 1;
+
             if (currentDirection.x > 0) sprite = SNAKE_HEAD_L;
             else if (currentDirection.x < 0) sprite = SNAKE_HEAD_R;
             else if (currentDirection.y > 0) sprite = SNAKE_HEAD_B;
@@ -297,7 +300,6 @@ void Snake::Tick(float deltaSeconds)
         }
     }
 
-
     if (!mGameOver) {
         // Clear screen
         for (size_t y = 4; y < 28; y += 2) {
@@ -306,12 +308,11 @@ void Snake::Tick(float deltaSeconds)
             }
         }
         if (mIngame) {
-            // Move snake
             moveSnake();
-            // Draw apple
             API::Draw(SPRITES[APPLE], mApplePosition);
+        } else {
+            Text("PRESS SPACE TO START", TextColor::TEXT_WHITE, Vec2i{5, 25});
         }
-        // Draw snake
         drawSpritesSnake();
         drawScore();
     } else {
