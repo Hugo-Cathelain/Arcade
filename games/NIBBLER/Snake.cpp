@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "games/NIBBLER/Snake.hpp"
 #include "games/NIBBLER/Assets.hpp"
+#include "games/NIBBLER/Maps/Map.hpp"
 #include "Arcade/core/API.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,7 +174,7 @@ void Snake::Update(float deltaSeconds)
     if (mDesiredDirection != Vec2i(0)) {
         Vec2i nextPosition = headPosition + mDesiredDirection;
 
-        if (MAPS_PER_LEVEL[mLevel][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
+        if (MAPS[mLevel % MAPS.size()][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
             mDirection = mDesiredDirection;
             mSnakeParts[0] = Vec2f(headPosition);
             mDesiredDirection = Vec2i(0);
@@ -182,7 +183,7 @@ void Snake::Update(float deltaSeconds)
 
     Vec2i next = headPosition + mDirection;
 
-    if (MAPS_PER_LEVEL[mLevel][next.x][next.y - ARCADE_OFFSET_Y] != EMPTY) {
+    if (MAPS[mLevel % MAPS.size()][next.x][next.y - ARCADE_OFFSET_Y] != EMPTY) {
         std::vector<Vec2i> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         std::vector<Vec2i> validDirections;
 
@@ -193,7 +194,7 @@ void Snake::Update(float deltaSeconds)
                 continue;
             }
 
-            if (MAPS_PER_LEVEL[mLevel][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
+            if (MAPS[mLevel % MAPS.size()][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
                 validDirections.push_back(dir);
             }
         }
