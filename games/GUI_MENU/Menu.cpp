@@ -74,6 +74,9 @@ void MenuGUI::HandleEvents(void)
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
             if (key->code == EKeyboardKey::SPACE) {
                 if (!mUserNameSelected) {
+                    if (mUserName.size() < 2) {
+                        continue;
+                    }
                     mUserNameSelected = true;
                     API::PushEvent(
                         API::Event::CORE,
@@ -188,14 +191,37 @@ void MenuGUI::DrawBootAnimation(void)
 ///////////////////////////////////////////////////////////////////////////////
 void MenuGUI::DrawUsernameSelection(void)
 {
-    bool flick = static_cast<int>(mTimer) % 2 ? true : false;
+    bool flick1 = static_cast<int>(mTimer) % 2 ? true : false;
+    bool flick2 = static_cast<int>(mTimer * 8) % 2 ? true : false;
 
-    Text(mUserName, TextColor::TEXT_WHITE, Vec2i({3, 16}));
+    Text("WELCOME TO", TextColor::TEXT_WHITE, Vec2i({10, 3}));
+    Text("ARCADE", TextColor::TEXT_RED, Vec2i({12, 4}));
 
-    if (flick) {
+    Text("MADE BY @TKD", TextColor::TEXT_BEIGE, Vec2i({3, 7}));
+    Text("  MALLOW", TextColor::TEXT_PINK, Vec2i({3, 9}));
+    Text("  HUGOW", TextColor::TEXT_PINK, Vec2i({3, 11}));
+    Text("  NATHAW", TextColor::TEXT_PINK, Vec2i({3, 13}));
+
+    if (flick1) {
+        Text(
+            "PLEASE ENTER YOUR NAME",
+            TextColor::TEXT_ORANGE,
+            Vec2i({4, 18})
+        );
+    }
+
+    int n = static_cast<int>(mUserName.size());
+
+    Text(
+        mUserName,
+        TextColor::TEXT_WHITE,
+        Vec2i({(30 - n) / 2, 22})
+    );
+
+    if (flick2) {
         Text(
             "-", TextColor::TEXT_WHITE,
-            Vec2i({3 + static_cast<int>(mUserName.size()), 16})
+            Vec2i({(30 / 2) + n / 2, 22})
         );
     }
 }
