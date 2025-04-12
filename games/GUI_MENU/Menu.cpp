@@ -113,6 +113,10 @@ void MenuGUI::HandleEvents(void)
                         API::Event::SetGame{mGames[mCurrentGame]}
                     );
                 }
+            } else if (key->code == EKeyboardKey::ESCAPE) {
+                if (!mUserNameSelected) {
+                    mUserName.clear();
+                }
             } else if (key->code == EKeyboardKey::LEFT) {
                 mCurrentGame--;
                 if (mCurrentGame < 0) {
