@@ -81,11 +81,12 @@ void Core::HandleEvents(void)
         "lib/arcade_opengl.so",
         "lib/arcade_ncurses.so",
         "lib/arcade_libcaca.so"
-
     };
+
     static std::vector<std::string> GAMES = {
         "lib/arcade_snake.so",
-        "lib/arcade_pacman.so"
+        "lib/arcade_pacman.so",
+        "lib/arcade_nibbler.so"
     };
 
     while (std::optional event = API::PollEvent(API::Event::CORE)) {
@@ -123,6 +124,8 @@ void Core::HandleEvents(void)
             } else if (mGameLibIdx >= (int)GAMES.size()) {
                 mGameLibIdx = 0;
             }
+
+            Audio::StopAll();
 
             mStates.top()->EndPlay();
 
