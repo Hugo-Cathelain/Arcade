@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
-#include "games/NIBBLER/Nibbler.hpp"
+#include "games/NIBBLER/Game.hpp"
 #include "Arcade/core/API.hpp"
 #include "games/NIBBLER/Assets.hpp"
 #include <iostream>
@@ -15,7 +15,7 @@ namespace Arc::Nibbler
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-Nibbler::Nibbler(void)
+Game::Game(void)
     : mTimer(0.f)
     , mState(State::PRESS_START)
     , mScore(0)
@@ -34,11 +34,11 @@ Nibbler::Nibbler(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-Nibbler::~Nibbler()
+Game::~Game()
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::BeginPlay(void)
+void Game::BeginPlay(void)
 {
     API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT}));
 
@@ -47,11 +47,11 @@ void Nibbler::BeginPlay(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::EndPlay(void)
+void Game::EndPlay(void)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::InitFruit(int level)
+void Game::InitFruit(int level)
 {
     if (level == 1) {
         for (int i = 0; i < 12; ++i) {
@@ -64,7 +64,7 @@ void Nibbler::InitFruit(int level)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::Tick(float deltaSeconds)
+void Game::Tick(float deltaSeconds)
 {
     mTimer += deltaSeconds;
 
@@ -85,14 +85,14 @@ void Nibbler::Tick(float deltaSeconds)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::DrawScore(void)
+void Game::DrawScore(void)
 {
     // Implementation of DrawScore
     // Display score on screen
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::Draws(void)
+void Game::Draws(void)
 {
     // Draw map
     if (mMap)
@@ -116,7 +116,7 @@ void Nibbler::Draws(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::HandleEvents(void)
+void Game::HandleEvents(void)
 {
     Vec2i desiredDirection(0);
 
@@ -159,7 +159,7 @@ void Nibbler::HandleEvents(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::CheckForFruitsEaten(void)
+void Game::CheckForFruitsEaten(void)
 {
     if (mState != State::PLAYING || !mSnake)
         return;
@@ -180,7 +180,7 @@ void Nibbler::CheckForFruitsEaten(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::CheckForAllFruitsEaten(void)
+void Game::CheckForAllFruitsEaten(void)
 {
     if (mState != State::PLAYING || !mFruits.empty())
         return;
@@ -191,7 +191,7 @@ void Nibbler::CheckForAllFruitsEaten(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::ResetGame(int level)
+void Game::ResetGame(int level)
 {
     // Initialize level
     mLevel = level;
@@ -211,14 +211,14 @@ void Nibbler::ResetGame(int level)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::DrawSnakeLives(void)
+void Game::DrawSnakeLives(void)
 {
     // Draw lives indicator
     // Implementation to show remaining lives
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Nibbler::HandleSnakeSpeed(void)
+void Game::HandleSnakeSpeed(void)
 {
     if (mState == State::PLAYING && mSnake) {
         // Update snake movement based on timer
@@ -227,31 +227,31 @@ void Nibbler::HandleSnakeSpeed(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool Nibbler::IsGameOver(void) const
+bool Game::IsGameOver(void) const
 {
     return (false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-int Nibbler::GetScore(void) const
+int Game::GetScore(void) const
 {
     return (0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string Nibbler::GetName(void) const
+std::string Game::GetName(void) const
 {
     return ("Arcade: Nibbler (1982)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string Nibbler::GetDescription(void) const
+std::string Game::GetDescription(void) const
 {
     return ("Nibbler game");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string Nibbler::GetSpriteSheet(void) const
+std::string Game::GetSpriteSheet(void) const
 {
     return ("assets/NIBBLER/sprites.png");
 }
