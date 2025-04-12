@@ -109,7 +109,8 @@ void Core::HandleEvents(void)
 
                 currentGame->BeginPlay();
             } catch (const std::exception& e) {
-                std::cerr << "Failed to load graphics library: " << e.what() << std::endl;
+                std::cerr << "Failed to load graphics library: "
+                          << e.what() << std::endl;
             }
         } else if (auto change = event->GetIf<API::Event::ChangeGame>()) {
             API::PushEvent(API::Event::Channel::GRAPHICS,
@@ -138,6 +139,11 @@ void Core::HandleEvents(void)
         } else if (event->Is<API::Event::Closed>()) {
             mIsWindowOpen = false;
         } else if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+            if (mStates.top()->GetName() == "MenuGUI") {
+                API::PushEvent(API::Event::Channel::GAME,
+                    API::Event::KeyPressed{key->code});
+                break;
+            }
             switch (key->code) {
                 case EKeyboardKey::R:
                     API::PushEvent(API::Event::Channel::CORE,
@@ -212,7 +218,8 @@ void Core::HandleEvents(void)
                 mGraphics->SetTitle(mStates.top()->GetName());
                 mStates.top()->BeginPlay();
             } catch (const std::exception& e) {
-                std::cerr << "Failed to load graphics library: " << e.what() << std::endl;
+                std::cerr << "Failed to load graphics library: "
+                          << e.what() << std::endl;
             }
         } else if (auto info = event->GetIf<API::Event::PlayerInformation>()) {
             if (!info->username.empty()) {
@@ -247,7 +254,10 @@ void Core::HandleEvents(void)
                 saveFile.close();
             }
 
-            if (scores.find(gameName) == scores.end() || currentScore > scores[gameName]) {
+            if (
+                scores.find(gameName) == scores.end() ||
+                currentScore > scores[gameName]
+            ) {
                 scores[gameName] = currentScore;
             }
 
@@ -258,7 +268,8 @@ void Core::HandleEvents(void)
                 }
                 outFile.close();
             } else {
-                std::cerr << "Failed to open save file for writing: " << savePath << std::endl;
+                std::cerr << "Failed to open save file for writing: "
+                          << savePath << std::endl;
             }
         }
     }
@@ -337,6 +348,68 @@ void Core::HandleJoystick(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Core::HandleWiiMote(void)
+{
+    WiiMote::Update();
+
+    WiiMote::Accelerometer accel = WiiMote::GetAccelerometer(0);
+
+    if (accel.pitch > 50) {
+        API::PushEvent(
+            API::Event::Channel::GAME,
+            API::Event::KeyPressed{EKeyboardKey::LEFT}
+        );
+    } else if (accel.pitch < -50) {
+        API::PushEvent(
+            API::Event::Channel::GAME,
+            API::Event::KeyPressed{EKeyboardKey::RIGHT}
+        );
+    } else if (accel.roll > 0 && accel.roll < 50) {
+        API::PushEvent(
+            API::Event::Channel::GAME,
+            API::Event::KeyPressed{EKeyboardKey::DOWN}
+        );
+    } else if (accel.roll < -130) {
+        API::PushEvent(
+            API::Event::Channel::GAME,
+            API::Event::KeyPressed{EKeyboardKey::UP}
+        );
+    }
+
+    if (WiiMote::IsButtonPressed(0, WiiMote::Button::A)) {
+        if (!mButtonPressed[WiiMote::Button::A]) {
+            mButtonPressed[WiiMote::Button::A] = true;
+            API::PushEvent(
+                API::Event::Channel::GAME,
+                API::Event::KeyPressed{EKeyboardKey::SPACE}
+            );
+        }
+    } else {
+        mButtonPressed[WiiMote::Button::A] = false;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::RefreshLibraries(void)
+{
+    mTimer = 0.f;
+    GetLibraries();
+    std::vector<std::string> games, graphicals;
+
+    for (const auto& [path, name] : mGameLibs) {
+        games.push_back(name);
+    }
+    for (const auto& [path, name] : mGraphicLibs) {
+        graphicals.push_back(name);
+    }
+
+    API::PushEvent(
+        API::Event::GAME,
+        API::Event::Libraries{graphicals, games}
+    );
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Core::Run(void)
 {
     auto start = std::chrono::high_resolution_clock::now();
@@ -362,61 +435,11 @@ void Core::Run(void)
         mTimer += deltaSeconds;
 
         if (mTimer >= 2.f && mStates.top()->GetName() == "MenuGUI") {
-            mTimer = 0.f;
-            GetLibraries();
-            std::vector<std::string> games, graphicals;
-
-            for (const auto& [path, name] : mGameLibs) {
-                games.push_back(name);
-            }
-            for (const auto& [path, name] : mGraphicLibs) {
-                graphicals.push_back(name);
-            }
-
-            API::PushEvent(
-                API::Event::GAME,
-                API::Event::Libraries{graphicals, games}
-            );
+            RefreshLibraries();
         }
 
         if (WiiMote::IsConnected(0)) {
-            WiiMote::Update();
-
-            WiiMote::Accelerometer accel = WiiMote::GetAccelerometer(0);
-
-            if (accel.pitch > 50) {
-                API::PushEvent(
-                    API::Event::Channel::GAME,
-                    API::Event::KeyPressed{EKeyboardKey::LEFT}
-                );
-            } else if (accel.pitch < -50) {
-                API::PushEvent(
-                    API::Event::Channel::GAME,
-                    API::Event::KeyPressed{EKeyboardKey::RIGHT}
-                );
-            } else if (accel.roll > 0 && accel.roll < 50) {
-                API::PushEvent(
-                    API::Event::Channel::GAME,
-                    API::Event::KeyPressed{EKeyboardKey::DOWN}
-                );
-            } else if (accel.roll < -130) {
-                API::PushEvent(
-                    API::Event::Channel::GAME,
-                    API::Event::KeyPressed{EKeyboardKey::UP}
-                );
-            }
-
-            if (WiiMote::IsButtonPressed(0, WiiMote::Button::A)) {
-                if (!mButtonPressed[WiiMote::Button::A]) {
-                    mButtonPressed[WiiMote::Button::A] = true;
-                    API::PushEvent(
-                        API::Event::Channel::GAME,
-                        API::Event::KeyPressed{EKeyboardKey::SPACE}
-                    );
-                }
-            } else {
-                mButtonPressed[WiiMote::Button::A] = false;
-            }
+            HandleWiiMote();
         }
 
         if (Joystick::IsConnected(0)) {
