@@ -183,6 +183,59 @@ void Menu::DrawTitleScreen(void)
 void Menu::DrawInstruction(void)
 {
     DrawGameInformation();
+
+    static const float CHARS_PER_SECOND = 20.f;
+    static const std::vector<std::pair<TextColor, std::string>> instructions =
+    {
+        {TextColor::TEXT_WHITE, "INSTRUCTIONS"},
+        {TextColor::TEXT_YELLOW, "CLEAR EACH MAZE BEFORE"},
+        {TextColor::TEXT_YELLOW, "TIME RUNS OUT"},
+        {TextColor::TEXT_RED, "DO NOT LET NIBBLER"},
+        {TextColor::TEXT_RED, "BITE ITSELF"},
+        {TextColor::TEXT_PINK, "NIBBLER DOES NOT STOP"},
+        {TextColor::TEXT_PINK, "AT CORNERS"},
+        {TextColor::TEXT_CYAN, "NIBBLER GROWS LONGER"},
+        {TextColor::TEXT_CYAN, "WHEN IT EATS"},
+        {TextColor::TEXT_RED, "TIME DECREASES FASTER"},
+        {TextColor::TEXT_RED, "WHEN NIBBLER DOES NOT EAT"},
+        {TextColor::TEXT_PINK, "BONUS IS TIME LEFT AT"},
+        {TextColor::TEXT_PINK, "END OF WAVE"},
+        {TextColor::TEXT_YELLOW, "EXTRA NIBBLER EVERY 4 WAVES"}
+    };
+
+    Vec2i position(0, 7);
+    TextColor lastColor = TextColor::TEXT_WHITE;
+    int totalVisibleChars = static_cast<int>(mTimer * CHARS_PER_SECOND);
+    int charsProcessed = 0;
+
+    for (const auto& [color, text] : instructions) {
+        if (lastColor != color) {
+            position.y++;
+            lastColor = color;
+        }
+
+        position.x = (28 - text.size()) / 2;
+
+        if (charsProcessed >= totalVisibleChars) {
+            break;
+        }
+
+        std::string displayText;
+        if (
+            charsProcessed + text.size() <=
+            static_cast<unsigned int>(totalVisibleChars)
+        ) {
+            displayText = text;
+        } else {
+            int charsToShowInThisLine = totalVisibleChars - charsProcessed;
+            displayText = text.substr(0, charsToShowInThisLine);
+        }
+
+        Text(displayText, color, position);
+
+        charsProcessed += text.size();
+        position.y++;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
