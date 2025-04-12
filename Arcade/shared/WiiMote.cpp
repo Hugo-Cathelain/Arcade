@@ -24,6 +24,8 @@ std::array<WiiMote::Item, WiiMote::maxWiiMotes> WiiMote::mWiiMotes;
 ///////////////////////////////////////////////////////////////////////////////
 void WiiMote::Initialize(void)
 {
+    freopen("/dev/null", "w", stdout);
+
     if (mHandle) {
         wiiuse_cleanup(mHandle, WiiMote::maxWiiMotes);
     }
@@ -36,6 +38,7 @@ void WiiMote::Initialize(void)
     }
 
     mHandle = wiiuse_init(WiiMote::maxWiiMotes);
+    freopen("/dev/tty", "w", stdout);
 
     if (!mHandle) {
         std::cerr << "Failed to initialize WiiMote" << std::endl;
@@ -50,9 +53,12 @@ void WiiMote::Initialize(void)
 ///////////////////////////////////////////////////////////////////////////////
 void WiiMote::Cleanup(void)
 {
+    freopen("/dev/null", "w", stderr);
     if (mHandle) {
         wiiuse_cleanup(mHandle, WiiMote::maxWiiMotes);
     }
+    freopen("/dev/tty", "w", stderr);
+
     mHandle = nullptr;
 
     for (unsigned int i = 0; i < WiiMote::maxWiiMotes; i++) {
