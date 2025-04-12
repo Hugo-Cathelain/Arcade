@@ -5,6 +5,7 @@
 #include "Arcade/core/Library.hpp"
 #include "Arcade/core/API.hpp"
 #include "Arcade/shared/Joystick.hpp"
+#include "Arcade/audio/Audio.hpp"
 #include "Arcade/shared/WiiMote.hpp"
 #include <chrono>
 #include <filesystem>
@@ -344,6 +345,8 @@ void Core::Run(void)
         return;
     }
 
+    Audio::Initialize();
+
     mGraphics->SetTitle(mStates.top()->GetName());
 
     mStates.top()->BeginPlay();
@@ -429,6 +432,8 @@ void Core::Run(void)
     mStates.top()->EndPlay();
 
     WiiMote::Cleanup();
+
+    Audio::Shutdown();
 }
 
 } // namespace Arc
