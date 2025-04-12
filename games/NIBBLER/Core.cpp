@@ -4,6 +4,7 @@
 #include "games/NIBBLER/Core.hpp"
 #include "games/NIBBLER/Assets.hpp"
 #include "games/NIBBLER/Game.hpp"
+#include "games/NIBBLER/Menu.hpp"
 #include "games/NIBBLER/Maps.hpp"
 #include "games/NIBBLER/Snake.hpp"
 #include "games/NIBBLER/Fruit.hpp"
@@ -21,7 +22,7 @@ Core::Core(void)
     : mGameState(nullptr)
     , mInGame(false)
 {
-    // mGameState.reset(new Menu(true));
+    mGameState.reset(new Menu());
     mGameState->BeginPlay();
 }
 
@@ -55,14 +56,14 @@ void Core::Tick(float deltaSeconds)
                 if (key->code == EKeyboardKey::SPACE) {
                     mInGame = true;
                     mGameState->EndPlay();
-                    // mGameState.reset(new Game());
+                    mGameState.reset(new Game());
                     mGameState->BeginPlay();
                 }
             } else if (auto gameOver = event->GetIf<API::Event::GameOver>()) {
                 (void)gameOver;
                 mInGame = false;
                 mGameState->EndPlay();
-                // mGameState.reset(new Menu(false));
+                mGameState.reset(new Menu());
                 mGameState->BeginPlay();
             }
         }
