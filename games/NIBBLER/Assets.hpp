@@ -96,12 +96,12 @@ static const std::vector<IGameModule::Asset> SPRITES = {
     IGameModule::Asset({1, 3}, "--", CLR_WHITE),      //<! WALL_TOP
     IGameModule::Asset({2, 3}, " \\", CLR_WHITE),      //<! BORDER_OUT_TR
 
-    IGameModule::Asset({0, 4}, "/\\", CLR_RED),        //<! SNAKE_TAIL_TOP
-    IGameModule::Asset({1, 4}, "=-", CLR_RED),        //<! SNAKE_TAIL_RIGHT
-    IGameModule::Asset({0, 5}, "=-", CLR_RED),        //<! SNAKE_TAIL_LEFT
-    IGameModule::Asset({1, 5}, "\\/", CLR_RED),        //<! SNAKE_TAIL_BOTTOM
-    IGameModule::Asset({2, 4}, "==", CLR_RED),        //<! SNAKE_BODY_HSLIM
-    IGameModule::Asset({2, 5}, "||", CLR_RED),        //<! SNAKE_BODY_VSLIM
+    IGameModule::Asset({6, 10}, "/\\", CLR_RED, {8, 24}),        //<! SNAKE_TAIL_TOP
+    IGameModule::Asset({2, 5}, "=-", CLR_RED, {24, 8}),        //<! SNAKE_TAIL_RIGHT
+    IGameModule::Asset({5, 5}, "-=", CLR_RED, {24, 8}),        //<! SNAKE_TAIL_LEFT
+    IGameModule::Asset({6, 7}, "\\/", CLR_RED, {8, 24}),        //<! SNAKE_TAIL_BOTTOM
+    IGameModule::Asset({0, 4}, "==", CLR_RED),        //<! SNAKE_BODY_HSLIM
+    IGameModule::Asset({0, 5}, "||", CLR_RED),        //<! SNAKE_BODY_VSLIM
     IGameModule::Asset({0, 6}, "//", CLR_RED),        //<! SNAKE_TURN_TOP_RIGHT
     IGameModule::Asset({1, 6}, "\\\\", CLR_RED),       //<! SNAKE_TURN_TOP_LEFT
     IGameModule::Asset({0, 7}, "\\\\", CLR_RED),       //<! SNAKE_TURN_BOTTOM_LEFT
