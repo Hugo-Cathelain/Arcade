@@ -16,7 +16,7 @@ namespace Arc::Nibbler
 Snake::Snake(void)
     : mDesiredDirection(0)
     , mDirection({1,0})
-    , mPosition(13.5f, 23)
+    , mPosition(15.5f, 29)
     , mAnimationOffset(0)
     , mDirectionOffset(0)
     , mMovementPercentage(1.f)
@@ -32,6 +32,10 @@ Snake::Snake(void)
     mSnakeParts.push_back(Vec2i{pos.x - 1, pos.y});
     mSnakeParts.push_back(Vec2i{pos.x - 2, pos.y});
     mSnakeParts.push_back(Vec2i{pos.x - 3, pos.y});
+    mSnakeParts.push_back(Vec2i{pos.x - 4, pos.y});
+    mSnakeParts.push_back(Vec2i{pos.x - 5, pos.y});
+    mSnakeParts.push_back(Vec2i{pos.x - 6, pos.y});
+    mSnakeParts.push_back(Vec2i{pos.x - 7, pos.y});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,9 +85,9 @@ void Snake::Draw(float timer)
 
         if (i == 0) {
             if (mDirection.x == 1) {
-                sprite = SNAKE_HEAD_LEFT;
-            } else if (mDirection.x == -1) {
                 sprite = SNAKE_HEAD_RIGHT;
+            } else if (mDirection.x == -1) {
+                sprite = SNAKE_HEAD_LEFT;
             } else if (mDirection.y == -1) {
                 sprite = SNAKE_HEAD_BOTTOM;
             } else {
@@ -97,8 +101,8 @@ void Snake::Draw(float timer)
             Vec2i diff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
                           mSnakeParts[i-1].y - mSnakeParts[i].y};
 
-            if (diff.x > 0) sprite = SNAKE_TAIL_RIGHT;
-            else if (diff.x < 0) sprite = SNAKE_TAIL_LEFT;
+            if (diff.x > 0) sprite = SNAKE_TAIL_LEFT;
+            else if (diff.x < 0) sprite = SNAKE_TAIL_RIGHT;
             else if (diff.y > 0) sprite = SNAKE_TAIL_BOTTOM;
             else sprite = SNAKE_TAIL_TOP;
 

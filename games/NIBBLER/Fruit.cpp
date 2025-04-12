@@ -37,7 +37,7 @@ void Fruit::DrawAnimation(float timer)
 
     fruit.position.x += static_cast<int>(timer * 12) % 8;
     fruit.position.y = mType;
-    API::Draw(SPRITES[FRUIT_START], mPosition);
+    API::Draw(fruit, mPosition);
 }
 
 } // namespace Arc::Nibbler

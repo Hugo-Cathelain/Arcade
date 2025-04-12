@@ -40,7 +40,7 @@ Nibbler::~Nibbler()
 ///////////////////////////////////////////////////////////////////////////////
 void Nibbler::BeginPlay(void)
 {
-    API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({31, 28}));
+    API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT}));
 
     // Reset the game to level 1
     ResetGame(1);
@@ -49,6 +49,19 @@ void Nibbler::BeginPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Nibbler::EndPlay(void)
 {}
+
+///////////////////////////////////////////////////////////////////////////////
+void Nibbler::InitFruit(int level)
+{
+    if (level == 1) {
+        for (int i = 0; i < 12; ++i) {
+            mFruits[i] = std::make_unique<Fruit>();
+        }
+        mFruits[0]->SetPosition({7, 5 + ARCADE_OFFSET_Y});
+        mFruits[1]->SetPosition({19, 5 + ARCADE_OFFSET_Y});
+    }
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Nibbler::Tick(float deltaSeconds)
@@ -83,7 +96,7 @@ void Nibbler::Draws(void)
 {
     // Draw map
     if (mMap)
-        mMap->DrawMap(mLevel);
+        mMap->DrawMap(mLevel - 1);
 
     // Draw fruits
     for (auto& [id, fruit] : mFruits) {
@@ -188,9 +201,7 @@ void Nibbler::ResetGame(int level)
 
     // Clear fruits and add new ones based on level
     mFruits.clear();
-    for (int i = 0; i < level; i++) {
-        mFruits[i] = std::make_unique<Fruit>();
-    }
+    InitFruit(level);
 
     // Reset map for the level
     mMap->SetLevel(level);
