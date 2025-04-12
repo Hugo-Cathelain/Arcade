@@ -104,20 +104,20 @@ void Snake::Draw(float timer)
             Vec2f diff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
                           mSnakeParts[i-1].y - mSnakeParts[i].y};
 
-            if (diff.x > 0) sprite = SNAKE_TAIL_LEFT;
-            else if (diff.x < 0) sprite = SNAKE_TAIL_RIGHT;
-            else if (diff.y > 0) sprite = SNAKE_TAIL_BOTTOM;
-            else sprite = SNAKE_TAIL_TOP;
+            if (diff.x > 0.8f) sprite = SNAKE_TAIL_LEFT;
+            else if (diff.x < -0.5f) sprite = SNAKE_TAIL_RIGHT;
+            else if (diff.y > 0.5f) sprite = SNAKE_TAIL_TOP;
+            else sprite = SNAKE_TAIL_BOTTOM;
 
             auto spriteColor = SPRITES[sprite];
             spriteColor.position.x += snakeColor;
             API::Draw(spriteColor, mSnakeParts[i]);
 
         } else {
-            Vec2f prevDiff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
-                              mSnakeParts[i-1].y - mSnakeParts[i].y};
-            Vec2f nextDiff = {mSnakeParts[i].x - mSnakeParts[i+1].x,
-                              mSnakeParts[i].y - mSnakeParts[i+1].y};
+            Vec2i prevDiff = {std::round(mSnakeParts[i-1].x - mSnakeParts[i].x),
+                              std::round(mSnakeParts[i-1].y - mSnakeParts[i].y)};
+            Vec2i nextDiff = {std::round(mSnakeParts[i].x - mSnakeParts[i+1].x),
+                              std::round(mSnakeParts[i].y - mSnakeParts[i+1].y)};
 
             if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
                 if (prevDiff.x != 0) sprite = SNAKE_BODY_H;
@@ -137,7 +137,6 @@ void Snake::Draw(float timer)
             spriteColor.position.x += snakeColor + mAnimationOffset;
             API::Draw(spriteColor, mSnakeParts[i]);
         }
-
     }
 }
 
@@ -200,22 +199,36 @@ void Snake::Update(float deltaSeconds)
         }
     }
 
+    Vec2f previous;
+
     for (int i = 0; i < (int)mSnakeParts.size(); i++) {
-        Vec2i position = Vec2i(
-            std::round(mSnakeParts[i].x),
-            std::round(mSnakeParts[i].y)
-        );
-        Vec2i prevPosition = Vec2i(
-            std::round(prevPart.x),
-            std::round(prevPart.y)
-        );
-        Vec2i direction = prevPosition - position;
-
         if (i == 0) {
-            direction = mDirection;
-        }
+            previous = mSnakeParts[i];
+            mSnakeParts[i] += Vec2f(mDirection) * speed * deltaSeconds;
 
-        mSnakeParts[i] += Vec2f(direction) * speed * deltaSeconds;
+            // Snap head to grid when close enough to next cell
+            Vec2i targetPos = GetPosition() + mDirection;
+            Vec2f diff = Vec2f(targetPos) - mSnakeParts[i];
+            float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+            if (distance < 0.1f) {
+                mSnakeParts[i] = Vec2f(targetPos);
+            }
+        } else {
+            Vec2f targetPosition = previous;
+            Vec2f direction = targetPosition - mSnakeParts[i];
+            float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+            // Maintain fixed distance between snake parts
+            float desiredDistance = 0.8f;
+            if (distance > desiredDistance) {
+                direction = direction / distance; // Normalize
+                Vec2f temp = mSnakeParts[i];
+                mSnakeParts[i] += direction * (distance - desiredDistance);
+                previous = temp;
+            } else {
+                previous = mSnakeParts[i];
+            }
+        }
 
         prevPart = mSnakeParts[i];
     }
