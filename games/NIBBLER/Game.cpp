@@ -77,7 +77,7 @@ void Game::Tick(float deltaSeconds)
     // Updating
     if (mState == State::PLAYING) {
         HandleSnakeSpeed();
-        mSnake->Update(mTimer);
+        mSnake->Update(deltaSeconds);
 
         CheckForFruitsEaten();
     }
