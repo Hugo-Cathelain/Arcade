@@ -77,6 +77,31 @@ void MenuGUI::HandleEvents(void)
                     if (mUserName.size() < 2) {
                         continue;
                     }
+
+                    if (mUserName == "ARISE" || mUserName == "REVIVE") {
+                        mAxolotl.ChangeState(Axolotl::State::ARISE);
+                        mUserName.clear();
+                        continue;
+                    }
+
+                    if (mUserName == "DIE" || mUserName == "KILL") {
+                        mAxolotl.ChangeState(Axolotl::State::DIE);
+                        mUserName.clear();
+                        continue;
+                    }
+
+                    if (mUserName == "EAT" || mUserName == "FEED") {
+                        mAxolotl.ChangeState(Axolotl::State::EAT);
+                        mUserName.clear();
+                        continue;
+                    }
+
+                    if (mUserName == "DANCE") {
+                        mAxolotl.ChangeState(Axolotl::State::DANCE);
+                        mUserName.clear();
+                        continue;
+                    }
+
                     mUserNameSelected = true;
                     API::PushEvent(
                         API::Event::CORE,
@@ -224,6 +249,8 @@ void MenuGUI::DrawUsernameSelection(void)
             Vec2i({(30 / 2) + n / 2, 22})
         );
     }
+
+    mAxolotl.Draw(mTimer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

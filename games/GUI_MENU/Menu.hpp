@@ -8,7 +8,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Arcade/interfaces/IGameModule.hpp"
 #include "Arcade/utils/Vec2.hpp"
+#include "games/GUI_MENU/Axolotl.hpp"
 #include <string>
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
@@ -50,6 +52,7 @@ private:
     float mTimer;                           //<!
     std::string mUserName;                  //<!
     bool mUserNameSelected;                 //<!
+    Axolotl mAxolotl;                       //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
