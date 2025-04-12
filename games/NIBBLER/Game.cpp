@@ -4,6 +4,7 @@
 #include "games/NIBBLER/Game.hpp"
 #include "Arcade/core/API.hpp"
 #include "games/NIBBLER/Assets.hpp"
+#include "games/NIBBLER/Maps/Map.hpp"
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -53,14 +54,25 @@ void Game::EndPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::InitFruit(int level)
 {
-    if (level == 1) {
-        for (int i = 0; i < 12; ++i) {
-            mFruits[i] = std::make_unique<Fruit>();
-        }
-        mFruits[0]->SetPosition({7, 5 + ARCADE_OFFSET_Y});
-        mFruits[1]->SetPosition({19, 5 + ARCADE_OFFSET_Y});
-    }
+    // Get the fruit positions for the current level
+    const auto& levelFruits = MAPS_FRUIT[(level - 1) % MAPS_FRUIT.size()];
 
+    // Clear existing fruits first
+    mFruits.clear();
+
+    // Create fruits at each position until we reach the end (sentinel value or size limit)
+    for (size_t i = 0; i < levelFruits.size(); ++i) {
+        // Check if this is a valid fruit position (not a sentinel)
+        if (levelFruits[i].x == -1 && levelFruits[i].y == -1)
+            break;
+
+        // Create new fruit and set its position
+        mFruits[i] = std::make_unique<Fruit>();
+        mFruits[i]->SetPosition({
+            levelFruits[i].x,
+            levelFruits[i].y + ARCADE_OFFSET_Y
+        });
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,6 +175,18 @@ void Game::CheckForFruitsEaten(void)
 {
     if (mState != State::PLAYING || !mSnake)
         return;
+
+    Vec2i snakePos = mSnake->GetPosition();
+    for (auto it = mFruits.begin(); it != mFruits.end();) {
+        if (it->second->GetPosition() == snakePos) {
+            // Fruit eaten, remove it from the game
+            mScore += 10; // Example score increment
+            it = mFruits.erase(it);
+            mSnake->Grow(); // Example snake growth
+        } else {
+            ++it;
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

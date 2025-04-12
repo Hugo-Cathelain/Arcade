@@ -153,6 +153,12 @@ void Snake::DrawDeathAnimation(float timer)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Snake::Grow(void)
+{
+    mSnakeParts.push_back(mSnakeParts[mSnakeParts.size() - 1]);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Snake::Update(float deltaSeconds)
 {
     (void)deltaSeconds;
