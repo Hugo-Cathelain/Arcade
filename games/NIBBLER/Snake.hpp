@@ -37,7 +37,6 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     Vec2i mDesiredDirection;        //<!
     Vec2i mDirection;               //<!
-    Vec2f mPosition;                //<!
     int mAnimationOffset;           //<!
     Vec2i mDirectionOffset;         //<!
     Vec2i mHeadOffset;             //<!

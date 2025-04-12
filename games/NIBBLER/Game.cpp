@@ -68,15 +68,11 @@ void Game::Tick(float deltaSeconds)
 {
     mTimer += deltaSeconds;
 
-    // Handle snake movement speed
-    // CheckForAllFruitsEaten();
-
     // Handle events
     HandleEvents();
 
     // Updating
     if (mState == State::PLAYING) {
-        HandleSnakeSpeed();
         mSnake->Update(deltaSeconds);
 
         CheckForFruitsEaten();
@@ -96,18 +92,21 @@ void Game::DrawScore(void)
 void Game::Draws(void)
 {
     // Draw map
-    if (mMap)
+    if (mMap) {
         mMap->DrawMap(mLevel - 1);
+    }
 
     // Draw fruits
     for (auto& [id, fruit] : mFruits) {
-        if (fruit)
+        if (fruit) {
             fruit->DrawAnimation(mTimer);
+        }
     }
 
     // Draw snake
-    if (mSnake)
+    if (mSnake) {
         mSnake->Draw(mTimer);
+    }
 
     // Draw score
     DrawScore();
@@ -164,20 +163,6 @@ void Game::CheckForFruitsEaten(void)
 {
     if (mState != State::PLAYING || !mSnake)
         return;
-
-    // // Check if snake head collides with any fruit
-    // for (auto it = mFruits.begin(); it != mFruits.end(); ) {
-    //     if (it->second && mSnake->CheckCollisionWithFruit(*it->second)) {
-    //         // Snake ate fruit, increase score and snake length
-    //         mScore += it->second->GetValue();
-    //         mSnake->Grow();
-
-    //         // Remove eaten fruit
-    //         it = mFruits.erase(it);
-    //     } else {
-    //         ++it;
-    //     }
-    // }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -216,15 +201,6 @@ void Game::DrawSnakeLives(void)
 {
     // Draw lives indicator
     // Implementation to show remaining lives
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void Game::HandleSnakeSpeed(void)
-{
-    if (mState == State::PLAYING && mSnake) {
-        // Update snake movement based on timer
-        mSnake->Update(mTimer);
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -16,25 +16,25 @@ namespace Arc::Nibbler
 Snake::Snake(void)
     : mDesiredDirection({1,0})
     , mDirection({1,0})
-    , mPosition(15.5f, 29)
     , mAnimationOffset(0)
     , mDirectionOffset(0)
     , mMovementPercentage(1.f)
-    , mMovementSpeed(1.47f)
+    , mMovementSpeed(10.47f)
     , mMovementAccumulator(0.f)
     , isDead(false)
     , mSnakeColor(Snake_Color::RED)
     , mLevel(0)
 {
-    // Initialize snake with head and tail
-    mSnakeParts.push_back(mPosition);
-    mSnakeParts.push_back(Vec2f{mPosition.x - 1, mPosition.y});
-    mSnakeParts.push_back(Vec2f{mPosition.x - 2, mPosition.y});
-    mSnakeParts.push_back(Vec2f{mPosition.x - 3, mPosition.y});
-    mSnakeParts.push_back(Vec2f{mPosition.x - 4, mPosition.y});
-    mSnakeParts.push_back(Vec2f{mPosition.x - 5, mPosition.y});
-    mSnakeParts.push_back(Vec2f{mPosition.x - 6, mPosition.y});
-    mSnakeParts.push_back(Vec2f{mPosition.x - 7, mPosition.y});
+    Vec2f basePosition(15.5f, 29);
+
+    mSnakeParts.push_back(basePosition);
+    mSnakeParts.push_back(Vec2f{basePosition.x - 1, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 2, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 3, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 4, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 5, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 6, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 7, basePosition.y});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,18 +46,22 @@ void Snake::SetMovementPercentage(float percentage)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::SetPosition(const Vec2i& position)
 {
-    mPosition = position;
+    mSnakeParts[0] = position;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 Vec2i Snake::GetPosition(void) const
 {
-    return (Vec2i(std::round(mPosition.x), std::round(mPosition.y)));
+    return (Vec2i(std::round(mSnakeParts[0].x), std::round(mSnakeParts[0].y)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::SetDesiredDirection(const Vec2i& direction)
 {
+    if (mDesiredDirection == -mDirection) {
+        return;
+    }
+
     mDesiredDirection = direction;
 }
 
@@ -88,9 +92,9 @@ void Snake::Draw(float timer)
             } else if (mDirection.x == -1) {
                 sprite = SNAKE_HEAD_LEFT;
             } else if (mDirection.y == -1) {
-                sprite = SNAKE_HEAD_BOTTOM;
-            } else {
                 sprite = SNAKE_HEAD_TOP;
+            } else {
+                sprite = SNAKE_HEAD_BOTTOM;
             }
             auto spriteColor = SPRITES[sprite];
             spriteColor.position.x += snakeColor;
@@ -147,114 +151,73 @@ void Snake::DrawSpawnAnimation(float timer)
 void Snake::DrawDeathAnimation(float timer)
 {
     (void)timer;
-    // int idx = static_cast<int>((timer * 7.5f)) % 11 * 2;
-
-    // if ((idx == 0 && timer > 0.5f) || isDead) {
-    //     isDead = true;
-    //     return;
-    // }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::Update(float deltaSeconds)
 {
-    Vec2i currentTile(
-        static_cast<int>(std::floor(mPosition.x + 0.5f)),
-        static_cast<int>(std::floor(mPosition.y + 0.5f))
-    );
+    (void)deltaSeconds;
 
-    if (mDesiredDirection != mDirection) {
-        Vec2i nextTile = currentTile + mDesiredDirection;
+    float speed = mMovementSpeed * mMovementPercentage;
 
-        if (MAPS_PER_LEVEL[mLevel][nextTile.y][nextTile.x] == EMPTY) {
-            bool alignedForTurn = false;
+    Vec2f prevPart = mSnakeParts[0];
 
-            if (mDesiredDirection.x != 0) {
-                alignedForTurn = (std::abs(mPosition.y - currentTile.y) < 0.05f);
-                if (alignedForTurn) mPosition.y = static_cast<float>(currentTile.y);
-            } else {
-                alignedForTurn = (std::abs(mPosition.x - currentTile.x) < 0.05f);
-                if (alignedForTurn) mPosition.x = static_cast<float>(currentTile.x);
+    // Calculate the new direction
+    Vec2i headPosition = GetPosition();
+
+    if (mDesiredDirection != Vec2i(0)) {
+        Vec2i nextPosition = headPosition + mDesiredDirection;
+
+        if (MAPS_PER_LEVEL[mLevel][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
+            mDirection = mDesiredDirection;
+            mSnakeParts[0] = Vec2f(headPosition);
+            mDesiredDirection = Vec2i(0);
+        }
+    }
+
+    Vec2i next = headPosition + mDirection;
+
+    if (MAPS_PER_LEVEL[mLevel][next.x][next.y - ARCADE_OFFSET_Y] != EMPTY) {
+        std::vector<Vec2i> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        std::vector<Vec2i> validDirections;
+
+        for (const auto& dir : directions) {
+            Vec2i nextPosition = headPosition + dir;
+
+            if (dir == mDirection || dir == -mDirection) {
+                continue;
             }
 
-            if (alignedForTurn) {
-                mDirection = mDesiredDirection;
-                mPosition.x = static_cast<float>(currentTile.x);
-                mPosition.y = static_cast<float>(currentTile.y);
+            if (MAPS_PER_LEVEL[mLevel][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
+                validDirections.push_back(dir);
             }
         }
+
+        if (validDirections.size() != 1) {
+            speed = 0;
+        } else {
+            mDesiredDirection = validDirections[0];
+        }
     }
 
-    Vec2f movement = Vec2f(mDirection) * deltaSeconds * mMovementSpeed * mMovementPercentage;
-    Vec2f newPosition = mPosition + movement;
-
-    bool xCollision = false, yCollision = false;
-
-    if (movement.x != 0.0f) {
-        Vec2i checkTile(
-            static_cast<int>(
-                std::floor(newPosition.x + 0.5f + 0.3f * mDirection.x)
-            ),
-            currentTile.y
+    for (int i = 0; i < (int)mSnakeParts.size(); i++) {
+        Vec2i position = Vec2i(
+            std::round(mSnakeParts[i].x),
+            std::round(mSnakeParts[i].y)
         );
-        if (MAPS_PER_LEVEL[mLevel][checkTile.x][checkTile.y - ARCADE_OFFSET_Y] != EMPTY) {
-            std::cout << "Collision detected on X axis at " << checkTile.x  << std::endl;
-            xCollision = true;
-            newPosition.x = mDirection.x > 0
-                ? std::floor(newPosition.x) + 0.5f
-                : std::ceil(newPosition.x) - 0.5f;
-        }
-    }
-
-    if (movement.y != 0.0f) {
-        Vec2i checkTile(
-            currentTile.x,
-            static_cast<int>(
-                std::floor(newPosition.y + 0.5f + 0.3f * mDirection.y)
-            )
+        Vec2i prevPosition = Vec2i(
+            std::round(prevPart.x),
+            std::round(prevPart.y)
         );
-        if (MAPS_PER_LEVEL[mLevel][checkTile.x][checkTile.y - ARCADE_OFFSET_Y] != EMPTY) {
-            std::cout << "Collision detected on Y axis at " << checkTile.y  << std::endl;
-            yCollision = true;
-            newPosition.y = mDirection.y > 0
-                ? std::floor(newPosition.y) + 0.5f
-                : std::ceil(newPosition.y) - 0.5f;
-        }
-    }
+        Vec2i direction = prevPosition - position;
 
-    if (xCollision || yCollision) {
-        if (xCollision) {
-            newPosition.x = static_cast<float>(currentTile.x);
-        }
-        if (yCollision) {
-            newPosition.y = static_cast<float>(currentTile.y);
-        }
-    }
-
-    mPosition = newPosition;
-
-    // Only update the snake if the head has moved to a new tile position
-    if (mPosition.x != mSnakeParts[0].x || mPosition.y != mSnakeParts[0].y) {
-        // Move tail parts - each part takes position of part in front of it
-        for (size_t i = mSnakeParts.size() - 1; i > 0; --i) {
-            mSnakeParts[i] = mSnakeParts[i - 1];
+        if (i == 0) {
+            direction = mDirection;
         }
 
-        // Update head position
-        mSnakeParts[0] = mPosition;
+        mSnakeParts[i] += Vec2f(direction) * speed * deltaSeconds;
 
-        // Check for collision with own body (after moved)
-        // for (size_t i = 1; i < mSnakeParts.size(); ++i) {
-        //     if (mSnakeParts[0].x == mSnakeParts[i].x &&
-        //         mSnakeParts[0].y == mSnakeParts[i].y) {
-        //         isDead = true;
-        //         std::cout << "COLLISION DETECTED: Snake hit itself!" << std::endl;
-        //         break;
-        //     }
-        // }
-
-        // Reset movement accumulator after moving
-        mMovementAccumulator = 0.f;
+        prevPart = mSnakeParts[i];
     }
 }
 
