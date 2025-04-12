@@ -72,7 +72,17 @@ enum SpriteType {
 
     FRUIT_START,
 
-    EMPTY
+    EMPTY,
+
+    TEXT_HISCORE,
+    TEXT_PLAYER,
+    TEXT_1,
+    TEXT_2,
+    TEXT_LEFT,
+    TEXT_BONUS,
+
+    GAME_NAME,
+    GAME_MASCOT
 };
 
 /// auto sprite = SPRITE[BORDER]
@@ -83,7 +93,7 @@ enum SpriteType {
 ///
 ///////////////////////////////////////////////////////////////////////////////
 static const std::vector<IGameModule::Asset> SPRITES = {
-    IGameModule::Asset({0, 0}, "/ ", CLR_WHITE),      //<! BORDER_IN_BR
+    IGameModule::Asset({0, 0}, "/ ", CLR_WHITE),        //<! BORDER_IN_BR
     IGameModule::Asset({1, 0}, " \\", CLR_WHITE),      //<! BORDER_IN_BL
     IGameModule::Asset({2, 0}, "\\ ", CLR_WHITE),      //<! BORDER_OUT_BL
     IGameModule::Asset({0, 1}, "\\ ", CLR_WHITE),      //<! BORDER_IN_TR
@@ -116,6 +126,15 @@ static const std::vector<IGameModule::Asset> SPRITES = {
     IGameModule::Asset({14, 0}, "##", CLR_YELLOW),      //<! FRUIT_START
 
     IGameModule::Asset({22, 0}, "  ", CLR_YELLOW),      //<! EMPTY
+
+    IGameModule::Asset({11, 18}, "HI SCORE", CLR_RED, {40, 8}), //<! TEXT_HISCORE,
+    IGameModule::Asset({16, 20}, "PLAYER", CLR_YELLOW, {24, 8}), //<! TEXT_PLAYER,
+    IGameModule::Asset({19, 20}, "1", CLR_YELLOW), //<! TEXT_1,
+    IGameModule::Asset({20, 20}, "2", CLR_YELLOW), //<! TEXT_2,
+    IGameModule::Asset({21, 20}, "LEFT", CLR_WHITE, {24, 8}), //<! TEXT_LEFT,
+    IGameModule::Asset({24, 20}, "BONUS", CLR_WHITE, {24, 8}), //<! TEXT_BONUS,
+    IGameModule::Asset({0, 27}, "NIBBLER", CLR_WHITE, {216, 56}), //<! GAME_NAME,
+    IGameModule::Asset({27, 21}, "()", CLR_RED, {104, 104}) //<! GAME_MASCOT
 };
 
 // maps
