@@ -68,18 +68,19 @@ void Game::Tick(float deltaSeconds)
 {
     mTimer += deltaSeconds;
 
+    // Handle snake movement speed
+    // CheckForAllFruitsEaten();
+
     // Handle events
     HandleEvents();
 
-    // Check for collisions with fruits
-    CheckForFruitsEaten();
+    // Updating
+    if (mState == State::PLAYING) {
+        HandleSnakeSpeed();
+        mSnake->Update(mTimer);
 
-    // Check if all fruits are eaten
-    CheckForAllFruitsEaten();
-
-    // Handle snake movement speed
-    HandleSnakeSpeed();
-
+        CheckForFruitsEaten();
+    }
     // Draw everything
     Draws();
 }
@@ -207,7 +208,7 @@ void Game::ResetGame(int level)
     mMap->SetLevel(level);
 
     // Reset game state
-    mState = State::PLAYING;
+    // mState = State::PLAYING;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

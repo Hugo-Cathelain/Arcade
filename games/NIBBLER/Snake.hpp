@@ -48,7 +48,7 @@ private:
     bool isDead;                    //<!
     Snake_Color mSnakeColor;        //<!
     int mLevel;                      //<!
-    std::deque<Vec2i> mSnakeParts; //<!
+    std::deque<Vec2f> mSnakeParts; //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
