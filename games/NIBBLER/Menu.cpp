@@ -154,6 +154,7 @@ void Menu::DrawROMChecksum(void)
 
     if (mTimer > 3.f) {
         mState = State::TITLESCREEN;
+        mTimer = 0.f;
     }
 }
 
@@ -165,12 +166,24 @@ void Menu::DrawTitleScreen(void)
     API::Draw(SPRITES[GAME_NAME], Vec2i(14, 7));
     API::Draw(SPRITES[GAME_MASCOT], Vec2i(14, 18));
 
-    Text("@ 1982 ROCK OLA MFG CORP", TextColor::TEXT_PINK, {3, 26});
+    int progress = mTimer / 1.5f * 26;
+
+    for (int i = progress; i < 26; i++) {
+        for (int y = 0; y < 22; y++) {
+            API::Draw(SPRITES[TRON_SQUARE], Vec2i(1 + i, 4 + y));
+        }
+    }
+
+    if (mTimer > 2.f) {
+        Text("@ 1982 ROCK OLA MFG CORP", TextColor::TEXT_PINK, {3, 26});
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Menu::DrawInstruction(void)
-{}
+{
+    DrawGameInformation();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Menu::Tick(float deltaSeconds)
@@ -194,5 +207,16 @@ void Menu::Tick(float deltaSeconds)
 ///////////////////////////////////////////////////////////////////////////////
 void Menu::EndPlay(void)
 {}
+
+///////////////////////////////////////////////////////////////////////////////
+bool Menu::ToggleInstruction(void)
+{
+    if (mState != State::INSTRUCTION) {
+        mState = State::INSTRUCTION;
+        mTimer = 0.f;
+        return (true);
+    }
+    return (false);
+}
 
 } // namespace Arc::Nibbler

@@ -54,10 +54,13 @@ void Core::Tick(float deltaSeconds)
         while (auto event = API::PollEvent(API::Event::GAME)) {
             if (auto key = event->GetIf<API::Event::KeyPressed>()) {
                 if (key->code == EKeyboardKey::SPACE) {
-                    mInGame = true;
-                    mGameState->EndPlay();
-                    mGameState.reset(new Game());
-                    mGameState->BeginPlay();
+                    Menu* menu = reinterpret_cast<Menu*>(mGameState.get());
+                    if (!menu->ToggleInstruction()) {
+                        mInGame = true;
+                        mGameState->EndPlay();
+                        mGameState.reset(new Game());
+                        mGameState->BeginPlay();
+                    }
                 }
             } else if (auto gameOver = event->GetIf<API::Event::GameOver>()) {
                 (void)gameOver;
