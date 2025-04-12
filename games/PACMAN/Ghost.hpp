@@ -66,6 +66,7 @@ private:
     Vec2i mNextTile;                        //<!
     float mMovementPercentage;              //<!
     float mMovementSpeed;                   //<!
+    float mPowerPillDuration;               //<!
     float mMovementAccumulator;             //<!
     bool mInGhostHouse;                     //<!
     float mAccumulator;                     //<!

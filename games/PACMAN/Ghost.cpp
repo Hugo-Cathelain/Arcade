@@ -94,6 +94,10 @@ void Ghost::SetState(Ghost::State state)
         mDirectionChange = true;
     }
 
+    if (state == State::FRIGHTENED) {
+        mPowerPillDuration = 0.f;
+    }
+
     mState = state;
 }
 
@@ -393,6 +397,8 @@ void Ghost::Update(
     const Vec2i& blinkyPos
 )
 {
+    mPowerPillDuration += deltaSeconds;
+
     float speed = deltaSeconds * mMovementSpeed * mMovementPercentage;
 
     if (mState == State::EATEN && mPosition.x >= 13.0f &&
@@ -495,6 +501,13 @@ void Ghost::Draw(float timer)
         case State::FRIGHTENED:
             IGameModule::Asset scared = SPRITES[SCARED_1 + flickering / 2];
             scared.id = -1;
+
+            bool flick = static_cast<int>(timer * 4) % 2 == 0 ? true : false;
+
+            if (flick && mPowerPillDuration > 7.0f) {
+                scared.position.x += 4;
+            }
+
             API::Draw(scared, position);
             break;
     }

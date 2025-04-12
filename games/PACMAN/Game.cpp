@@ -424,19 +424,22 @@ void Game::HandleAmbiantSound(void)
     isOneEaten = mInky->GetState() == Ghost::State::EATEN ? true : isOneEaten;
     isOneEaten = mClyde->GetState() == Ghost::State::EATEN ? true : isOneEaten;
 
-    if (mSoundTimer < 0.15f) {
-        return;
-    }
-
     if (isOneEaten) {
-        API::PlaySound(SFX_EYES);
+        if (mSoundTimer > 0.26f) {
+            API::PlaySound(SFX_EYES);
+            mSoundTimer = 0.f;
+        }
     } else if (mPowerPillTimer > 0.f) {
-        API::PlaySound(SFX_FRIGHT_FIRSTLOOP);
+        if (mSoundTimer > 0.15f) {
+            API::PlaySound(SFX_FRIGHT_FIRSTLOOP);
+            mSoundTimer = 0.f;
+        }
     } else {
-        API::PlaySound(SFX_SIREN0);
+        if (mSoundTimer > 0.40f) {
+            API::PlaySound(SFX_SIREN1);
+            mSoundTimer = 0.f;
+        }
     }
-
-    mSoundTimer = 0.f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
