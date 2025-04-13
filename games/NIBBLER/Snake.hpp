@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "../../Arcade/utils/Vec2.hpp"
 #include <deque>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc::Nibler
@@ -32,6 +33,11 @@ private:
         WHITE = 18,
         BLUE = 24
     };
+
+    struct TurnPoint {
+        Vec2i position; //<! Position of the turn point
+        Vec2i direction; //<! Direction of the turn point
+    };
     ///////////////////////////////////////////////////////////////////////////
     // Member data
     ///////////////////////////////////////////////////////////////////////////
@@ -48,6 +54,8 @@ private:
     Snake_Color mSnakeColor;        //<!
     int mLevel;                      //<!
     int mLives;                //<!
+    std::deque<TurnPoint> mTurnPoints; //<!
+    std::vector<Vec2i> mSegmentDirections; //<!
     std::deque<Vec2f> mSnakeParts; //<!
 
 public:
