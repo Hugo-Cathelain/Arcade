@@ -64,6 +64,7 @@ private:
     float mLastTimer;       //<!
     float mStartTime;       //<!
     int mCurrentFrame;      //<!
+    float mSoundTimer;      //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
