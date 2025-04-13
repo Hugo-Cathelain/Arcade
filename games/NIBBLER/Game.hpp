@@ -66,6 +66,7 @@ private:
     std::unique_ptr<Maps> mMap;                     //<!
     int mLifes;                                     //<!
     int mLevel;                                     //<!
+    int mTimerGame;                               //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

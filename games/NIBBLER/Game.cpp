@@ -22,6 +22,7 @@ Game::Game(void)
     , mScore(0)
     , mLifes(3)
     , mLevel(0)
+    , mTimerGame(90)
 {
     // Initialize random seed
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -80,6 +81,9 @@ void Game::Tick(float deltaSeconds)
 {
     mTimer += deltaSeconds;
 
+    // Timer for decreasing game time
+    static float gameTimeCounter = 0.0f;
+
     // Handle events
     HandleEvents();
 
@@ -89,6 +93,16 @@ void Game::Tick(float deltaSeconds)
 
         CheckForFruitsEaten();
         CheckForAllFruitsEaten();
+        gameTimeCounter += deltaSeconds;
+
+        // Check if a second has passed
+        if (gameTimeCounter >= 1.0f) {
+            // Decrement timer and reset counter
+            if (mTimerGame > 0) {
+                mTimerGame--;
+            }
+            gameTimeCounter -= 1.0f; // Subtract one second, preserving any remainder
+        }
     }
     // Draw everything
     Draws();
@@ -153,18 +167,11 @@ void Game::DrawScore(void)
     API::Draw(SPRITES[TEXT_LEFT], Vec2i(22, 0));
     Text(std::to_string(mSnake->GetLives()), TextColor::TEXT_WHITE, {26, 0});
 
-    API::Draw(SPRITES[TEXT_PLAYER], Vec2i(1, 1));
-    API::Draw(SPRITES[TEXT_2], Vec2i(3, 1));
-    Text("0", TextColor::TEXT_WHITE, {15, 1});
-
-    API::Draw(SPRITES[TEXT_LEFT], Vec2i(22, 1));
-    Text("0", TextColor::TEXT_WHITE, {26, 1});
-
     API::Draw(SPRITES[TEXT_HISCORE], Vec2i(2, 3));
     Text("50,000", TextColor::TEXT_CYAN, {10, 3});
 
     Text("TIME", TextColor::TEXT_YELLOW, {19, 3});
-    Text("0", TextColor::TEXT_WHITE, {26, 3});
+    Text(std::to_string(mTimerGame), TextColor::TEXT_WHITE, {26, 3});
 
     Text("C", TextColor::TEXT_WHITE, {27, 12});
     Text("R", TextColor::TEXT_WHITE, {27, 13});
@@ -287,6 +294,7 @@ void Game::ResetGame(int level)
 {
     // Initialize level
     mLevel = level;
+    mTimerGame = 90;
 
     // Reset snake
     mSnake->Reset();
