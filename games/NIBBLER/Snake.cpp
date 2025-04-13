@@ -25,6 +25,7 @@ Snake::Snake(void)
     , isDead(false)
     , mSnakeColor(Snake_Color::RED)
     , mLevel(0)
+    , mLives(3)
 {
     Vec2f basePosition(15.5f, 29);
 
@@ -72,6 +73,11 @@ Vec2i Snake::GetDirection(void) const
     return (mDirection);
 }
 
+int Snake::GetLives(void) const
+{
+    return (mLives);
+}
+
 void Snake::SetLevel(int level)
 {
     mLevel = level;
@@ -115,10 +121,10 @@ void Snake::Draw(float timer)
             API::Draw(spriteColor, mSnakeParts[i]);
 
         } else {
-            Vec2i prevDiff = {std::round(mSnakeParts[i-1].x - mSnakeParts[i].x),
-                              std::round(mSnakeParts[i-1].y - mSnakeParts[i].y)};
-            Vec2i nextDiff = {std::round(mSnakeParts[i].x - mSnakeParts[i+1].x),
-                              std::round(mSnakeParts[i].y - mSnakeParts[i+1].y)};
+            Vec2i prevDiff = {static_cast<int>(std::round(mSnakeParts[i-1].x - mSnakeParts[i].x)),
+                              static_cast<int>(std::round(mSnakeParts[i-1].y - mSnakeParts[i].y))};
+            Vec2i nextDiff = {static_cast<int>(std::round(mSnakeParts[i].x - mSnakeParts[i+1].x)),
+                              static_cast<int>(std::round(mSnakeParts[i].y - mSnakeParts[i+1].y))};
 
             if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
                 if (prevDiff.x != 0) sprite = SNAKE_BODY_H;

@@ -95,10 +95,87 @@ void Game::Tick(float deltaSeconds)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::Text(
+    const std::string& text,
+    Game::TextColor color,
+    const Vec2i& position
+)
+{
+    static const int LTRS_OFFSET_Y = 13;
+    static const Color LTS_COLORS[] = {
+        Color{255, 255, 222}, Color{0, 184, 151}, Color{255, 0, 0},
+        Color{255, 255, 0}, Color{204, 29, 243}, Color{5, 12, 196},
+        Color{168, 168, 139}
+    };
+
+    for (size_t i = 0; i < text.size(); i++) {
+        int row = 0;
+        int col = 0;
+
+        if (text[i] >= 'A' && text[i] <= 'Z') {
+            col = static_cast<int>(text[i] - 'A');
+        } else if (text[i] >= '0' && text[i] <= '9') {
+            col = static_cast<int>(text[i] - '0');
+            row = 1;
+        } else if (text[i] == ',') {
+            col = 10;
+            row = 1;
+        } else if (text[i] == '@') {
+            col = 26;
+            row = 0;
+        } else {
+            continue;
+        }
+
+        IGameModule::Asset sprite(
+            {col, LTRS_OFFSET_Y + row + static_cast<int>(color) * 2},
+            std::string(1, text[i]),
+            LTS_COLORS[static_cast<int>(color)]
+        );
+
+        API::Draw(sprite, position + Vec2i{static_cast<int>(i), 0});
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::DrawScore(void)
 {
-    // Implementation of DrawScore
-    // Display score on screen
+    API::Draw(SPRITES[TEXT_PLAYER], Vec2i(1, 0));
+    API::Draw(SPRITES[TEXT_1], Vec2i(3, 0));
+    int place = 0;
+    if (mScore > 9999) {
+        place = 2;
+    } else if (mScore > 99) {
+        place = 1;
+    }
+    Text(std::to_string(mScore), TextColor::TEXT_WHITE, {15 - place, 0});
+
+    API::Draw(SPRITES[TEXT_LEFT], Vec2i(22, 0));
+    Text(std::to_string(mSnake->GetLives()), TextColor::TEXT_WHITE, {26, 0});
+
+    API::Draw(SPRITES[TEXT_PLAYER], Vec2i(1, 1));
+    API::Draw(SPRITES[TEXT_2], Vec2i(3, 1));
+    Text("0", TextColor::TEXT_WHITE, {15, 1});
+
+    API::Draw(SPRITES[TEXT_LEFT], Vec2i(22, 1));
+    Text("0", TextColor::TEXT_WHITE, {26, 1});
+
+    API::Draw(SPRITES[TEXT_HISCORE], Vec2i(2, 3));
+    Text("50,000", TextColor::TEXT_CYAN, {10, 3});
+
+    Text("TIME", TextColor::TEXT_YELLOW, {19, 3});
+    Text("0", TextColor::TEXT_WHITE, {26, 3});
+
+    Text("C", TextColor::TEXT_WHITE, {27, 12});
+    Text("R", TextColor::TEXT_WHITE, {27, 13});
+    Text("E", TextColor::TEXT_WHITE, {27, 14});
+    Text("D", TextColor::TEXT_WHITE, {27, 15});
+    Text("I", TextColor::TEXT_WHITE, {27, 16});
+    Text("T", TextColor::TEXT_WHITE, {27, 17});
+    Text("0", TextColor::TEXT_WHITE, {27, 19});
+
+    Text("WAVE", TextColor::TEXT_WHITE, {10, 31});
+    Text(std::to_string(mLevel - 1), TextColor::TEXT_WHITE, {16, 31});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
