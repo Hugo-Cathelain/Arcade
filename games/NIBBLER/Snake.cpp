@@ -5,6 +5,9 @@
 #include "games/NIBBLER/Assets.hpp"
 #include "games/NIBBLER/Maps/Map.hpp"
 #include "Arcade/core/API.hpp"
+#include <cmath>
+#include <algorithm>
+#include <numeric>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc::Nibbler
@@ -27,18 +30,23 @@ Snake::Snake(void)
     , mLevel(0)
     , mLives(3)
 {
-    Vec2f basePosition(15.5f, 29);
+    Vec2f basePosition(15.f, 29);
 
-    mSnakeParts.push_back(basePosition);
-    mSnakeParts.push_back(Vec2f{basePosition.x - 1, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 2, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 3, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 4, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 5, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 6, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 7, basePosition.y});
-
-    mSegmentDirections.resize(mSnakeParts.size(), mDirection);
+    mSnakeParts.push_back(Snake::Part{basePosition, mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(1.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(2.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(3.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(4.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(5.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(6.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(7.f, 0.f),
+            mDirection, mDirection});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,25 +58,26 @@ void Snake::SetMovementPercentage(float percentage)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::SetPosition(const Vec2i& position)
 {
-    mSnakeParts[0] = position;
+    mSnakeParts[0].position = position;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 Vec2i Snake::GetPosition(void) const
 {
-    return (Vec2i(std::round(mSnakeParts[0].x), std::round(mSnakeParts[0].y)));
+    return (Vec2i(
+        std::floor(mSnakeParts[0].position.x + 0.5f),
+        std::floor(mSnakeParts[0].position.y + 0.5f)
+    ));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::SetDesiredDirection(const Vec2i& direction)
 {
-    if (mDesiredDirection == -mDirection) {
+    if (direction == -mSnakeParts[0].direction) {
         return;
     }
 
-    // Vec2i headPos = GetPosition();
-    // mTurnPoints.push_back({headPos, direction});
-    mDesiredDirection = direction;
+    mSnakeParts[0].desired = direction;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,22 +107,22 @@ void Snake::Draw(float timer)
         SpriteType sprite;
 
         if (i == 0) {
-            if (mDirection.x == 1) {
+            if (mSnakeParts[0].direction.x == 1) {
                 sprite = SNAKE_HEAD_RIGHT;
-            } else if (mDirection.x == -1) {
+            } else if (mSnakeParts[0].direction.x == -1) {
                 sprite = SNAKE_HEAD_LEFT;
-            } else if (mDirection.y == -1) {
+            } else if (mSnakeParts[0].direction.y == -1) {
                 sprite = SNAKE_HEAD_TOP;
             } else {
                 sprite = SNAKE_HEAD_BOTTOM;
             }
             auto spriteColor = SPRITES[sprite];
             spriteColor.position.x += snakeColor;
-            API::Draw(spriteColor, mSnakeParts[i]);
+            API::Draw(spriteColor, mSnakeParts[i].position);
 
         } else if (i == mSnakeParts.size() - 1) {
-            Vec2f diff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
-                          mSnakeParts[i-1].y - mSnakeParts[i].y};
+            Vec2f diff = {mSnakeParts[i-1].position.x - mSnakeParts[i].position.x,
+                          mSnakeParts[i-1].position.y - mSnakeParts[i].position.y};
 
             if (diff.x > 0.8f) sprite = SNAKE_TAIL_LEFT;
             else if (diff.x < -0.5f) sprite = SNAKE_TAIL_RIGHT;
@@ -122,13 +131,13 @@ void Snake::Draw(float timer)
 
             auto spriteColor = SPRITES[sprite];
             spriteColor.position.x += snakeColor;
-            API::Draw(spriteColor, mSnakeParts[i]);
+            API::Draw(spriteColor, mSnakeParts[i].position);
 
         } else {
-            Vec2i prevDiff = {static_cast<int>(std::round(mSnakeParts[i-1].x - mSnakeParts[i].x)),
-                              static_cast<int>(std::round(mSnakeParts[i-1].y - mSnakeParts[i].y))};
-            Vec2i nextDiff = {static_cast<int>(std::round(mSnakeParts[i].x - mSnakeParts[i+1].x)),
-                              static_cast<int>(std::round(mSnakeParts[i].y - mSnakeParts[i+1].y))};
+            Vec2i prevDiff = {static_cast<int>(std::round(mSnakeParts[i-1].position.x - mSnakeParts[i].position.x)),
+                              static_cast<int>(std::round(mSnakeParts[i-1].position.y - mSnakeParts[i].position.y))};
+            Vec2i nextDiff = {static_cast<int>(std::round(mSnakeParts[i].position.x - mSnakeParts[i+1].position.x)),
+                              static_cast<int>(std::round(mSnakeParts[i].position.y - mSnakeParts[i+1].position.y))};
 
             if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
                 if (prevDiff.x != 0) sprite = SNAKE_BODY_H;
@@ -136,17 +145,17 @@ void Snake::Draw(float timer)
             } else {
                 mAnimationOffset = 0;
                 if ((prevDiff.x > 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x < 0))
-                    sprite = SNAKE_TURN_BOTTOM_LEFT;
-                else if ((prevDiff.x < 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x > 0))
-                    sprite = SNAKE_TURN_BOTTOM_RIGHT;
-                else if ((prevDiff.x > 0 && nextDiff.y > 0) || (prevDiff.y < 0 && nextDiff.x < 0))
-                    sprite = SNAKE_TURN_TOP_LEFT;
-                else
                     sprite = SNAKE_TURN_TOP_RIGHT;
+                else if ((prevDiff.x < 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x > 0))
+                    sprite = SNAKE_TURN_TOP_LEFT;
+                else if ((prevDiff.x > 0 && nextDiff.y > 0) || (prevDiff.y < 0 && nextDiff.x < 0))
+                    sprite = SNAKE_TURN_BOTTOM_LEFT;
+                else
+                    sprite = SNAKE_TURN_BOTTOM_RIGHT;
             }
             auto spriteColor = SPRITES[sprite];
             spriteColor.position.x += snakeColor + mAnimationOffset;
-            API::Draw(spriteColor, mSnakeParts[i]);
+            API::Draw(spriteColor, mSnakeParts[i].position);
         }
     }
 }
@@ -166,181 +175,123 @@ void Snake::DrawDeathAnimation(float timer)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::Grow(void)
 {
-    mSnakeParts.push_back(mSnakeParts[mSnakeParts.size() - 1]);
-    mSegmentDirections.push_back(mSegmentDirections.back());
+    Snake::Part lastPart = mSnakeParts[mSnakeParts.size() - 1];
+    mSnakeParts.push_back(lastPart);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::Update(float deltaSeconds)
 {
-    (void)deltaSeconds;
-
-    float speed = mMovementSpeed * mMovementPercentage;
-
-    // Calculate the new direction
-    Vec2i headPosition = GetPosition();
-
-    if (mDesiredDirection != Vec2i(0)) {
-        Vec2i nextPosition = headPosition + mDesiredDirection;
-
-        if (MAPS[mLevel % MAPS.size()][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
-            mDirection = mDesiredDirection;
-            mSnakeParts[0] = Vec2f(headPosition);
-            // mSegmentDirections[0] = mDirection;
-            // mTurnPoints.push_back({headPosition, mDirection});
-            mDesiredDirection = Vec2i(0);
-        }
-    }
-
-    Vec2i next = headPosition + mDirection;
-
-    if (MAPS[mLevel % MAPS.size()][next.x][next.y - ARCADE_OFFSET_Y] != EMPTY) {
-        std::vector<Vec2i> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        std::vector<Vec2i> validDirections;
-
-        for (const auto& dir : directions) {
-            Vec2i nextPosition = headPosition + dir;
-
-            if (dir == mDirection || dir == -mDirection) {
-                continue;
-            }
-
-            if (MAPS[mLevel % MAPS.size()][nextPosition.x][nextPosition.y - ARCADE_OFFSET_Y] == EMPTY) {
-                validDirections.push_back(dir);
+    mMovementAccumulator += mMovementSpeed * mMovementPercentage * deltaSeconds;
+    const std::vector<std::vector<Arc::SpriteType>>& level = MAPS[mLevel % MAPS.size()];
+    
+    // Only move when accumulated enough movement
+    if (mMovementAccumulator >= 1.0f) {
+        mMovementAccumulator = 0.0f; // Reset accumulator
+        
+        // Process head movement and direction changes
+        Snake::Part& head = mSnakeParts[0];
+        Vec2i headGrid = Vec2i(
+            std::floor(head.position.x + 0.5f),
+            std::floor(head.position.y + 0.5f)
+        );
+        
+        // Check if head can change direction
+        if (head.desired != Vec2i(0)) {
+            Vec2i nextPos = headGrid + head.desired;
+            
+            if (level[nextPos.x][nextPos.y - ARCADE_OFFSET_Y] == EMPTY) {
+                head.direction = head.desired;
+                head.desired = Vec2i(0);
             }
         }
-
-        if (validDirections.size() != 1) {
-            speed = 0;
-        } else {
-            mDesiredDirection = validDirections[0];
-            // mTurnPoints.push_back({headPosition, mDirection});
+        
+        // Create trail of previous positions for body parts to follow
+        std::vector<Vec2f> prevPositions;
+        prevPositions.reserve(mSnakeParts.size());
+        
+        // Store current positions before moving
+        for (const auto& part : mSnakeParts) {
+            prevPositions.push_back(part.position);
         }
-    }
-
-// for (size_t i = 0; i < mSnakeParts.size(); ++i) {
-//     Vec2f& segment = mSnakeParts[i];
-
-//     // HEAD
-//     if (i == 0) {
-//         Vec2i currentTile = GetPosition();
-//         std::cout << "[HEAD] Current tile: (" << currentTile.x << ", " << currentTile.y << ")\n";
-
-//         if (!mTurnPoints.empty()) {
-//             std::cout << "[TURN] Next TurnPoint at: (" << mTurnPoints.front().position.x << ", "
-//                       << mTurnPoints.front().position.y << ") Dir: ("
-//                       << mTurnPoints.front().direction.x << ","
-//                       << mTurnPoints.front().direction.y << ")\n";
-//         }
-
-//         //Check if the head reached a turn point
-//         if (!mTurnPoints.empty()&& currentTile == mTurnPoints.front().position) {
-//             mDirection = mTurnPoints.front().direction;
-//             mSegmentDirections[0] = mDirection;
-//             std::cout << "[HEAD TURN] --------------------------New direction: (" << mDirection.x << "," << mDirection.y << ")\n";
-//             mTurnPoints.pop_front();
-//         }
-
-//         segment += Vec2f(mSegmentDirections[0]) * speed * deltaSeconds;
-
-//         Vec2i target = currentTile + mSegmentDirections[0];
-//         Vec2f diff = Vec2f(target) - segment;
-//         if (std::sqrt(diff.x * diff.x + diff.y * diff.y) < 0.1f) {
-//             segment = Vec2f(target);
-//             std::cout << "[HEAD SNAP] --------------------------Snapped to: (" << target.x << ", " << target.y << ")\n";
-//         }
-//     }
-
-//     // BODY SEGMENTS
-//     else {
-//         Vec2i currentTile = Vec2i(std::round(segment.x), std::round(segment.y));
-//         std::cout << "[SEGMENT " << i << "] Current tile: (" << currentTile.x << ", " << currentTile.y << ")\n";
-
-//         for (const TurnPoint& tp : mTurnPoints) {
-//             std::cout << "------------------------------------------[SEGMENT " << i << "] Checking turn point: (" << tp.position.x << ", " << tp.position.y << ")\n";
-//             if (currentTile == tp.position) {
-//                 mSegmentDirections[i] = tp.direction;
-//                 std::cout << "[SEGMENT " << i << " TURN] Changed direction to: ("
-//                           << tp.direction.x << "," << tp.direction.y << ")\n";
-//                 break;
-//             }
-//         }
-
-//         segment += Vec2f(mSegmentDirections[i]) * speed * deltaSeconds;
-
-//         Vec2i target = currentTile + mSegmentDirections[i];
-//         Vec2f diff = Vec2f(target) - segment;
-//         if (std::sqrt(diff.x * diff.x + diff.y * diff.y) < 0.1f) {
-//             segment = Vec2f(target);
-//             std::cout << "[SEGMENT " << i << " SNAP] Snapped to: (" << target.x << ", " << target.y << ")\n";
-//         }
-//     }
-
-//     std::cout << "[DEBUG] Segment[" << i << "] pos = (" << segment.x << ", " << segment.y
-//               << ") dir = (" << mSegmentDirections[i].x << ", " << mSegmentDirections[i].y << ")\n";
-// }
-
-
-//     if (!mTurnPoints.empty()) {
-//         Vec2i tailTile = Vec2i(std::round(mSnakeParts.back().x), std::round(mSnakeParts.back().y));
-//         if (tailTile == mTurnPoints.front().position) {
-//             mTurnPoints.pop_front();
-//         }
-//     }
-
-
-    Vec2f prevPart = mSnakeParts[0];
-
-    Vec2f previous;
-
-    for (int i = 0; i < (int)mSnakeParts.size(); i++) {
-        if (i == 0) {
-            previous = mSnakeParts[i];
-            mSnakeParts[i] += Vec2f(mDirection) * speed * deltaSeconds;
-
-            // Snap head to grid when close enough to next cell
-            Vec2i targetPos = GetPosition() + mDirection;
-            Vec2f diff = Vec2f(targetPos) - mSnakeParts[i];
-            float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
-            if (distance < 0.1f) {
-                mSnakeParts[i] = Vec2f(targetPos);
+        
+        // Move head
+        Vec2i nextHeadPos = headGrid + head.direction;
+        
+        // Check if head hits wall (for auto-turning)
+        if (level[nextHeadPos.x][nextHeadPos.y - ARCADE_OFFSET_Y] != EMPTY) {
+            std::vector<Vec2i> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            std::vector<Vec2i> valids;
+            
+            for (const auto& dir : directions) {
+                Vec2i test = headGrid + dir;
+                
+                if (dir == -head.direction) {
+                    continue; // Can't reverse direction
+                }
+                
+                if (level[test.x][test.y - ARCADE_OFFSET_Y] == EMPTY) {
+                    valids.push_back(dir);
+                }
             }
-        } else {
-            Vec2f targetPosition = previous;
-            Vec2f direction = targetPosition - mSnakeParts[i];
-            float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-            // Maintain fixed distance between snake parts
-            float desiredDistance = 0.8f;
-            if (distance > desiredDistance) {
-                direction = direction / distance; // Normalize
-                Vec2f temp = mSnakeParts[i];
-                mSnakeParts[i] += direction * (distance - desiredDistance);
-                previous = temp;
-            } else {
-                previous = mSnakeParts[i];
+            
+            if (!valids.empty()) {
+                head.direction = valids[0]; // Choose first valid direction
+                nextHeadPos = headGrid + head.direction;
             }
         }
-
-        prevPart = mSnakeParts[i];
+        
+        // Move head to new position, ensure it's perfectly grid-aligned
+        head.position = Vec2f(nextHeadPos);
+        
+        // Move body parts to follow the part ahead of them
+        for (size_t i = 1; i < mSnakeParts.size(); i++) {
+            Snake::Part& part = mSnakeParts[i];
+            
+            // Each part takes the position of the part ahead of it
+            part.position = prevPositions[i-1];
+            
+            // Calculate new direction based on movement
+            Vec2i curr = Vec2i(
+                std::floor(part.position.x + 0.5f),
+                std::floor(part.position.y + 0.5f)
+            );
+            
+            Vec2i prev = Vec2i(
+                std::floor(prevPositions[i].x + 0.5f),
+                std::floor(prevPositions[i].y + 0.5f)
+            );
+            
+            Vec2i diff = curr - prev;
+            
+            if (diff != Vec2i(0)) {
+                part.direction = diff;
+            }
+        }
     }
 }
 
 void Snake::Reset(void)
 {
     mSnakeParts.clear();
-    Vec2f basePosition(15.5f, 29);
+    Vec2f basePosition(15.f, 29);
 
-    mSnakeParts.push_back(basePosition);
-    mSnakeParts.push_back(Vec2f{basePosition.x - 1, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 2, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 3, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 4, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 5, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 6, basePosition.y});
-    mSnakeParts.push_back(Vec2f{basePosition.x - 7, basePosition.y});
-    mSegmentDirections.resize(mSnakeParts.size(), mDirection);
     mDirection = {1, 0};
+    mSnakeParts.push_back(Snake::Part{basePosition, mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(1.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(2.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(3.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(4.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(5.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(6.f, 0.f),
+            mDirection, mDirection});
+    mSnakeParts.push_back(Snake::Part{basePosition - Vec2f(7.f, 0.f),
+            mDirection, mDirection});
     mDesiredDirection = {1, 0};
     mAnimationOffset = 0;
     mDirectionOffset = 0;

@@ -24,7 +24,10 @@ namespace Arc::Nibbler
 class Snake
 {
 private:
-
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     enum class Snake_Color
     {
         RED,
@@ -34,29 +37,34 @@ private:
         BLUE = 24
     };
 
-    struct TurnPoint {
-        Vec2i position; //<! Position of the turn point
-        Vec2i direction; //<! Direction of the turn point
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    struct Part
+    {
+        Vec2f position;
+        Vec2i direction;
+        Vec2i desired;
     };
+
     ///////////////////////////////////////////////////////////////////////////
     // Member data
     ///////////////////////////////////////////////////////////////////////////
-    Vec2i mDesiredDirection;        //<!
-    Vec2i mDirection;               //<!
-    int mAnimationOffset;           //<!
-    Vec2i mDirectionOffset;         //<!
-    Vec2i mHeadOffset;             //<!
-    Vec2i mTailOffset;             //<!
-    float mMovementPercentage;      //<!
-    float mMovementSpeed;           //<!
-    float mMovementAccumulator;     //<!
-    bool isDead;                    //<!
-    Snake_Color mSnakeColor;        //<!
-    int mLevel;                      //<!
-    int mLives;                //<!
-    std::deque<TurnPoint> mTurnPoints; //<!
-    std::vector<Vec2i> mSegmentDirections; //<!
-    std::deque<Vec2f> mSnakeParts; //<!
+    Vec2i mDesiredDirection;                //<!
+    Vec2i mDirection;                       //<!
+    int mAnimationOffset;                   //<!
+    Vec2i mDirectionOffset;                 //<!
+    Vec2i mHeadOffset;                      //<!
+    Vec2i mTailOffset;                      //<!
+    float mMovementPercentage;              //<!
+    float mMovementSpeed;                   //<!
+    float mMovementAccumulator;             //<!
+    bool isDead;                            //<!
+    Snake_Color mSnakeColor;                //<!
+    int mLevel;                             //<!
+    int mLives;                             //<!
+    std::vector<Part> mSnakeParts;          //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
