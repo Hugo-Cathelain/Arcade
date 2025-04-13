@@ -15,6 +15,7 @@ Axolotl::Axolotl(void)
     , mLastTimer(0.f)
     , mStartTime(0.f)
     , mCurrentFrame(0)
+    , mSoundTimer(0.f)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,6 +23,11 @@ void Axolotl::ChangeState(State state)
 {
     if (state == mState || (mState == State::DEAD && state != State::ARISE)) {
         return;
+    }
+
+    if (state == State::DANCE) {
+        mSoundTimer = 0.f;
+        API::PlaySound("assets/GUI/sfx/blingblangblang.wav");
     }
 
     mStartTime = mLastTimer;
@@ -32,6 +38,7 @@ void Axolotl::ChangeState(State state)
 ///////////////////////////////////////////////////////////////////////////////
 void Axolotl::Draw(float timer)
 {
+    mSoundTimer += timer - mLastTimer;
     mLastTimer = timer;
     float deltaT = timer - mStartTime;
     int frame = 0;
@@ -52,6 +59,10 @@ void Axolotl::Draw(float timer)
         case State::DANCE:
             offsetY = AXOLOTL_DANCE_OFFSET_Y;
             frame = static_cast<int>(deltaT * 6) % AXOLOTL_DANCE_FRAME;
+
+            if (mSoundTimer > 8.5f) {
+                mState = State::IDLE;
+            }
             break;
         case State::DEAD:
             offsetY = AXOLOTL_ARISE_OFFSET_Y;
