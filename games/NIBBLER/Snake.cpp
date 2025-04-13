@@ -241,4 +241,26 @@ void Snake::Update(float deltaSeconds)
     }
 }
 
+void Snake::Reset(void)
+{
+    mSnakeParts.clear();
+    Vec2f basePosition(15.5f, 29);
+
+    mSnakeParts.push_back(basePosition);
+    mSnakeParts.push_back(Vec2f{basePosition.x - 1, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 2, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 3, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 4, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 5, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 6, basePosition.y});
+    mSnakeParts.push_back(Vec2f{basePosition.x - 7, basePosition.y});
+    mDirection = {1, 0};
+    mDesiredDirection = {1, 0};
+    mAnimationOffset = 0;
+    mDirectionOffset = 0;
+    mMovementPercentage = 1.f;
+    mMovementSpeed = 10.47f;
+    mMovementAccumulator = 0.f;
+}
+
 } // namespace Arc::Nibbler

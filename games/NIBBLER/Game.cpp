@@ -88,6 +88,7 @@ void Game::Tick(float deltaSeconds)
         mSnake->Update(deltaSeconds);
 
         CheckForFruitsEaten();
+        CheckForAllFruitsEaten();
     }
     // Draw everything
     Draws();
@@ -195,6 +196,10 @@ void Game::CheckForAllFruitsEaten(void)
     if (mState != State::PLAYING || !mFruits.empty())
         return;
 
+    if (mFruits.size() > 0) {
+        return; // Not all fruits eaten
+    }
+    mState = State::PRESS_START;
     // All fruits eaten, go to next level
     mLevel++;
     ResetGame(mLevel);
@@ -207,7 +212,7 @@ void Game::ResetGame(int level)
     mLevel = level;
 
     // Reset snake
-    // mSnake->Reset();
+    mSnake->Reset();
 
     // Clear fruits and add new ones based on level
     mFruits.clear();
@@ -217,7 +222,7 @@ void Game::ResetGame(int level)
     mMap->SetLevel(level);
 
     // Reset game state
-    // mState = State::PLAYING;
+    mState = State::PRESS_START;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
