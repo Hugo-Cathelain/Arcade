@@ -243,9 +243,11 @@ void Snake::Update(float deltaSeconds)
                 }
             }
 
-            if (!valids.empty()) {
-                head.direction = valids[0]; // Choose first valid direction
+            if (valids.size() == 1) {
+                head.direction = valids[0];
                 nextHeadPos = headGrid + head.direction;
+            } else {
+                return;
             }
         }
 
