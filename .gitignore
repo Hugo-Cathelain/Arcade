@@ -42,3 +42,6 @@ old/
 # Ignore Score Saving
 .saves/
 *.save
+
+# Ignore other"s sprite
+*.temp.png
