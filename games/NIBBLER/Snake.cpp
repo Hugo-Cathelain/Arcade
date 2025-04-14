@@ -134,10 +134,18 @@ void Snake::Draw(float timer)
             API::Draw(spriteColor, mSnakeParts[i].position);
 
         } else {
-            Vec2i prevDiff = {static_cast<int>(std::round(mSnakeParts[i-1].position.x - mSnakeParts[i].position.x)),
-                              static_cast<int>(std::round(mSnakeParts[i-1].position.y - mSnakeParts[i].position.y))};
-            Vec2i nextDiff = {static_cast<int>(std::round(mSnakeParts[i].position.x - mSnakeParts[i+1].position.x)),
-                              static_cast<int>(std::round(mSnakeParts[i].position.y - mSnakeParts[i+1].position.y))};
+            Vec2i prevDiff = {
+                static_cast<int>(std::round(mSnakeParts[i-1].position.x -
+                    mSnakeParts[i].position.x)),
+                static_cast<int>(std::round(mSnakeParts[i-1].position.y -
+                    mSnakeParts[i].position.y))
+            };
+            Vec2i nextDiff = {
+                static_cast<int>(std::round(mSnakeParts[i].position.x -
+                    mSnakeParts[i+1].position.x)),
+                static_cast<int>(std::round(mSnakeParts[i].position.y -
+                    mSnakeParts[i+1].position.y))
+            };
 
             if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
                 if (prevDiff.x != 0) sprite = SNAKE_BODY_H;
@@ -184,86 +192,86 @@ void Snake::Update(float deltaSeconds)
 {
     mMovementAccumulator += mMovementSpeed * mMovementPercentage * deltaSeconds;
     const std::vector<std::vector<Arc::SpriteType>>& level = MAPS[mLevel % MAPS.size()];
-    
+
     // Only move when accumulated enough movement
     if (mMovementAccumulator >= 1.0f) {
         mMovementAccumulator = 0.0f; // Reset accumulator
-        
+
         // Process head movement and direction changes
         Snake::Part& head = mSnakeParts[0];
         Vec2i headGrid = Vec2i(
             std::floor(head.position.x + 0.5f),
             std::floor(head.position.y + 0.5f)
         );
-        
+
         // Check if head can change direction
         if (head.desired != Vec2i(0)) {
             Vec2i nextPos = headGrid + head.desired;
-            
+
             if (level[nextPos.x][nextPos.y - ARCADE_OFFSET_Y] == EMPTY) {
                 head.direction = head.desired;
                 head.desired = Vec2i(0);
             }
         }
-        
+
         // Create trail of previous positions for body parts to follow
         std::vector<Vec2f> prevPositions;
         prevPositions.reserve(mSnakeParts.size());
-        
+
         // Store current positions before moving
         for (const auto& part : mSnakeParts) {
             prevPositions.push_back(part.position);
         }
-        
+
         // Move head
         Vec2i nextHeadPos = headGrid + head.direction;
-        
+
         // Check if head hits wall (for auto-turning)
         if (level[nextHeadPos.x][nextHeadPos.y - ARCADE_OFFSET_Y] != EMPTY) {
             std::vector<Vec2i> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
             std::vector<Vec2i> valids;
-            
+
             for (const auto& dir : directions) {
                 Vec2i test = headGrid + dir;
-                
+
                 if (dir == -head.direction) {
                     continue; // Can't reverse direction
                 }
-                
+
                 if (level[test.x][test.y - ARCADE_OFFSET_Y] == EMPTY) {
                     valids.push_back(dir);
                 }
             }
-            
+
             if (!valids.empty()) {
                 head.direction = valids[0]; // Choose first valid direction
                 nextHeadPos = headGrid + head.direction;
             }
         }
-        
+
         // Move head to new position, ensure it's perfectly grid-aligned
         head.position = Vec2f(nextHeadPos);
-        
+
         // Move body parts to follow the part ahead of them
         for (size_t i = 1; i < mSnakeParts.size(); i++) {
             Snake::Part& part = mSnakeParts[i];
-            
+
             // Each part takes the position of the part ahead of it
             part.position = prevPositions[i-1];
-            
+
             // Calculate new direction based on movement
             Vec2i curr = Vec2i(
                 std::floor(part.position.x + 0.5f),
                 std::floor(part.position.y + 0.5f)
             );
-            
+
             Vec2i prev = Vec2i(
                 std::floor(prevPositions[i].x + 0.5f),
                 std::floor(prevPositions[i].y + 0.5f)
             );
-            
+
             Vec2i diff = curr - prev;
-            
+
             if (diff != Vec2i(0)) {
                 part.direction = diff;
             }

@@ -303,8 +303,9 @@ void Game::ResetGame(int level)
     mFruits.clear();
     InitFruit(level);
 
-    // Reset map for the level
+    // Reset map and snake for the level
     mMap->SetLevel(level);
+    mSnake->SetLevel(level - 1);
 
     // Reset game state
     mState = State::PRESS_START;
