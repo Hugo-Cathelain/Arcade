@@ -18,11 +18,12 @@ namespace Arc::Nibbler
 ///////////////////////////////////////////////////////////////////////////////
 Game::Game(void)
     : mTimer(0.f)
-    , mState(State::PRESS_START)
+    , mState(State::START_PRESSED)
     , mScore(0)
     , mLifes(3)
     , mLevel(0)
     , mTimerGame(90)
+    , mAnimationTimer(0.f)
 {
     // Initialize random seed
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -42,7 +43,10 @@ Game::~Game()
 ///////////////////////////////////////////////////////////////////////////////
 void Game::BeginPlay(void)
 {
-    API::PushEvent(API::Event::GRAPHICS, API::Event::GridSize({ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT}));
+    API::PushEvent(
+        API::Event::GRAPHICS,
+        API::Event::GridSize({ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT})
+    );
 
     // Reset the game to level 1
     ResetGame(1);
@@ -51,6 +55,19 @@ void Game::BeginPlay(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::EndPlay(void)
 {}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void Game::DrawSpawningAnimation(void)
+{
+    int progress = mAnimationTimer / 1.f * 11;
+
+    for (int y = 0; y < 3; y++) {
+        for (int i = progress; i < 11; i++) {
+            API::Draw(SPRITES[TRON_SQUARE], Vec2i(7 + i, 28 + y));
+        }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Game::InitFruit(int level)
@@ -83,6 +100,15 @@ void Game::Tick(float deltaSeconds)
 
     // Timer for decreasing game time
     static float gameTimeCounter = 0.0f;
+
+    // Increase the animation timer
+    if (mState == State::START_PRESSED) {
+        mAnimationTimer += deltaSeconds;
+        if (mAnimationTimer > 1.f) {
+            mState = State::PLAYING;
+            mAnimationTimer = 0.f;
+        }
+    }
 
     // Handle events
     HandleEvents();
@@ -210,6 +236,10 @@ void Game::Draws(void)
 
     // Draw lives
     DrawSnakeLives();
+
+    if (mState != State::PLAYING) {
+        DrawSpawningAnimation();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -228,8 +258,7 @@ void Game::HandleEvents(void)
                     }
                     break;
                 case State::START_PRESSED:
-                    // Start the game when animation is done
-                    mState = State::PLAYING;
+                    mAnimationTimer = 0.f;
                     break;
                 case State::PLAYING:
                     if (key->code == EKeyboardKey::UP) {
@@ -283,7 +312,7 @@ void Game::CheckForAllFruitsEaten(void)
     if (mFruits.size() > 0) {
         return; // Not all fruits eaten
     }
-    mState = State::PRESS_START;
+    mState = State::START_PRESSED;
     // All fruits eaten, go to next level
     mLevel++;
     ResetGame(mLevel);
@@ -308,7 +337,7 @@ void Game::ResetGame(int level)
     mSnake->SetLevel(level - 1);
 
     // Reset game state
-    mState = State::PRESS_START;
+    mState = State::START_PRESSED;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
