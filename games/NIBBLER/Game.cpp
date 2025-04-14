@@ -255,10 +255,8 @@ void Game::HandleEvents(void)
                 case State::PRESS_START:
                     if (key->code == EKeyboardKey::SPACE) {
                         mState = State::START_PRESSED;
+                        mAnimationTimer = 0.f;
                     }
-                    break;
-                case State::START_PRESSED:
-                    mAnimationTimer = 0.f;
                     break;
                 case State::PLAYING:
                     if (key->code == EKeyboardKey::UP) {
@@ -297,6 +295,7 @@ void Game::CheckForFruitsEaten(void)
             mScore += 10; // Example score increment
             it = mFruits.erase(it);
             mSnake->Grow(); // Example snake growth
+            API::PlaySound(SFX_EAT);
         } else {
             ++it;
         }

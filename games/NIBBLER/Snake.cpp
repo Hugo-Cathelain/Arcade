@@ -192,6 +192,7 @@ void Snake::Update(float deltaSeconds)
 {
     mMovementAccumulator += mMovementSpeed * mMovementPercentage * deltaSeconds;
     const std::vector<std::vector<Arc::SpriteType>>& level = MAPS[mLevel % MAPS.size()];
+    static bool hasChanged = true;
 
     // Only move when accumulated enough movement
     if (mMovementAccumulator >= 1.0f) {
@@ -210,7 +211,9 @@ void Snake::Update(float deltaSeconds)
 
             if (level[nextPos.x][nextPos.y - ARCADE_OFFSET_Y] == EMPTY) {
                 head.direction = head.desired;
+                API::PlaySound(SFX_TURN);
                 head.desired = Vec2i(0);
+                hasChanged = true;
             }
         }
 
@@ -246,7 +249,13 @@ void Snake::Update(float deltaSeconds)
             if (valids.size() == 1) {
                 head.direction = valids[0];
                 nextHeadPos = headGrid + head.direction;
+                hasChanged = true;
             } else {
+                head.desired = Vec2i(0);
+                if (hasChanged) {
+                    API::PlaySound(SFX_WRONG);
+                    hasChanged = false;
+                }
                 return;
             }
         }
