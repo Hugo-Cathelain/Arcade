@@ -119,6 +119,7 @@ void Game::Tick(float deltaSeconds)
 
         CheckForFruitsEaten();
         CheckForAllFruitsEaten();
+        CheckForSelfCollision();
         gameTimeCounter += deltaSeconds;
 
         // Check if a second has passed
@@ -191,7 +192,7 @@ void Game::DrawScore(void)
     Text(std::to_string(mScore), TextColor::TEXT_WHITE, {15 - place, 0});
 
     API::Draw(SPRITES[TEXT_LEFT], Vec2i(22, 0));
-    Text(std::to_string(mSnake->GetLives()), TextColor::TEXT_WHITE, {26, 0});
+    Text(std::to_string(mLifes), TextColor::TEXT_WHITE, {26, 0});
 
     API::Draw(SPRITES[TEXT_HISCORE], Vec2i(2, 3));
     Text("50,000", TextColor::TEXT_CYAN, {10, 3});
@@ -233,9 +234,6 @@ void Game::Draws(void)
 
     // Draw score
     DrawScore();
-
-    // Draw lives
-    DrawSnakeLives();
 
     if (mState != State::PLAYING) {
         DrawSpawningAnimation();
@@ -318,11 +316,41 @@ void Game::CheckForAllFruitsEaten(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Game::CheckForSelfCollision(void)
+{
+    if (mState != State::PLAYING || !mSnake)
+        return;
+
+    Vec2i snakePos = mSnake->GetPosition();
+    for (size_t i = 1; i < mSnake->GetSize(); ++i) {
+        if (mSnake->GetPosition(i) == snakePos) {
+            // Snake collided with itself
+            mLifes--;
+            mSnake->Reset();
+            API::PlaySound(SFX_CRASH);
+            mState = State::START_PRESSED;
+            if (mLifes <= 0) {
+                ResetGame(mLevel);
+            }
+            break;
+        }
+    }
+
+    if (mTimerGame <= 0) {
+        mSnake->Reset();
+        API::PlaySound(SFX_CRASH);
+        mState = State::START_PRESSED;
+        ResetGame(mLevel);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Game::ResetGame(int level)
 {
     // Initialize level
     mLevel = level;
     mTimerGame = 90;
+    mLifes = 3;
 
     // Reset snake
     mSnake->Reset();
@@ -337,13 +365,6 @@ void Game::ResetGame(int level)
 
     // Reset game state
     mState = State::START_PRESSED;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void Game::DrawSnakeLives(void)
-{
-    // Draw lives indicator
-    // Implementation to show remaining lives
 }
 
 } // namespace Arc

@@ -71,6 +71,21 @@ Vec2i Snake::GetPosition(void) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+Vec2i Snake::GetPosition(size_t i) const
+{
+    return (Vec2i(
+        std::floor(mSnakeParts[i].position.x + 0.5f),
+        std::floor(mSnakeParts[i].position.y + 0.5f)
+    ));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+size_t Snake::GetSize(void) const
+{
+    return (mSnakeParts.size());
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Snake::SetDesiredDirection(const Vec2i& direction)
 {
     if (direction == -mSnakeParts[0].direction) {
