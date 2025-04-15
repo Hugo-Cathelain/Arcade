@@ -241,8 +241,10 @@ void SDL2Module::Render(void)
 
         SDL_FPoint currentPos = mSpritePositions[entityId].current;
         SDL_FPoint interpolatedPos = {
-            currentPos.x + (targetPos.x - currentPos.x) * mSpritePositions[entityId].factor,
-            currentPos.y + (targetPos.y - currentPos.y) * mSpritePositions[entityId].factor
+            currentPos.x + (targetPos.x - currentPos.x) *
+                mSpritePositions[entityId].factor,
+            currentPos.y + (targetPos.y - currentPos.y) *
+                mSpritePositions[entityId].factor
         };
 
         SDL_Rect srcRect;

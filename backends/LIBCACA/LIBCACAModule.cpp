@@ -24,9 +24,10 @@ LIBCACAModule::LIBCACAModule(void)
         return;
     }
 
-    int imgFlags = IMG_INIT_PNG; //could give it more options
+    int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
-        std::cerr << "SDL_image initialization failed: " << IMG_GetError() << std::endl;
+        std::cerr << "SDL_image initialization failed: "
+                  << IMG_GetError() << std::endl;
         SDL_Quit();
         return;
     }
@@ -142,7 +143,10 @@ void LIBCACAModule::Update(void)
 
             caca_free_canvas(mCanva);
             caca_free_display(mWindow);
-            mCanva = caca_create_canvas(gridSize->width * mRatio * 2, gridSize->height * mRatio / 2);
+            mCanva = caca_create_canvas(
+                gridSize->width * mRatio * 2,
+                gridSize->height * mRatio / 2
+            );
             mWindow = caca_create_display(mCanva);
 
         } else if (event->Is<API::Event::ChangeGame>()){
@@ -249,8 +253,10 @@ void LIBCACAModule::Render(void)
 
         Vec2f currentPos = mSpritePositions[entityId].current;
         Vec2f interpolatedPos = {
-            currentPos.x + (targetPos.x - currentPos.x) * mSpritePositions[entityId].factor,
-            currentPos.y + (targetPos.y - currentPos.y) * mSpritePositions[entityId].factor
+            currentPos.x + (targetPos.x - currentPos.x) *
+                mSpritePositions[entityId].factor,
+            currentPos.y + (targetPos.y - currentPos.y) *
+                mSpritePositions[entityId].factor
         };
 
         SDL_Surface *spriteSurface = SDL_CreateRGBSurface(

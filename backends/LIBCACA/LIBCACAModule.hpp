@@ -51,14 +51,14 @@ private:
     SDL_Surface *mSpriteSheet;                  //<! The texture
     SDL_Surface *rgbImage;                      //<! rgb value of image
     float mRatio;                               //<! The scaling ratio
-    float mCanvaRatio;                               //<! The canva scaling ratio
+    float mCanvaRatio;                          //<! The canva scaling ratio
     std::unordered_map<
         int, EntityInterpolation
     > mSpritePositions;                         //<!
     float mInterpolationFactor;                 //<!
-    uint32_t mLastFrameTime;              //<!
-    float mWindowWidth;
-    float mWindowHeight;
+    uint32_t mLastFrameTime;                    //<!
+    float mWindowWidth;                         //<!
+    float mWindowHeight;                        //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////
