@@ -63,26 +63,26 @@ enum SpriteType
 //
 ///////////////////////////////////////////////////////////////////////////////
 static const std::vector<IGameModule::Asset> SPRITES = {
-    IGameModule::Asset({0, 0}, "??", CLR_WHITE, THUMB),         // GRAPH_UNKNOWN
-    IGameModule::Asset({0, 16}, "??", CLR_WHITE, THUMB),        // GRAPH_NCURSES
-    IGameModule::Asset({0, 32}, "??", CLR_WHITE, THUMB),        // GRAPH_VULKAN
-    IGameModule::Asset({0, 48}, "??", CLR_WHITE, THUMB),        // GRAPH_XLIB
-    IGameModule::Asset({0, 64}, "??", CLR_WHITE, THUMB),        // GRAPH_SDL2
-    IGameModule::Asset({0, 80}, "??", CLR_WHITE, THUMB),        // GRAPH_ALLEGRO
-    IGameModule::Asset({0, 96}, "??", CLR_WHITE, THUMB),        // GRAPH_OPENGL
-    IGameModule::Asset({0, 112}, "??", CLR_WHITE, THUMB),       // GRAPH_SFML
-    IGameModule::Asset({32, 0}, "??", CLR_WHITE, POSTER),       // GAME_UNKNOWN
-    IGameModule::Asset({32, 32}, "??", CLR_WHITE, POSTER),      // GAME_TRON
-    IGameModule::Asset({32, 64}, "??", CLR_WHITE, POSTER),      // GAME_NIBBLER
-    IGameModule::Asset({32, 96}, "??", CLR_WHITE, POSTER),      // GAME_PACMAN
-    IGameModule::Asset({57, 0}, "??", CLR_WHITE, POSTER),       // GAME_CENTIPEDE
-    IGameModule::Asset({57, 32}, "??", CLR_WHITE, POSTER),      // GAME_SOLARFOX
-    IGameModule::Asset({57, 64}, "??", CLR_WHITE, POSTER),      // GAME_MINESWEEPER
-    IGameModule::Asset({57, 96}, "??", CLR_WHITE, POSTER),      // GAME_GALAGA
-    IGameModule::Asset({82, 0}, "??", CLR_WHITE, POSTER),       // GAME_SPACE_INVADERS
-    IGameModule::Asset({82, 32}, "??", CLR_WHITE, POSTER),      // GAME_SABOTAGE
-    IGameModule::Asset({82, 64}, "??", CLR_WHITE, POSTER),      // GAME_STREET_FIGHTER_2
-    IGameModule::Asset({82, 96}, "??", CLR_WHITE, POSTER)        // GAME_MORTAL_KOMBAT
+    IGameModule::Asset({0, 0}, "??", CLR_WHITE, THUMB),    //<! GRAPH_UNKNOWN
+    IGameModule::Asset({0, 16}, "??", CLR_WHITE, THUMB),   //<! GRAPH_NCURSES
+    IGameModule::Asset({0, 32}, "??", CLR_WHITE, THUMB),   //<! GRAPH_VULKAN
+    IGameModule::Asset({0, 48}, "??", CLR_WHITE, THUMB),   //<! GRAPH_XLIB
+    IGameModule::Asset({0, 64}, "??", CLR_WHITE, THUMB),   //<! GRAPH_SDL2
+    IGameModule::Asset({0, 80}, "??", CLR_WHITE, THUMB),   //<! GRAPH_ALLEGRO
+    IGameModule::Asset({0, 96}, "??", CLR_WHITE, THUMB),   //<! GRAPH_OPENGL
+    IGameModule::Asset({0, 112}, "??", CLR_WHITE, THUMB),  //<! GRAPH_SFML
+    IGameModule::Asset({32, 0}, "??", CLR_WHITE, POSTER),  //<! GAME_UNKNOWN
+    IGameModule::Asset({32, 32}, "??", CLR_WHITE, POSTER), //<! GAME_TRON
+    IGameModule::Asset({32, 64}, "??", CLR_WHITE, POSTER), //<! GAME_NIBBLER
+    IGameModule::Asset({32, 96}, "??", CLR_WHITE, POSTER), //<! GAME_PACMAN
+    IGameModule::Asset({57, 0}, "??", CLR_WHITE, POSTER),  //<! GAME_CENTIPEDE
+    IGameModule::Asset({57, 32}, "??", CLR_WHITE, POSTER), //<! GAME_SOLARFOX
+    IGameModule::Asset({57, 64}, "??", CLR_WHITE, POSTER), //<! GAME_MINESWEEPER
+    IGameModule::Asset({57, 96}, "??", CLR_WHITE, POSTER), //<! GAME_GALAGA
+    IGameModule::Asset({82, 0}, "??", CLR_WHITE, POSTER),  //<! GAME_SPACE_INVADERS
+    IGameModule::Asset({82, 32}, "??", CLR_WHITE, POSTER), //<! GAME_SABOTAGE
+    IGameModule::Asset({82, 64}, "??", CLR_WHITE, POSTER), //<! GAME_STREET_FIGHTER_2
+    IGameModule::Asset({82, 96}, "??", CLR_WHITE, POSTER)  //<! GAME_MORTAL_KOMBAT
 };
 
 ///////////////////////////////////////////////////////////////////////////////

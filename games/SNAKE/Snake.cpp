@@ -24,20 +24,15 @@ Snake::Snake(void)
     , mScore(0)
     , mIngame(false)
 {
-    //TODO: get the best score and keep it in a variable
-
     mBestScore = 0;
 
-    // Initialize snake with head and tail
     mSnakeParts.push_back(mPosition);
     mSnakeParts.push_back(Vec2i{mPosition.x - 2, mPosition.y});
     mSnakeParts.push_back(Vec2i{mPosition.x - 4, mPosition.y});
     mSnakeParts.push_back(Vec2i{mPosition.x - 6, mPosition.y});
 
-    // Initialize random seed for apple placement
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    // Place initial apple
     respawnApple();
 }
 
@@ -48,11 +43,9 @@ Snake::~Snake()
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::respawnApple(void)
 {
-    // Random position for apple
     int x = (std::rand() % 15) * 2;
     int y = (std::rand() % 12) * 2 + 4;
 
-    // Make sure apple doesn't spawn on snake
     for (const auto& part : mSnakeParts) {
         if (part.x == x && part.y == y) {
             respawnApple();
@@ -160,7 +153,6 @@ void Snake::drawSpritesSnake(void)
         SpriteType sprite;
 
         if (i == 0) {
-            // Draw head based on current movement direction, not the pending direction
             Vec2i currentDirection;
             if (mSnakeParts.size() > 1) {
                 currentDirection = {
@@ -171,56 +163,93 @@ void Snake::drawSpritesSnake(void)
                 currentDirection = mOffset;
             }
 
-            if (std::abs(currentDirection.x) > 15) currentDirection.x = currentDirection.x > 0 ? -1 : 1;
-            if (std::abs(currentDirection.y) > 12) currentDirection.y = currentDirection.y > 0 ? -1 : 1;
-
-            if (currentDirection.x > 0) sprite = SNAKE_HEAD_L;
-            else if (currentDirection.x < 0) sprite = SNAKE_HEAD_R;
-            else if (currentDirection.y > 0) sprite = SNAKE_HEAD_B;
-            else sprite = SNAKE_HEAD_T;
-        } else if (i == mSnakeParts.size() - 1) {
-            // Draw tail
-            Vec2i diff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
-                          mSnakeParts[i-1].y - mSnakeParts[i].y};
-
-            // Handle teleportation for tail
-            if (std::abs(diff.x) > 15) diff.x = diff.x > 0 ? -1 : 1;
-            if (std::abs(diff.y) > 12) diff.y = diff.y > 0 ? -1 : 1;
-
-            if (diff.x > 0) sprite = SNAKE_TAIL_R;
-            else if (diff.x < 0) sprite = SNAKE_TAIL_L;
-            else if (diff.y > 0) sprite = SNAKE_TAIL_T;
-            else sprite = SNAKE_TAIL_B;
-        } else {
-            // Draw body
-            Vec2i prevDiff = {mSnakeParts[i-1].x - mSnakeParts[i].x,
-                             mSnakeParts[i-1].y - mSnakeParts[i].y};
-            Vec2i nextDiff = {mSnakeParts[i].x - mSnakeParts[i+1].x,
-                             mSnakeParts[i].y - mSnakeParts[i+1].y};
-
-            // Handle teleportation for prevDiff
-            if (std::abs(prevDiff.x) > 15) prevDiff.x = prevDiff.x > 0 ? -1 : 1;
-            if (std::abs(prevDiff.y) > 12) prevDiff.y = prevDiff.y > 0 ? -1 : 1;
-
-            // Handle teleportation for nextDiff
-            if (std::abs(nextDiff.x) > 15) nextDiff.x = nextDiff.x > 0 ? -1 : 1;
-            if (std::abs(nextDiff.y) > 12) nextDiff.y = nextDiff.y > 0 ? -1 : 1;
-
-            // Straight body
-            if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
-                if (prevDiff.x != 0) sprite = SNAKE_BODY_RL;
-                else sprite = SNAKE_BODY_TB;
+            if (std::abs(currentDirection.x) > 15) {
+                currentDirection.x = currentDirection.x > 0 ? -1 : 1;
             }
-            // Corner body
-            else {
-                if ((prevDiff.x > 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x < 0))
+            if (std::abs(currentDirection.y) > 12) {
+                currentDirection.y = currentDirection.y > 0 ? -1 : 1;
+            }
+
+            if (currentDirection.x > 0) {
+                sprite = SNAKE_HEAD_L;
+            } else if (currentDirection.x < 0) {
+                sprite = SNAKE_HEAD_R;
+            } else if (currentDirection.y > 0) {
+                sprite = SNAKE_HEAD_B;
+            } else {
+                sprite = SNAKE_HEAD_T;
+            }
+        } else if (i == mSnakeParts.size() - 1) {
+            Vec2i diff = {
+                mSnakeParts[i-1].x - mSnakeParts[i].x,
+                mSnakeParts[i-1].y - mSnakeParts[i].y
+            };
+
+            if (std::abs(diff.x) > 15) {
+                diff.x = diff.x > 0 ? -1 : 1;
+            }
+            if (std::abs(diff.y) > 12) {
+                diff.y = diff.y > 0 ? -1 : 1;
+            }
+
+            if (diff.x > 0) {
+                sprite = SNAKE_TAIL_R;
+            } else if (diff.x < 0) {
+                sprite = SNAKE_TAIL_L;
+            } else if (diff.y > 0) {
+                sprite = SNAKE_TAIL_T;
+            } else {
+                sprite = SNAKE_TAIL_B;
+            }
+        } else {
+            Vec2i prevDiff = {
+                mSnakeParts[i-1].x - mSnakeParts[i].x,
+                mSnakeParts[i-1].y - mSnakeParts[i].y
+            };
+            Vec2i nextDiff = {
+                mSnakeParts[i].x - mSnakeParts[i+1].x,
+                mSnakeParts[i].y - mSnakeParts[i+1].y
+            };
+
+            if (std::abs(prevDiff.x) > 15) {
+                prevDiff.x = prevDiff.x > 0 ? -1 : 1;
+            }
+            if (std::abs(prevDiff.y) > 12) {
+                prevDiff.y = prevDiff.y > 0 ? -1 : 1;
+            }
+
+            if (std::abs(nextDiff.x) > 15) {
+                nextDiff.x = nextDiff.x > 0 ? -1 : 1;
+            }
+            if (std::abs(nextDiff.y) > 12) {
+                nextDiff.y = nextDiff.y > 0 ? -1 : 1;
+            }
+
+            if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
+                if (prevDiff.x != 0) {
+                    sprite = SNAKE_BODY_RL;
+                } else {
+                    sprite = SNAKE_BODY_TB;
+                }
+            } else {
+                if (
+                    (prevDiff.x > 0 && nextDiff.y < 0) ||
+                    (prevDiff.y > 0 && nextDiff.x < 0)
+                ) {
                     sprite = SNAKE_BODY_BR;
-                else if ((prevDiff.x < 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x > 0))
+                } else if (
+                    (prevDiff.x < 0 && nextDiff.y < 0) ||
+                    (prevDiff.y > 0 && nextDiff.x > 0)
+                ) {
                     sprite = SNAKE_BODY_BL;
-                else if ((prevDiff.x > 0 && nextDiff.y > 0) || (prevDiff.y < 0 && nextDiff.x < 0))
+                } else if (
+                    (prevDiff.x > 0 && nextDiff.y > 0) ||
+                    (prevDiff.y < 0 && nextDiff.x < 0)
+                ) {
                     sprite = SNAKE_BODY_TR;
-                else
+                } else {
                     sprite = SNAKE_BODY_TL;
+                }
             }
         }
         API::Draw(SPRITES[sprite], mSnakeParts[i]);
@@ -230,49 +259,44 @@ void Snake::drawSpritesSnake(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::moveSnake(void)
 {
-    // Move snake when accumulated time reaches threshold
     if (mAccumulatedTime >= 0.2f) {
         mAccumulatedTime = 0.0f;
 
-        // Prevent 180-degree turns (can't go directly backwards)
-        if (mNewOffset.x != -mOffset.x || mNewOffset.y != -mOffset.y)
+        if (mNewOffset.x != -mOffset.x || mNewOffset.y != -mOffset.y) {
             mOffset = mNewOffset;
+        }
 
-        // Calculate new head position
-        Vec2i newHead = {mSnakeParts.front().x + mOffset.x * 2,
-                 mSnakeParts.front().y + mOffset.y * 2};
+        Vec2i newHead = {
+            mSnakeParts.front().x + mOffset.x * 2,
+            mSnakeParts.front().y + mOffset.y * 2
+        };
 
-        // Teleport to opposite side when hitting walls
         if (newHead.x < 0) {
-            newHead.x = 30;  // Rightmost position (31-1)
+            newHead.x = 30;
         } else if (newHead.x >= 31) {
-            newHead.x = 0;   // Leftmost position
+            newHead.x = 0;
         }
 
         if (newHead.y < 4) {
-            newHead.y = 26;  // Bottom position (28-2)
+            newHead.y = 26;
         } else if (newHead.y >= 28) {
-            newHead.y = 4;   // Top position
+            newHead.y = 4;
         }
 
-        // Check for collisions with self (skip the tail since it will move)
         for (size_t i = 0; i < mSnakeParts.size() - 1; i++) {
             if (newHead.x == mSnakeParts[i].x && newHead.y == mSnakeParts[i].y) {
                 mGameOver = true;
-                //TODO: keep the score if better than best one, and save it
+                API::PushEvent(API::Event::CORE, API::Event::GameOver{mScore});
                 return;
             }
         }
 
-        // Add new head
         mSnakeParts.push_front(newHead);
 
-        // Check if snake ate the apple
         if (newHead.x == mApplePosition.x && newHead.y == mApplePosition.y) {
             mScore += 10;
             respawnApple();
         } else {
-            // Remove tail if no apple was eaten
             mSnakeParts.pop_back();
         }
     }
@@ -281,7 +305,6 @@ void Snake::moveSnake(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::drawScore(void)
 {
-    // Draw score
     Text("SCORE", TextColor::TEXT_WHITE, Vec2i{2, 2});
     Text("BEST SCORE", TextColor::TEXT_WHITE, Vec2i{15, 2});
     Text(std::to_string(mScore), TextColor::TEXT_WHITE, Vec2i{8, 2});
@@ -293,7 +316,6 @@ void Snake::Tick(float deltaSeconds)
 {
     mAccumulatedTime += deltaSeconds;
 
-    // Process input
     while (auto event = API::PollEvent(API::Event::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
             handleKeyPressed(key->code);
@@ -301,7 +323,6 @@ void Snake::Tick(float deltaSeconds)
     }
 
     if (!mGameOver) {
-        // Clear screen
         for (size_t y = 4; y < 28; y += 2) {
             for (size_t x = 0; x < 31; x += 2) {
                 API::Draw(SPRITES[EMPTY], Vec2i(x, y));

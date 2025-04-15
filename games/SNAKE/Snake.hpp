@@ -27,16 +27,16 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     // Member data
     ///////////////////////////////////////////////////////////////////////////
-    bool mGameOver;         //<!
-    float mAccumulatedTime; //<!
-    Vec2i mOffset;          //<!
-    Vec2i mNewOffset;       //<!
-    Vec2i mPosition;        //<!
-    int mScore;             //<!
-    Vec2i mApplePosition;   //<!
-    bool mIngame;           //<!
-    int mBestScore;         //<!
-    std::deque<Vec2i> mSnakeParts; //<!
+    bool mGameOver;                 //<!
+    float mAccumulatedTime;         //<!
+    Vec2i mOffset;                  //<!
+    Vec2i mNewOffset;               //<!
+    Vec2i mPosition;                //<!
+    int mScore;                     //<!
+    Vec2i mApplePosition;           //<!
+    bool mIngame;                   //<!
+    int mBestScore;                 //<!
+    std::deque<Vec2i> mSnakeParts;  //<!
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief
@@ -70,6 +70,11 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief
     ///
+    /// \param text
+    /// \param color
+    /// \param position
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     void Text(
         const std::string& text,
         TextColor color,
