@@ -23,16 +23,27 @@ Maps::Maps(void)
 void Maps::SetLevel(int level)
 {
     mLevel = level;
+    switch ((level - 1) % 4) {
+        case 0:
+            mBorderColor = Border_Color::WHITE;
+            break;
+        case 1:
+            mBorderColor = Border_Color::GREEN;
+            break;
+        case 2:
+            mBorderColor = Border_Color::PINK;
+            break;
+        case 3:
+            mBorderColor = Border_Color::BLUE;
+            break;
+    }
+    // mBorderColor = static_cast<Border_Color>(level % 4);
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 int Maps::GetLevel(void) const
 {
     return (mLevel);
-}
-
-void Maps::SetBorderColor(Border_Color color)
-{
-    mBorderColor = color;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
