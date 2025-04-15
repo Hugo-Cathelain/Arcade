@@ -7,6 +7,7 @@
 #include "Arcade/shared/Joystick.hpp"
 #include "Arcade/audio/Audio.hpp"
 #include "Arcade/shared/WiiMote.hpp"
+#include "Arcade/errors/Exception.hpp"
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -24,11 +25,11 @@ namespace Arc
 
 ///////////////////////////////////////////////////////////////////////////////
 Core::Core(const std::string& graphicLib, const std::string& gameLib)
-    : mGraphics(Library::Load<IGraphicsModule>(graphicLib))
-    , mIsWindowOpen(true)
+    : mIsWindowOpen(true)
     , mTimer(0.f)
 {
-    mStates.push(Library::Load<IGameModule>(gameLib));
+    SetLibraries(graphicLib, gameLib);
+
     mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
 
     WiiMote::Initialize();
@@ -45,6 +46,35 @@ Core::Core(const std::string& graphicLib, const std::string& gameLib)
     }
 
     API::PushEvent(API::Event::GAME, API::Event::Libraries{graphicals, games});
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::SetLibraries(
+    const std::string& graphicLib,
+    const std::string& gameLib
+)
+{
+    if (!Library::Is<IGraphicsModule>(graphicLib)) {
+        mGraphicLib = "lib/arcade_sfml.so";
+        std::cerr << "ERROR: Invalid Graphics libraries, using SFML instead."
+                  << std::endl;
+    } else {
+        mGraphicLib = graphicLib;
+    }
+
+    if (
+        !Library::Is<IGameModule>(gameLib) &&
+        mGameLib != "lib/arcade_gui_menu.so"
+    ) {
+        std::cerr << "ERROR: Invalid Game libraries, using MenuGUI instead."
+                  << std::endl;
+        mGameLib = "lib/arcade_gui_menu.so";
+    } else {
+        mGameLib = gameLib;
+    }
+
+    mGraphics = Library::Load<IGraphicsModule>(mGraphicLib);
+    mStates.push(Library::Load<IGameModule>(mGameLib));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
