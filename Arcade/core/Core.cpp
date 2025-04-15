@@ -64,7 +64,7 @@ void Core::SetLibraries(
 
     if (
         !Library::Is<IGameModule>(gameLib) &&
-        mGameLib != "lib/arcade_gui_menu.so"
+        gameLib != "lib/arcade_gui_menu.so"
     ) {
         std::cerr << "ERROR: Invalid Game libraries, using MenuGUI instead."
                   << std::endl;
