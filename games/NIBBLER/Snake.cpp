@@ -26,7 +26,7 @@ Snake::Snake(void)
     , mMovementSpeed(15.47f)
     , mMovementAccumulator(0.f)
     , isDead(false)
-    , mSnakeColor(Snake_Color::RED)
+    , mSnakeColor(Color::RED)
     , mLevel(0)
     , mLives(3)
 {
@@ -109,11 +109,13 @@ Vec2i Snake::GetDirection(void) const
     return (mDirection);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 int Snake::GetLives(void) const
 {
     return (mLives);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 void Snake::SetLevel(int level)
 {
     mLevel = level;
@@ -124,7 +126,7 @@ void Snake::Draw(float timer)
 {
     mAnimationOffset = static_cast<int>(timer * 12) % 2 ? 1 : 0;
     mDirectionOffset = 0;
-    int snakeColor = static_cast<int>(mSnakeColor);
+    int snakeColor = static_cast<int>(mSnakeColor) * 8;
 
     for (size_t i = 0; i < mSnakeParts.size(); i++) {
         SpriteType sprite;
@@ -201,6 +203,12 @@ void Snake::DrawSpawnAnimation(float timer)
 void Snake::DrawDeathAnimation(float timer)
 {
     (void)timer;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Snake::SetColor(Snake::Color color)
+{
+    mSnakeColor = color;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -232,6 +232,11 @@ void Game::Draws(void)
 
     // Draw snake
     if (mSnake) {
+        if (mState != State::PLAYING) {
+            mSnake->SetColor(Snake::Color::BLUE);
+        } else {
+            mSnake->SetColor(Snake::Color::RED);
+        }
         mSnake->Draw(mTimer);
     }
 

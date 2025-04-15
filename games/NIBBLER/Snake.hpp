@@ -23,20 +23,21 @@ namespace Arc::Nibbler
 ///////////////////////////////////////////////////////////////////////////////
 class Snake
 {
-private:
+public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief
     ///
     ///////////////////////////////////////////////////////////////////////////
-    enum class Snake_Color
+    enum class Color
     {
         RED,
-        YELLOW = 6,
-        PINK = 12,
-        WHITE = 18,
-        BLUE = 24
+        YELLOW,
+        PINK,
+        WHITE,
+        BLUE
     };
 
+private:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief
     ///
@@ -61,7 +62,7 @@ private:
     float mMovementSpeed;                   //<!
     float mMovementAccumulator;             //<!
     bool isDead;                            //<!
-    Snake_Color mSnakeColor;                //<!
+    Color mSnakeColor;                //<!
     int mLevel;                             //<!
     int mLives;                             //<!
     std::vector<Part> mSnakeParts;          //<!
@@ -187,6 +188,14 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void Grow(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    /// \param color
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void SetColor(Snake::Color color);
 };
 
 } // namespace Arc::Nibler
