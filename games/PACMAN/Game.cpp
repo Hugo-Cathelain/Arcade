@@ -102,10 +102,17 @@ void Game::DrawMapBaseLayer(void)
             );
         }
 
-        Menu::Text(
-            "READY!", Menu::TextColor::TEXT_YELLOW,
-            Vec2i{11, 17 + ARCADE_OFFSET_Y}
-        );
+        if (mState != State::GAME_OVER) {
+            Menu::Text(
+                "READY!", Menu::TextColor::TEXT_YELLOW,
+                Vec2i{11, 17 + ARCADE_OFFSET_Y}
+            );
+        } else {
+            Menu::Text(
+                "GAME  OVER", Menu::TextColor::TEXT_RED,
+                Vec2i{9, 17 + ARCADE_OFFSET_Y}
+            );
+        }
     }
 }
 
@@ -173,6 +180,7 @@ void Game::HandleEvents(void)
 {
     while (auto event = API::PollEvent(API::Event::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+
             Vec2i direction(0);
 
             if (key->code == EKeyboardKey::UP) {
@@ -185,6 +193,10 @@ void Game::HandleEvents(void)
                 direction = Vec2i{1, 0};
             }
 
+            if (mState == State::GAME_OVER && key->code == EKeyboardKey::SPACE) {
+
+            }
+
             if (direction != 0 && mState == State::START_PRESSED) {
                 mState = State::PLAYING;
                 mPlayer->SetPosition({14 + direction.x, 23});
@@ -195,6 +207,12 @@ void Game::HandleEvents(void)
             }
         }
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool Game::IsGameOver(void) const
+{
+    return (mState == State::GAME_OVER);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -301,7 +319,7 @@ void Game::BeginPlay(void)
     mPowerPillTimer = 0.f;
     mKillCount = 0;
     mEatTimer.clear();
-    mHealth = 4;
+    mHealth = 4 - 4;
     mLevel = 1;
     ResetGame(mLevel);
     mState = State::PRESS_START;
@@ -331,8 +349,8 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
         mHealth--;
         mTimer = 0.f;
         mState = State::DEATH_ANIMATION;
-        if (mHealth == 0) {
-            API::PushEvent(API::Event::GAME, API::Event::GameOver{mScore});
+        if (mHealth < 0) {
+            API::PushEvent(API::Event::CORE, API::Event::GameOver{mScore});
         }
     }
 }
@@ -363,6 +381,7 @@ void Game::CheckForAllGumsEaten(void)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::ResetGame(int level)
 {
+    bool hasChanged = mLevel != level;
     mLevel = level;
 
     if (level == 1) {
@@ -379,7 +398,9 @@ void Game::ResetGame(int level)
         mModeTimers = MODES[2];
     }
 
-    SetDefaultGums();
+    if (hasChanged) {
+        SetDefaultGums();
+    }
     mTimer = 0.0f;
     mState = State::START_PRESSED;
     mPlayer.reset(new Player());
@@ -537,6 +558,14 @@ void Game::Tick(float deltaSeconds)
     // Handle Events
     HandleEvents();
 
+    if (mState == State::GAME_OVER) {
+        DrawMapBaseLayer();
+        DrawPacmanLives();
+        DrawGums();
+        DrawEatScore();
+        return;
+    }
+
     // Updating
     if (mState == State::PLAYING) {
         HandleAmbiantSound();
@@ -566,8 +595,10 @@ void Game::Tick(float deltaSeconds)
 
     if (mState == State::DEATH_ANIMATION) {
         mPlayer->DrawDeathAnimation(mTimer);
-        if (mTimer > 2.5f) {
+        if (mTimer > 2.5f && mHealth >= 0) {
             ResetGame(mLevel);
+        } else if (mTimer > 2.5f) {
+            mState = State::GAME_OVER;
         }
     }
 
