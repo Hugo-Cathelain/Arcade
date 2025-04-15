@@ -347,6 +347,7 @@ void Game::CheckForAllFruitsEaten(void)
     }
     mState = State::START_PRESSED;
     // All fruits eaten, go to next level
+    mScore += 10 * mTimerGame;
     mLevel++;
     ResetGame(mLevel);
 }
