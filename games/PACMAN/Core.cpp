@@ -56,12 +56,22 @@ void Core::Tick(float deltaSeconds)
                     mGameState.reset(new Game());
                     mGameState->BeginPlay();
                 }
-            } else if (auto gameOver = event->GetIf<API::Event::GameOver>()) {
-                (void)gameOver;
-                mInGame = false;
-                mGameState->EndPlay();
-                mGameState.reset(new Menu(false));
-                mGameState->BeginPlay();
+            }
+        }
+    }
+
+    if (mInGame) {
+        auto game = dynamic_cast<Game*>(mGameState.get());
+        if (game && game->IsGameOver()) {
+            while (auto event = API::PollEvent(API::Event::GAME)) {
+                if (auto key = event->GetIf<API::Event::KeyPressed>()) {
+                    if (key->code == EKeyboardKey::SPACE) {
+                        mInGame = false;
+                        mGameState->EndPlay();
+                        mGameState.reset(new Menu(false));
+                        mGameState->BeginPlay();
+                    }
+                }
             }
         }
     }
@@ -84,7 +94,7 @@ int Core::GetScore(void) const
 ///////////////////////////////////////////////////////////////////////////////
 std::string Core::GetName(void) const
 {
-    return ("Arcade: Pac-Man (1980)");
+    return ("Pac-Man (1980)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
