@@ -23,7 +23,7 @@ Snake::Snake(void)
     , mAnimationOffset(0)
     , mDirectionOffset(0)
     , mMovementPercentage(1.f)
-    , mMovementSpeed(10.47f)
+    , mMovementSpeed(15.47f)
     , mMovementAccumulator(0.f)
     , isDead(false)
     , mSnakeColor(Snake_Color::RED)
@@ -229,7 +229,7 @@ void Snake::Update(float deltaSeconds)
         );
 
         // Check if head can change direction
-        if (head.desired != Vec2i(0)) {
+        if (head.desired != Vec2i(0) && head.desired != -head.direction) {
             Vec2i nextPos = headGrid + head.desired;
 
             if (level[nextPos.x][nextPos.y - ARCADE_OFFSET_Y] == EMPTY) {
