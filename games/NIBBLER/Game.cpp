@@ -132,12 +132,12 @@ void Game::Tick(float deltaSeconds)
                 mTimerGame--;
             }
             gameTimeCounter -= 1.0f;
+            float Eaten = mSnake->GetLastEaten();
+            if (Eaten > 3.0f) {
+                if (mTimerGame > 0) {
+                    mTimerGame--;
+                }
         }
-        float Eaten = mSnake->GetLastEaten();
-        if (Eaten > 3.0f) {
-            if (mTimerGame > 0) {
-                mTimerGame--;
-            }
         }
     }
     // Draw everything
