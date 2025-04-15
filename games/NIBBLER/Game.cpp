@@ -128,7 +128,7 @@ void Game::Tick(float deltaSeconds)
             if (mTimerGame > 0) {
                 mTimerGame--;
             }
-            gameTimeCounter -= 1.0f; // Subtract one second, preserving any remainder
+            gameTimeCounter -= 1.0f;
         }
     }
     // Draw everything
@@ -332,7 +332,7 @@ void Game::CheckForSelfCollision(void)
                 mState = State::PRESS_START;
                 ResetGame(mLevel);
                 API::PushEvent(
-                    API::Event::GAME,
+                    API::Event::CORE,
                     API::Event::GameOver{mScore}
                 );
             }
@@ -347,7 +347,7 @@ void Game::CheckForSelfCollision(void)
         mState = State::PRESS_START;
         ResetGame(mLevel);
         API::PushEvent(
-            API::Event::GAME,
+            API::Event::CORE,
             API::Event::GameOver{mScore}
         );
     }
