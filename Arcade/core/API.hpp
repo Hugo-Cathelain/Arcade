@@ -91,6 +91,15 @@ public:
         /// \brief
         ///
         ///////////////////////////////////////////////////////////////////////
+        struct BestScore
+        {
+            int score;
+        };
+
+        ///////////////////////////////////////////////////////////////////////
+        /// \brief
+        ///
+        ///////////////////////////////////////////////////////////////////////
         struct ChangeGraphics
         {
             int delta;
@@ -173,7 +182,8 @@ public:
             Libraries,
             SetGraphics,
             SetGame,
-            PlayerInformation
+            PlayerInformation,
+            BestScore
         > mData;
 
     private:

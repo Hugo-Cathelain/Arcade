@@ -103,219 +103,254 @@ void Core::GetLibraries(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Core::HandleEvents(void)
+void Core::SaveScore(int score)
 {
-    static std::vector<std::string> GRAPHICS = {
-        "lib/arcade_sfml.so",
-        "lib/arcade_sdl2.so",
-        "lib/arcade_opengl.so",
-        "lib/arcade_ncurses.so",
-        "lib/arcade_libcaca.so"
-    };
+    if (mUserName.empty()) {
+        return;
+    }
 
-    static std::vector<std::string> GAMES = {
-        "lib/arcade_snake.so",
-        "lib/arcade_pacman.so",
-        "lib/arcade_nibbler.so"
-    };
+    if (!fs::exists(".saves")) {
+        fs::create_directory(".saves");
+    }
 
-    while (std::optional event = API::PollEvent(API::Event::CORE)) {
-        if (auto change = event->GetIf<API::Event::ChangeGraphics>()) {
-            mGraphicLibIdx += change->delta;
+    std::string savePath = ".saves/" + mUserName + ".save";
+    std::string gameName = mStates.top()->GetName();
+    int currentScore = score;
 
-            if (mGraphicLibIdx < 0) {
-                mGraphicLibIdx = GRAPHICS.size() - 1;
-            } else if (mGraphicLibIdx >= (int)GRAPHICS.size()) {
-                mGraphicLibIdx = 0;
+    std::map<std::string, int> scores;
+
+    std::ifstream saveFile(savePath);
+    if (saveFile.is_open()) {
+        std::string line;
+        while (std::getline(saveFile, line)) {
+            size_t sep = line.find(':');
+            if (sep != std::string::npos) {
+                std::string game = line.substr(0, sep);
+                int score = std::stoi(line.substr(sep + 1));
+                scores[game] = score;
             }
+        }
+        saveFile.close();
+    }
 
-            auto currentGame = mStates.top();
+    if (
+        scores.find(gameName) == scores.end() ||
+        currentScore > scores[gameName]
+    ) {
+        scores[gameName] = currentScore;
+    }
 
-            mGraphics.reset();
+    std::ofstream outFile(savePath);
+    if (outFile.is_open()) {
+        for (const auto& [game, score] : scores) {
+            outFile << game << ":" << score << std::endl;
+        }
+        outFile.close();
+    } else {
+        std::cerr << "Failed to open save file for writing: "
+                  << savePath << std::endl;
+    }
+}
 
-            try {
-                mGraphics = Library::Load<IGraphicsModule>(
-                    GRAPHICS[mGraphicLibIdx]
-                );
-                mGraphics->LoadSpriteSheet(currentGame->GetSpriteSheet());
-                mGraphics->SetTitle(currentGame->GetName());
+///////////////////////////////////////////////////////////////////////////////
+void Core::SetGame(const std::string& game)
+{
+    std::string path = "";
+    for (const auto& [p, name] : mGameLibs) {
+        if (name == game) {
+            path = p;
+            break;
+        }
+    }
+    if (path.empty()) {
+        return;
+    }
 
-                currentGame->BeginPlay();
-            } catch (const std::exception& e) {
-                std::cerr << "Failed to load graphics library: "
-                          << e.what() << std::endl;
-            }
-        } else if (auto change = event->GetIf<API::Event::ChangeGame>()) {
-            API::PushEvent(API::Event::Channel::GRAPHICS,
+    mGameLib = path;
+    if (mStates.top()->GetName() != "MenuGUI") {
+        mStates.top()->EndPlay();
+        mStates.pop();
+    }
+    mStates.push(Library::Load<IGameModule>(path));
+    mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+    mGraphics->SetTitle(mStates.top()->GetName());
+    mStates.top()->BeginPlay();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::SetGraphics(const std::string& graphics)
+{
+    std::string path = "";
+    for (const auto& [p, name] : mGraphicLibs) {
+        if (name == graphics) {
+            path = p;
+            break;
+        }
+    }
+    if (path.empty()) {
+        return;
+    }
+
+    mGraphicLib = path;
+    mGraphics.reset();
+    try {
+        mGraphics = Library::Load<IGraphicsModule>(path);
+        mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+        mGraphics->SetTitle(mStates.top()->GetName());
+        mStates.top()->BeginPlay();
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to load graphics library: "
+                  << e.what() << std::endl;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::HandleKeyPressed(EKeyboardKey code)
+{
+    if (mStates.top()->GetName() == "MenuGUI") {
+        API::PushEvent(API::Event::Channel::GAME,
+            API::Event::KeyPressed{code}
+        );
+        return;
+    }
+    switch (code) {
+        case EKeyboardKey::R:
+            API::PushEvent(API::Event::Channel::CORE,
                 API::Event::ChangeGame{0});
-
-            mGameLibIdx += change->delta;
-
-            if (mGameLibIdx < 0) {
-                mGameLibIdx = GAMES.size() - 1;
-            } else if (mGameLibIdx >= (int)GAMES.size()) {
-                mGameLibIdx = 0;
-            }
-
-            Audio::StopAll();
-
-            if (mStates.top()->GetName() != "MenuGUI") {
+            break;
+        case EKeyboardKey::O:
+            API::PushEvent(API::Event::Channel::CORE,
+                API::Event::ChangeGraphics{-1});
+            break;
+        case EKeyboardKey::P:
+            API::PushEvent(API::Event::Channel::CORE,
+                API::Event::ChangeGraphics{1});
+            break;
+        case EKeyboardKey::L:
+            API::PushEvent(API::Event::Channel::CORE,
+                API::Event::ChangeGame{-1});
+            break;
+        case EKeyboardKey::M:
+            API::PushEvent(API::Event::Channel::CORE,
+                API::Event::ChangeGame{1});
+            break;
+        case EKeyboardKey::Q:
+        {
+            if (mStates.size() > 1) {
                 mStates.top()->EndPlay();
                 mStates.pop();
+                mGraphics->LoadSpriteSheet(
+                    mStates.top()->GetSpriteSheet()
+                );
+                mGraphics->SetTitle(mStates.top()->GetName());
+                mStates.top()->BeginPlay();
             }
+            break;
+        }
+        case EKeyboardKey::W:
+            if (WiiMote::Find()) {
+                WiiMote::Connect();
+            }
+            break;
+        default:
+            API::PushEvent(API::Event::Channel::GAME,
+                API::Event::KeyPressed{code}
+            );
+            break;
+    }
+}
 
-            mStates.push(Library::Load<IGameModule>(GAMES[mGameLibIdx]));
-            mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+///////////////////////////////////////////////////////////////////////////////
+void Core::HandleGraphicsRotation(int delta)
+{
+    std::vector<std::string> libs;
 
-            mGraphics->SetTitle(mStates.top()->GetName());
+    for (const auto& [key, value] : mGraphicLibs) {
+        libs.push_back(key);
+    }
 
-            mStates.top()->BeginPlay();
+    mGraphicLibIdx += delta;
+
+    if (mGraphicLibIdx < 0) {
+        mGraphicLibIdx = libs.size() - 1;
+    } else if (mGraphicLibIdx >= (int)libs.size()) {
+        mGraphicLibIdx = 0;
+    }
+
+    auto currentGame = mStates.top();
+
+    mGraphics.reset();
+
+    try {
+        mGraphics = Library::Load<IGraphicsModule>(
+            libs[mGraphicLibIdx]
+        );
+        mGraphics->LoadSpriteSheet(currentGame->GetSpriteSheet());
+        mGraphics->SetTitle(currentGame->GetName());
+
+        currentGame->BeginPlay();
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to load graphics library: "
+                  << e.what() << std::endl;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::HandleGameRotation(int delta)
+{
+    std::vector<std::string> libs;
+
+    for (const auto& [key, value] : mGameLibs) {
+        libs.push_back(key);
+    }
+
+    API::PushEvent(API::Event::Channel::GRAPHICS, API::Event::ChangeGame{0});
+
+    mGameLibIdx += delta;
+
+    if (mGameLibIdx < 0) {
+        mGameLibIdx = libs.size() - 1;
+    } else if (mGameLibIdx >= (int)libs.size()) {
+        mGameLibIdx = 0;
+    }
+
+    Audio::StopAll();
+
+    if (mStates.top()->GetName() != "MenuGUI") {
+        mStates.top()->EndPlay();
+        mStates.pop();
+    }
+
+    mStates.push(Library::Load<IGameModule>(libs[mGameLibIdx]));
+    mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
+
+    mGraphics->SetTitle(mStates.top()->GetName());
+
+    mStates.top()->BeginPlay();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::HandleEvents(void)
+{
+    while (std::optional event = API::PollEvent(API::Event::CORE)) {
+        if (auto change = event->GetIf<API::Event::ChangeGraphics>()) {
+            HandleGraphicsRotation(change->delta);
+        } else if (auto change = event->GetIf<API::Event::ChangeGame>()) {
+            HandleGameRotation(change->delta);
         } else if (event->Is<API::Event::Closed>()) {
             mIsWindowOpen = false;
         } else if (auto key = event->GetIf<API::Event::KeyPressed>()) {
-            if (mStates.top()->GetName() == "MenuGUI") {
-                API::PushEvent(API::Event::Channel::GAME,
-                    API::Event::KeyPressed{key->code});
-                break;
-            }
-            switch (key->code) {
-                case EKeyboardKey::R:
-                    API::PushEvent(API::Event::Channel::CORE,
-                        API::Event::ChangeGame{0});
-                    break;
-                case EKeyboardKey::O:
-                    API::PushEvent(API::Event::Channel::CORE,
-                        API::Event::ChangeGraphics{-1});
-                    break;
-                case EKeyboardKey::P:
-                    API::PushEvent(API::Event::Channel::CORE,
-                        API::Event::ChangeGraphics{1});
-                    break;
-                case EKeyboardKey::L:
-                    API::PushEvent(API::Event::Channel::CORE,
-                        API::Event::ChangeGame{-1});
-                    break;
-                case EKeyboardKey::M:
-                    API::PushEvent(API::Event::Channel::CORE,
-                        API::Event::ChangeGame{1});
-                    break;
-                case EKeyboardKey::Q:
-                {
-                    if (mStates.size() > 1) {
-                        mStates.top()->EndPlay();
-                        mStates.pop();
-                        mGraphics->LoadSpriteSheet(
-                            mStates.top()->GetSpriteSheet()
-                        );
-                        mGraphics->SetTitle(mStates.top()->GetName());
-                        mStates.top()->BeginPlay();
-                    }
-                    break;
-                }
-                case EKeyboardKey::W:
-                    if (WiiMote::Find()) {
-                        WiiMote::Connect();
-                    }
-                    break;
-                default:
-                    API::PushEvent(API::Event::Channel::GAME,
-                        API::Event::KeyPressed{key->code});
-                    break;
-            }
+            HandleKeyPressed(key->code);
         } else if (auto lib = event->GetIf<API::Event::SetGame>()) {
-            std::string path = "";
-            for (const auto& [p, name] : mGameLibs) {
-                if (name == lib->game) {
-                    path = p;
-                    break;
-                }
-            }
-            if (path.empty()) {
-                continue;
-            }
-
-            mGameLib = path;
-            if (mStates.top()->GetName() != "MenuGUI") {
-                mStates.top()->EndPlay();
-                mStates.pop();
-            }
-            mStates.push(Library::Load<IGameModule>(path));
-            mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
-            mGraphics->SetTitle(mStates.top()->GetName());
-            mStates.top()->BeginPlay();
+            SetGame(lib->game);
         } else if (auto lib = event->GetIf<API::Event::SetGraphics>()) {
-            std::string path = "";
-            for (const auto& [p, name] : mGraphicLibs) {
-                if (name == lib->graphical) {
-                    path = p;
-                    break;
-                }
-            }
-            if (path.empty()) {
-                continue;
-            }
-
-            mGraphicLib = path;
-            mGraphics.reset();
-            try {
-                mGraphics = Library::Load<IGraphicsModule>(path);
-                mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
-                mGraphics->SetTitle(mStates.top()->GetName());
-                mStates.top()->BeginPlay();
-            } catch (const std::exception& e) {
-                std::cerr << "Failed to load graphics library: "
-                          << e.what() << std::endl;
-            }
+            SetGraphics(lib->graphical);
         } else if (auto info = event->GetIf<API::Event::PlayerInformation>()) {
             if (!info->username.empty()) {
                 mUserName = info->username;
             }
         } else if (auto over = event->GetIf<API::Event::GameOver>()) {
-            if (mUserName.empty()) {
-                continue;
-            }
-
-            if (!fs::exists(".saves")) {
-                fs::create_directory(".saves");
-            }
-
-            std::string savePath = ".saves/" + mUserName + ".save";
-            std::string gameName = mStates.top()->GetName();
-            int currentScore = over->score;
-
-            std::map<std::string, int> scores;
-
-            std::ifstream saveFile(savePath);
-            if (saveFile.is_open()) {
-                std::string line;
-                while (std::getline(saveFile, line)) {
-                    size_t sep = line.find(':');
-                    if (sep != std::string::npos) {
-                        std::string game = line.substr(0, sep);
-                        int score = std::stoi(line.substr(sep + 1));
-                        scores[game] = score;
-                    }
-                }
-                saveFile.close();
-            }
-
-            if (
-                scores.find(gameName) == scores.end() ||
-                currentScore > scores[gameName]
-            ) {
-                scores[gameName] = currentScore;
-            }
-
-            std::ofstream outFile(savePath);
-            if (outFile.is_open()) {
-                for (const auto& [game, score] : scores) {
-                    outFile << game << ":" << score << std::endl;
-                }
-                outFile.close();
-            } else {
-                std::cerr << "Failed to open save file for writing: "
-                          << savePath << std::endl;
-            }
+            SaveScore(over->score);
         }
     }
 }
