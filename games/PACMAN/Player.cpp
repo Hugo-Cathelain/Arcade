@@ -49,6 +49,13 @@ void Player::SetDesiredDirection(const Vec2i& direction)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void Player::ForceDirection(const Vec2i& direction)
+{
+    mDesiredDirection = Vec2i(0);
+    mDirection = direction;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 Vec2i Player::GetDirection(void) const
 {
     return (mDirection);

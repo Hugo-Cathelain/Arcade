@@ -42,6 +42,8 @@ Game::Game(void)
     , mModeTimer(0.f)
     , mModeIndex(0)
     , mSoundTimer(0.f)
+    , mAnimationTimer(0.f)
+    , mShowWhiteMap(false)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +84,13 @@ void Game::DrawMapBaseLayer(void)
 {
     for (int y = 0; y < ARCADE_GAME_HEIGHT; y++) {
         for (int x = 0; x < ARCADE_GAME_WIDTH; x++) {
-            API::Draw(SPRITES[PACMAN_MAP[y][x]], Vec2i{x, y + ARCADE_OFFSET_Y});
+            auto sprite = SPRITES[PACMAN_MAP[y][x]];
+
+            if (mShowWhiteMap) {
+                sprite.position.x += PACMAN_WHITE_MAP_OFFSET;
+            }
+
+            API::Draw(sprite, Vec2i{x, y + ARCADE_OFFSET_Y});
         }
     }
 
@@ -332,8 +340,23 @@ void Game::CheckForGhostsCollisions(std::unique_ptr<Ghost>& ghost)
 ///////////////////////////////////////////////////////////////////////////////
 void Game::CheckForAllGumsEaten(void)
 {
-    if (mGums.size() == 0) {
+    if (mGums.size() != 0) {
+        return;
+    }
+
+    if (mAnimationTimer == 0.f) {
+        mPlayer->ForceDirection(Vec2i(0));
+    }
+
+    if (mAnimationTimer > 2.5f) {
+        float diff = mAnimationTimer - 2.5f;
+        mShowWhiteMap = static_cast<int>(diff * 4) % 2;
+    }
+
+    if (mGums.size() == 0 && mAnimationTimer > 8.f) {
         ResetGame(mLevel + 1);
+        mAnimationTimer = 0.f;
+        mShowWhiteMap = false;
     }
 }
 
@@ -448,6 +471,10 @@ void Game::Tick(float deltaSeconds)
     mTimer += deltaSeconds;
     mSoundTimer += deltaSeconds;
 
+    if (mGums.size() == 0) {
+        mAnimationTimer += deltaSeconds;
+    }
+
     if (mState == State::PRESS_START) {
         if (mTimer >= 3.f) {
             mState = State::START_PRESSED;
@@ -459,7 +486,7 @@ void Game::Tick(float deltaSeconds)
         std::get<0>(timer) += deltaSeconds;
     }
 
-    if (mState == State::PLAYING) {
+    if (mState == State::PLAYING && mAnimationTimer == 0.f) {
         mModeTimer += deltaSeconds;
         if (mModeTimer >= mModeTimers[mModeIndex]) {
             mModeTimer = 0.f;
@@ -514,7 +541,7 @@ void Game::Tick(float deltaSeconds)
     if (mState == State::PLAYING) {
         HandleAmbiantSound();
         HandlePowerPill(deltaSeconds);
-        if (mEatTimer.size() == 0) {
+        if (mEatTimer.size() == 0 && mAnimationTimer == 0.f) {
             HandlePacmanSpeed();
             mPlayer->Update(deltaSeconds);
 
