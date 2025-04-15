@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "backends/NCURSES/NCURSESModule.hpp"
 #include "Arcade/core/API.hpp"
+#include "Arcade/errors/GraphicalException.hpp"
 #include <iostream>
 #include <cerrno>
 #include <cstring>
@@ -43,7 +44,7 @@ NCURSESModule::NCURSESModule(void)
     mWindow = newwin(mHeight, mWidth, startY, startX);
     if (mWindow == nullptr) {
         endwin();
-        throw std::runtime_error("Failed to create NCURSES window");
+        throw GraphicalException("Failed to create NCURSES window");
     }
 
     keypad(mWindow, TRUE);

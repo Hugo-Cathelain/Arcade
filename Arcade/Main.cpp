@@ -22,8 +22,11 @@ int main(int argc, char* argv[])
     try {
         Arc::Core core(argv[1], game);
         core.Run();
-    } catch (const Arc::DLError& error) {
+    } catch (const Arc::Exception& error) {
         std::cerr << error.what() << std::endl;
+        return (84);
+    } catch (const std::exception& error) {
+        std::cerr << "Unexpected error: " << error.what() << std::endl;
         return (84);
     }
 

@@ -94,6 +94,8 @@ private:
     float mModeTimer;                                   //<!
     int mModeIndex;                                     //<!
     float mSoundTimer;                                  //<!
+    float mAnimationTimer;                              //<!
+    bool mShowWhiteMap;                                 //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

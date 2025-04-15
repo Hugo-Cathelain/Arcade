@@ -92,6 +92,14 @@ void Snake::SetDesiredDirection(const Vec2i& direction)
         return;
     }
 
+    if (direction == mSnakeParts[0].direction) {
+        return;
+    }
+
+    if (direction == mSnakeParts[0].desired) {
+        return;
+    }
+
     mSnakeParts[0].desired = direction;
 }
 

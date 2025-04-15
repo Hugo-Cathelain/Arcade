@@ -12,18 +12,19 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
-// #include "stb_image.h" // For texture loading
-#include <glm/glm.hpp>            // Core GLM types (vec2, vec3, vec4, mat4, etc.)
-#include <glm/gtc/matrix_transform.hpp> // For glm::ortho and other transformation functions
-#include <glm/gtc/type_ptr.hpp>   // For glm::value_ptr
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "utils/Vec2.hpp"
+#include <queue>
+#include "Arcade/interfaces/IGameModule.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 namespace Arc
 {
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief The OPENGLModule class
 ///
@@ -53,7 +54,7 @@ private:
     float mInterpolationFactor;                 //<!
     GLuint mLastFrameTime;                      //<!
     GLuint mVAO;                                //<! The Vertex Array Object
-    GLuint mShaderProgram;                      //<! The shaderProgram pointer
+    GLuint mShaderProgram;                      //<! The ShaderProgram pointer
     int mAtlasHeight;                           //<! The Height of the Atlas
     int mAtlasWidth;                            //<! The Width of the Atlas
     int mWindowWidth;                           //<! The Height of the window
@@ -99,7 +100,9 @@ const char* fragmentShaderSource = R"(
     layout (location = 0) uniform sampler2D textureAtlas;
     void main()
     {
-        vec4 textureColor = texelFetch(textureAtlas, ivec2(textureCoordsIn), 0);
+        vec4 textureColor = texelFetch(
+            textureAtlas, ivec2(textureCoordsIn), 0
+            );
         fragColor = textureColor;
     }
 )";
@@ -112,33 +115,39 @@ const char* fragmentShaderSource = R"(
 
 private:
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief whenever a key is pressed, eventpoll automatically will call back
-    /// this function; getting the api key version
+    /// \brief whenever a key is pressed, eventpoll automatically will call
+    ///     back this function; getting the api key version
     ///
     /// \param window The window current key press was registered
     /// \param key The key pressed or released
     /// \param scancode The physical key
     /// \param action action that caused calling. ie press, release, hold
-    /// \param mods The modifying key press(s) simulataniously pressed with key (shift, ctrl, etc)
+    /// \param mods The modifying key press(s) simulataniously pressed with
+    ///     a key i.e (shift, ctrl, etc)
     ///
     /// \return The Arcade key pressed
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void KeyCallback(
+        GLFWwindow* window, int key, int scancode, int action, int mods
+    );
 
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief whenever a key is pressed, eventpoll automatically will call back
-    /// this function; getting the api key version
+    /// \brief whenever a key is pressed, eventpoll automatically will call
+    ///     back this function; getting the api key version
     ///
     /// \param window The window current key press was registered
     /// \param button The button pressed or released
     /// \param action action that caused calling. ie press, release, hold
-    /// \param mods The modifying key press(s) simulataniously pressed with mouse (shift, ctrl, etc)
+    /// \param mods The modifying key press(s) simulataniously pressed with
+    ///     the mouse i.e (shift, ctrl, etc)
     ///
     /// \return The Arcade key pressed
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static void MouseCallback(GLFWwindow* window, int button, int action, int mods);
+    static void MouseCallback(
+        GLFWwindow* window, int button, int action, int mods
+    );
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -153,7 +162,6 @@ private:
     EKeyboardKey GetKeyByCharacter(int key, int scancode);
 
 
-
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Convert a OPENGL mouse press to an Arcade mouse press
     ///
@@ -163,6 +171,7 @@ private:
     ///
     ///////////////////////////////////////////////////////////////////////////
     EMouseButton GetMousePress(int click);
+
 
 public:
     ///////////////////////////////////////////////////////////////////////////
