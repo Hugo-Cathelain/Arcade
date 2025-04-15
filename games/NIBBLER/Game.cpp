@@ -328,10 +328,15 @@ void Game::CheckForSelfCollision(void)
             mLifes--;
             mSnake->Reset();
             API::PlaySound(SFX_CRASH);
-            mState = State::START_PRESSED;
             if (mLifes <= 0) {
+                mState = State::PRESS_START;
                 ResetGame(mLevel);
+                API::PushEvent(
+                    API::Event::GAME,
+                    API::Event::GameOver{mScore}
+                );
             }
+            mState = State::START_PRESSED;
             break;
         }
     }
@@ -339,8 +344,12 @@ void Game::CheckForSelfCollision(void)
     if (mTimerGame <= 0) {
         mSnake->Reset();
         API::PlaySound(SFX_CRASH);
-        mState = State::START_PRESSED;
+        mState = State::PRESS_START;
         ResetGame(mLevel);
+        API::PushEvent(
+            API::Event::GAME,
+            API::Event::GameOver{mScore}
+        );
     }
 }
 
