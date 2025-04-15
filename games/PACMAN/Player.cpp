@@ -116,11 +116,17 @@ void Player::Update(float deltaSeconds)
             bool alignedForTurn = false;
 
             if (mDesiredDirection.x != 0) {
-                alignedForTurn = (std::abs(mPosition.y - currentTile.y) < 0.05f);
-                if (alignedForTurn) mPosition.y = static_cast<float>(currentTile.y);
+                alignedForTurn =
+                    (std::abs(mPosition.y - currentTile.y) < 0.05f);
+                if (alignedForTurn) {
+                    mPosition.y = static_cast<float>(currentTile.y);
+                }
             } else {
-                alignedForTurn = (std::abs(mPosition.x - currentTile.x) < 0.05f);
-                if (alignedForTurn) mPosition.x = static_cast<float>(currentTile.x);
+                alignedForTurn =
+                    (std::abs(mPosition.x - currentTile.x) < 0.05f);
+                if (alignedForTurn) {
+                    mPosition.x = static_cast<float>(currentTile.x);
+                }
             }
 
             if (alignedForTurn) {
@@ -131,7 +137,8 @@ void Player::Update(float deltaSeconds)
         }
     }
 
-    Vec2f movement = Vec2f(mDirection) * deltaSeconds * mMovementSpeed * mMovementPercentage;
+    Vec2f movement = Vec2f(mDirection) * deltaSeconds *
+        mMovementSpeed * mMovementPercentage;
     Vec2f newPosition = mPosition + movement;
 
     bool xCollision = false, yCollision = false;
