@@ -80,7 +80,6 @@ void Game::InitFruit(int level)
     // Clear existing fruits first
     mFruits.clear();
 
-    // Create fruits at each position until we reach the end (sentinel value or size limit)
     for (size_t i = 0; i < levelFruits.size(); ++i) {
         // Check if this is a valid fruit position (not a sentinel)
         if (levelFruits[i].x == -1 && levelFruits[i].y == -1)
