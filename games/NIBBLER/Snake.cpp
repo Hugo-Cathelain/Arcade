@@ -29,6 +29,7 @@ Snake::Snake(void)
     , mSnakeColor(Color::RED)
     , mLevel(0)
     , mLives(3)
+    , mSize(0)
 {
     Vec2f basePosition(15.f, 29);
 
@@ -202,7 +203,18 @@ void Snake::DrawSpawnAnimation(float timer)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::DrawDeathAnimation(float timer)
 {
-    (void)timer;
+    if (mSize == 0) {
+        mSize = static_cast<int>(mSnakeParts.size());
+    }
+
+    float progress = timer / 5.f;
+    int toRemove = mSize * progress;
+    int nextCount = mSize - toRemove;
+    int n = mSnakeParts.size() - nextCount;
+
+    for (int i = 0; i < n; i++) {
+        mSnakeParts.pop_back();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -348,6 +360,7 @@ void Snake::Reset(void)
     mMovementPercentage = 1.f;
     mMovementSpeed = 10.47f;
     mMovementAccumulator = 0.f;
+    mSize = 0;
 }
 
 } // namespace Arc::Nibbler
