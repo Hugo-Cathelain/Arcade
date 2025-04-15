@@ -245,13 +245,8 @@ void OPENGLModule::Render()
 
     glViewport(0, 0, mWindowWidth, mWindowHeight);
 
-    std::queue<
-        std::tuple<IGameModule::Asset, Vec2f, Color>
-    > drawables = setDrawQueue();
-
-    while (!drawables.empty()) {
-        auto draw = drawables.front();
-        drawables.pop();
+    while (!API::IsDrawQueueEmpty) {
+        auto draw = API::PopDraw();
         auto [asset, pos, color] = draw;
         int entityId = asset.id;
 
