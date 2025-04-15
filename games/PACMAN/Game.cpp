@@ -333,7 +333,7 @@ void Game::BeginPlay(void)
     mPowerPillTimer = 0.f;
     mKillCount = 0;
     mEatTimer.clear();
-    mHealth = 4 - 4;
+    mHealth = 4;
     mLevel = 1;
     ResetGame(mLevel);
     mState = State::PRESS_START;
