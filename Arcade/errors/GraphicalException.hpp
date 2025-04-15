@@ -18,7 +18,7 @@ namespace Arc
 /// \brief
 ///
 ///////////////////////////////////////////////////////////////////////////////
-class DLError : public Exception
+class GraphicalException : public Exception
 {
 public:
     ///////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,8 @@ public:
     /// \param message
     ///
     ///////////////////////////////////////////////////////////////////////////
-    DLError(const std::string& message)
-        : Exception("Dynamic Library Error: " + message)
+    GraphicalException(const std::string& message)
+        : Exception("Graphical Error: " + message)
     {}
 };
 

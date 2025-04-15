@@ -34,7 +34,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     Exception(const std::string& message)
-        : mMessage("Dynamic Library Error: " + message)
+        : mMessage(message)
     {}
 
 public:
