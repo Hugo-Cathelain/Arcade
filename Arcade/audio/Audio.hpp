@@ -33,49 +33,81 @@ class Audio
 public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Maximum number of concurrent sounds
+    ///
     ///////////////////////////////////////////////////////////////////////////
     static constexpr size_t MAX_SOUNDS = 32;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Sound status
     ///////////////////////////////////////////////////////////////////////////
-    enum class SoundStatus {
-        PLAYING,    ///< Sound is currently playing
-        STOPPED,    ///< Sound is stopped
-        PAUSED      ///< Sound is paused
+    enum class SoundStatus
+    {
+        PLAYING,            //<! Sound is currently playing
+        STOPPED,            //<! Sound is stopped
+        PAUSED              //<! Sound is paused
     };
 
 private:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Audio source data
+    ///
     ///////////////////////////////////////////////////////////////////////////
-    struct AudioSource {
-        std::string path;         ///< Path to the audio file
-        ma_decoder decoder;       ///< Audio decoder
-        std::atomic<int> refCount;///< Reference counter for cache management
+    struct AudioSource
+    {
+    public:
+        ///////////////////////////////////////////////////////////////////////
+        //
+        ///////////////////////////////////////////////////////////////////////
+        std::string path;           //<! Path to the audio file
+        ma_decoder decoder;         //<! Audio decoder
+        std::atomic<int> refCount;  //<! Reference counter for cache management
 
-        AudioSource() : refCount(0) {}
+    public:
+        ///////////////////////////////////////////////////////////////////////
+        /// \brief
+        ///
+        ///////////////////////////////////////////////////////////////////////
+        AudioSource(void)
+            : refCount(0) {}
     };
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Sound instance for playback
+    ///
     ///////////////////////////////////////////////////////////////////////////
-    struct Sound {
-        std::string id;                  ///< Unique identifier
-        std::shared_ptr<AudioSource> source; ///< Audio source data
-        ma_uint64 position;              ///< Current playback position (in frames)
-        float volume;                    ///< Playback volume (0.0 to 1.0)
-        bool loop;                       ///< Whether to loop the sound
-        SoundStatus status;              ///< Current status
+    struct Sound
+    {
+    public:
+        ///////////////////////////////////////////////////////////////////////
+        //
+        ///////////////////////////////////////////////////////////////////////
+        std::string id;                         //<! Unique identifier
+        std::shared_ptr<AudioSource> source;    //<! Audio source data
+        ma_uint64 position;                     //<! Current playback position
+        float volume;                           //<! Playback volume
+        bool loop;                              //<! Whether to loop the sound
+        SoundStatus status;                     //<! Current status
 
-        Sound() : position(0), volume(1.0f), loop(false), status(SoundStatus::STOPPED) {}
+    public:
+        ///////////////////////////////////////////////////////////////////////
+        /// \brief
+        ///
+        ///////////////////////////////////////////////////////////////////////
+        Sound(void)
+            : position(0)
+            , volume(1.0f)
+            , loop(false)
+            , status(SoundStatus::STOPPED)
+        {}
     };
 
 private:
     ///////////////////////////////////////////////////////////////////////////
     // Static members
     ///////////////////////////////////////////////////////////////////////////
-    static std::unordered_map<std::string, std::shared_ptr<AudioSource>> mSources;
+    static std::unordered_map<
+        std::string, std::shared_ptr<AudioSource>
+    > mSources;
     static std::array<Sound, MAX_SOUNDS> mSoundPool;
     static size_t mActiveSounds;
     static ma_device mDevice;
@@ -87,7 +119,13 @@ private:
     static ma_uint32 mSampleRate;
 
     ///////////////////////////////////////////////////////////////////////////
-    // Static methods
+    /// \brief
+    ///
+    /// \param pDevice
+    /// \param pOutput
+    /// \param pInput
+    /// \param frameCount
+    ///
     ///////////////////////////////////////////////////////////////////////////
     static void DataCallback(
         ma_device* pDevice,
@@ -95,7 +133,26 @@ private:
         const void* pInput,
         ma_uint32 frameCount
     );
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    /// \return
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     static size_t FindAvailableSlot(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    /// \param output
+    /// \param input
+    /// \param frameCount
+    /// \param inputChannels
+    /// \param outputChannels
+    /// \param volume
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     static void MixSamplesWithConversion(
         float* output,
         const float* input,
@@ -104,9 +161,36 @@ private:
         ma_uint32 outputChannels,
         float volume
     );
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    /// \param buffer
+    /// \param sampleCount
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     static void ApplyLimiter(float* buffer, ma_uint32 sampleCount);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    /// \return
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     static uint64_t GetUniqueId(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    /// \return
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     static bool EnsureInitialized(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief
+    ///
+    ///////////////////////////////////////////////////////////////////////////
     static void Cleanup(void);
 
 public:

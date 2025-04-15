@@ -104,7 +104,9 @@ void Core::HandleEvents(void)
             mGraphics.reset();
 
             try {
-                mGraphics = Library::Load<IGraphicsModule>(GRAPHICS[mGraphicLibIdx]);
+                mGraphics = Library::Load<IGraphicsModule>(
+                    GRAPHICS[mGraphicLibIdx]
+                );
                 mGraphics->LoadSpriteSheet(currentGame->GetSpriteSheet());
                 mGraphics->SetTitle(currentGame->GetName());
 
@@ -129,7 +131,10 @@ void Core::HandleEvents(void)
 
             mStates.top()->EndPlay();
 
-            if (mStates.top()->GetName().find_first_of("GUI") == std::string::npos) {
+            if (
+                mStates.top()->GetName().find_first_of("GUI") ==
+                std::string::npos
+            ) {
                 mStates.pop();
             }
 
