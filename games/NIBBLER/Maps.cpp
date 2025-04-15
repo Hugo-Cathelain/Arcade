@@ -30,6 +30,11 @@ int Maps::GetLevel(void) const
     return (mLevel);
 }
 
+void Maps::SetBorderColor(Border_Color color)
+{
+    mBorderColor = color;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void Maps::DrawMap(int level)
 {
