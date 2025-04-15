@@ -147,8 +147,10 @@ void Snake::Draw(float timer)
             API::Draw(spriteColor, mSnakeParts[i].position);
 
         } else if (i == mSnakeParts.size() - 1) {
-            Vec2f diff = {mSnakeParts[i-1].position.x - mSnakeParts[i].position.x,
-                          mSnakeParts[i-1].position.y - mSnakeParts[i].position.y};
+            Vec2f diff = {mSnakeParts[i-1].position.x -
+                          mSnakeParts[i].position.x,
+                          mSnakeParts[i-1].position.y -
+                          mSnakeParts[i].position.y};
 
             if (diff.x > 0.8f) sprite = SNAKE_TAIL_LEFT;
             else if (diff.x < -0.5f) sprite = SNAKE_TAIL_RIGHT;
@@ -178,11 +180,14 @@ void Snake::Draw(float timer)
                 else sprite = SNAKE_BODY_V;
             } else {
                 mAnimationOffset = 0;
-                if ((prevDiff.x > 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x < 0))
+                if ((prevDiff.x > 0 && nextDiff.y < 0) ||
+                    (prevDiff.y > 0 && nextDiff.x < 0))
                     sprite = SNAKE_TURN_TOP_RIGHT;
-                else if ((prevDiff.x < 0 && nextDiff.y < 0) || (prevDiff.y > 0 && nextDiff.x > 0))
+                else if ((prevDiff.x < 0 && nextDiff.y < 0) ||
+                    (prevDiff.y > 0 && nextDiff.x > 0))
                     sprite = SNAKE_TURN_TOP_LEFT;
-                else if ((prevDiff.x > 0 && nextDiff.y > 0) || (prevDiff.y < 0 && nextDiff.x < 0))
+                else if ((prevDiff.x > 0 && nextDiff.y > 0) ||
+                    (prevDiff.y < 0 && nextDiff.x < 0))
                     sprite = SNAKE_TURN_BOTTOM_LEFT;
                 else
                     sprite = SNAKE_TURN_BOTTOM_RIGHT;
@@ -241,10 +246,13 @@ float Snake::GetLastEaten(void) const
 void Snake::Update(float deltaSeconds)
 {
     mLastEatenTime += deltaSeconds;
-    float speedInc = 1 + ((mLevel + 1) * 0.2f) + ((mSnakeParts.size() - 6) * 0.01f); // Adjust multiplier as needed
+    float speedInc = 1 + ((mLevel + 1) * 0.2f) +
+                    ((mSnakeParts.size() - 6) * 0.01f);
 
-    mMovementAccumulator += mMovementSpeed * mMovementPercentage * speedInc * deltaSeconds;
-    const std::vector<std::vector<Arc::SpriteType>>& level = MAPS[mLevel % MAPS.size()];
+    mMovementAccumulator += mMovementSpeed * mMovementPercentage *
+        speedInc * deltaSeconds;
+    const std::vector<std::vector<Arc::SpriteType>>& level = MAPS[mLevel %
+        MAPS.size()];
     static bool hasChanged = true;
 
     // Only move when accumulated enough movement
