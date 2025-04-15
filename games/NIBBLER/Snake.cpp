@@ -29,6 +29,7 @@ Snake::Snake(void)
     , mSnakeColor(Color::RED)
     , mLevel(0)
     , mLives(3)
+    , mLastEatenTime(0)
     , mSize(0)
 {
     Vec2f basePosition(15.f, 29);
@@ -131,7 +132,6 @@ void Snake::Draw(float timer)
 
     for (size_t i = 0; i < mSnakeParts.size(); i++) {
         SpriteType sprite;
-
         if (i == 0) {
             if (mSnakeParts[0].direction.x == 1) {
                 sprite = SNAKE_HEAD_RIGHT;
@@ -226,14 +226,24 @@ void Snake::SetColor(Snake::Color color)
 ///////////////////////////////////////////////////////////////////////////////
 void Snake::Grow(void)
 {
+    mLastEatenTime = 0;
     Snake::Part lastPart = mSnakeParts[mSnakeParts.size() - 1];
     mSnakeParts.push_back(lastPart);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+float Snake::GetLastEaten(void) const
+{
+    return (mLastEatenTime);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Snake::Update(float deltaSeconds)
 {
-    mMovementAccumulator += mMovementSpeed * mMovementPercentage * deltaSeconds;
+    mLastEatenTime += deltaSeconds;
+    float speedInc = 1 + ((mLevel + 1) * 0.2f) + ((mSnakeParts.size() - 6) * 0.01f); // Adjust multiplier as needed
+
+    mMovementAccumulator += mMovementSpeed * mMovementPercentage * speedInc * deltaSeconds;
     const std::vector<std::vector<Arc::SpriteType>>& level = MAPS[mLevel % MAPS.size()];
     static bool hasChanged = true;
 

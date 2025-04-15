@@ -38,6 +38,7 @@ vgcore.*
 
 # Old source files
 old/
+vulkan-addons
 
 # Ignore Score Saving
 .saves/

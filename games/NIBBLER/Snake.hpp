@@ -66,6 +66,7 @@ private:
     int mLevel;                             //<!
     int mLives;                             //<!
     std::vector<Part> mSnakeParts;          //<!
+    float mLastEatenTime;                   //<!
     int mSize;                              //<!
 
 public:
@@ -189,14 +190,6 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void Grow(void);
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// \brief
-    ///
-    /// \param color
-    ///
-    ///////////////////////////////////////////////////////////////////////////
-    void SetColor(Snake::Color color);
 };
 
 } // namespace Arc::Nibler
