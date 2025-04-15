@@ -75,6 +75,8 @@ void Game::InitFruit(int level)
     // Get the fruit positions for the current level
     const auto& levelFruits = MAPS_FRUIT[(level - 1) % MAPS_FRUIT.size()];
 
+    int type = (level - 1) % 2;
+
     // Clear existing fruits first
     mFruits.clear();
 
@@ -86,6 +88,7 @@ void Game::InitFruit(int level)
 
         // Create new fruit and set its position
         mFruits[i] = std::make_unique<Fruit>();
+        mFruits[i]->SetType(type);
         mFruits[i]->SetPosition({
             levelFruits[i].x,
             levelFruits[i].y + ARCADE_OFFSET_Y

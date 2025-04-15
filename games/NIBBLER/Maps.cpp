@@ -61,5 +61,4 @@ void Maps::DrawMap(int level)
     }
 }
 
-
 }; // namespace Arc::Nibbler
