@@ -142,29 +142,51 @@ void WiiMote::Update(void)
             {
                 struct wiimote_t* wm = mHandle[i];
 
-                mWiiMotes[i].buttons[Button::A]     = IS_PRESSED(wm, WIIMOTE_BUTTON_A);
-                mWiiMotes[i].buttons[Button::B]     = IS_PRESSED(wm, WIIMOTE_BUTTON_B);
-                mWiiMotes[i].buttons[Button::Up]    = IS_PRESSED(wm, WIIMOTE_BUTTON_UP);
-                mWiiMotes[i].buttons[Button::Down]  = IS_PRESSED(wm, WIIMOTE_BUTTON_DOWN);
-                mWiiMotes[i].buttons[Button::Left]  = IS_PRESSED(wm, WIIMOTE_BUTTON_LEFT);
-                mWiiMotes[i].buttons[Button::Right] = IS_PRESSED(wm, WIIMOTE_BUTTON_RIGHT);
-                mWiiMotes[i].buttons[Button::Minus] = IS_PRESSED(wm, WIIMOTE_BUTTON_MINUS);
-                mWiiMotes[i].buttons[Button::Plus]  = IS_PRESSED(wm, WIIMOTE_BUTTON_PLUS);
-                mWiiMotes[i].buttons[Button::One]   = IS_PRESSED(wm, WIIMOTE_BUTTON_ONE);
-                mWiiMotes[i].buttons[Button::Two]   = IS_PRESSED(wm, WIIMOTE_BUTTON_TWO);
-                mWiiMotes[i].buttons[Button::Home]  = IS_PRESSED(wm, WIIMOTE_BUTTON_HOME);
+                mWiiMotes[i].buttons[Button::A]     =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_A);
+                mWiiMotes[i].buttons[Button::B]     =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_B);
+                mWiiMotes[i].buttons[Button::Up]    =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_UP);
+                mWiiMotes[i].buttons[Button::Down]  =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_DOWN);
+                mWiiMotes[i].buttons[Button::Left]  =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_LEFT);
+                mWiiMotes[i].buttons[Button::Right] =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_RIGHT);
+                mWiiMotes[i].buttons[Button::Minus] =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_MINUS);
+                mWiiMotes[i].buttons[Button::Plus]  =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_PLUS);
+                mWiiMotes[i].buttons[Button::One]   =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_ONE);
+                mWiiMotes[i].buttons[Button::Two]   =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_TWO);
+                mWiiMotes[i].buttons[Button::Home]  =
+                    IS_PRESSED(wm, WIIMOTE_BUTTON_HOME);
 
-                mWiiMotes[i].justButtons[Button::A]     = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_A);
-                mWiiMotes[i].justButtons[Button::B]     = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B);
-                mWiiMotes[i].justButtons[Button::Up]    = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_UP);
-                mWiiMotes[i].justButtons[Button::Down]  = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN);
-                mWiiMotes[i].justButtons[Button::Left]  = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_LEFT);
-                mWiiMotes[i].justButtons[Button::Right] = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_RIGHT);
-                mWiiMotes[i].justButtons[Button::Minus] = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS);
-                mWiiMotes[i].justButtons[Button::Plus]  = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS);
-                mWiiMotes[i].justButtons[Button::One]   = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_ONE);
-                mWiiMotes[i].justButtons[Button::Two]   = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_TWO);
-                mWiiMotes[i].justButtons[Button::Home]  = IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_HOME);
+                mWiiMotes[i].justButtons[Button::A]     =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_A);
+                mWiiMotes[i].justButtons[Button::B]     =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B);
+                mWiiMotes[i].justButtons[Button::Up]    =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_UP);
+                mWiiMotes[i].justButtons[Button::Down]  =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN);
+                mWiiMotes[i].justButtons[Button::Left]  =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_LEFT);
+                mWiiMotes[i].justButtons[Button::Right] =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_RIGHT);
+                mWiiMotes[i].justButtons[Button::Minus] =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS);
+                mWiiMotes[i].justButtons[Button::Plus]  =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS);
+                mWiiMotes[i].justButtons[Button::One]   =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_ONE);
+                mWiiMotes[i].justButtons[Button::Two]   =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_TWO);
+                mWiiMotes[i].justButtons[Button::Home]  =
+                    IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_HOME);
 
                 if (WIIUSE_USING_ACC(wm)) {
                     mWiiMotes[i].accelerometer.roll  = wm->orient.roll;

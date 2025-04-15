@@ -15,7 +15,9 @@ namespace Arc
 ///////////////////////////////////////////////////////////////////////////////
 // Static member initialization
 ///////////////////////////////////////////////////////////////////////////////
-std::unordered_map<std::string, std::shared_ptr<Audio::AudioSource>> Audio::mSources;
+std::unordered_map<
+    std::string, std::shared_ptr<Audio::AudioSource>
+> Audio::mSources;
 std::array<Audio::Sound, Audio::MAX_SOUNDS> Audio::mSoundPool;
 size_t Audio::mActiveSounds = 0;
 ma_device Audio::mDevice = {};
@@ -198,12 +200,16 @@ void Audio::MixSamplesWithConversion(
         }
         else if (inputChannels == outputChannels) {
             for (ma_uint32 c = 0; c < outputChannels; c++) {
-                output[i*outputChannels + c] += input[i*inputChannels + c] * volume;
+                output[i*outputChannels + c] +=
+                    input[i*inputChannels + c] * volume;
             }
         }
         else {
-            for (ma_uint32 c = 0; c < std::min(inputChannels, outputChannels); c++) {
-                output[i*outputChannels + c] += input[i*inputChannels + c] * volume;
+            for (ma_uint32 c = 0; c < std::min(
+                inputChannels, outputChannels
+            ); c++) {
+                output[i*outputChannels + c] +=
+                    input[i*inputChannels + c] * volume;
             }
         }
     }
@@ -396,7 +402,9 @@ bool Audio::Preload(const std::string& path)
 
     auto source = std::make_shared<AudioSource>();
     source->path = path;
-    ma_result result = ma_decoder_init_file(path.c_str(), NULL, &source->decoder);
+    ma_result result = ma_decoder_init_file(
+        path.c_str(), NULL, &source->decoder
+    );
     if (result != MA_SUCCESS) {
         return (false);
     }
