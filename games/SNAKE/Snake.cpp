@@ -319,6 +319,8 @@ void Snake::Tick(float deltaSeconds)
     while (auto event = API::PollEvent(API::Event::GAME)) {
         if (auto key = event->GetIf<API::Event::KeyPressed>()) {
             handleKeyPressed(key->code);
+        } else if (auto best = event->GetIf<API::Event::BestScore>()) {
+            mBestScore = best->score > mScore ? best->score : mScore;
         }
     }
 
