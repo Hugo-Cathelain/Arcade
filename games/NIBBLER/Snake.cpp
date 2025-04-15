@@ -175,7 +175,8 @@ void Snake::Draw(float timer)
                     mSnakeParts[i+1].position.y))
             };
 
-            if ((prevDiff.x * nextDiff.x > 0) || (prevDiff.y * nextDiff.y > 0)) {
+            if ((prevDiff.x * nextDiff.x > 0) ||
+                (prevDiff.y * nextDiff.y > 0)) {
                 if (prevDiff.x != 0) sprite = SNAKE_BODY_H;
                 else sprite = SNAKE_BODY_V;
             } else {
