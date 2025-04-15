@@ -62,10 +62,11 @@ private:
     float mMovementSpeed;                   //<!
     float mMovementAccumulator;             //<!
     bool isDead;                            //<!
-    Color mSnakeColor;                //<!
+    Color mSnakeColor;                      //<!
     int mLevel;                             //<!
     int mLives;                             //<!
     std::vector<Part> mSnakeParts;          //<!
+    int mSize;                              //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

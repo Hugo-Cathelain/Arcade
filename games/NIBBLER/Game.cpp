@@ -243,13 +243,36 @@ void Game::Draws(void)
         } else {
             mSnake->SetColor(Snake::Color::RED);
         }
+
+        if (mState == State::DEATH_ANIMATION) {
+            int color = static_cast<int>(mTimer * 6) % 4 + 1;
+
+            mSnake->DrawDeathAnimation(mTimer);
+
+            if (mTimer > 5.f) {
+                mSnake->Reset();
+                if (mLifes <= 0) {
+                    mState = State::PRESS_START;
+                    ResetGame(mLevel);
+                    API::PushEvent(
+                        API::Event::CORE,
+                        API::Event::GameOver{mScore}
+                    );
+                } else {
+                    mState = State::START_PRESSED;
+                }
+            }
+
+            mSnake->SetColor(static_cast<Snake::Color>(color));
+        }
+
         mSnake->Draw(mTimer);
     }
 
     // Draw score
     DrawScore();
 
-    if (mState != State::PLAYING) {
+    if (mState != State::PLAYING && mState != State::DEATH_ANIMATION) {
         DrawSpawningAnimation();
     }
 }
@@ -340,17 +363,9 @@ void Game::CheckForSelfCollision(void)
         if (mSnake->GetPosition(i) == snakePos) {
             // Snake collided with itself
             mLifes--;
-            mSnake->Reset();
             API::PlaySound(SFX_CRASH);
-            if (mLifes <= 0) {
-                mState = State::PRESS_START;
-                ResetGame(mLevel);
-                API::PushEvent(
-                    API::Event::CORE,
-                    API::Event::GameOver{mScore}
-                );
-            }
-            mState = State::START_PRESSED;
+            mTimer = 0.f;
+            mState = State::DEATH_ANIMATION;
             break;
         }
     }
