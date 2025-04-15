@@ -245,7 +245,7 @@ void OPENGLModule::Render()
 
     glViewport(0, 0, mWindowWidth, mWindowHeight);
 
-    while (!API::IsDrawQueueEmpty) {
+    while (!API::IsDrawQueueEmpty()) {
         auto draw = API::PopDraw();
         auto [asset, pos, color] = draw;
         int entityId = asset.id;
