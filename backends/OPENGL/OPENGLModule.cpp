@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "backends/OPENGL/OPENGLModule.hpp"
 #include "Arcade/core/API.hpp"
+#include "Arcade/errors/GraphicalException.hpp"
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -20,13 +21,15 @@ OPENGLModule::OPENGLModule(void) : mInterpolationFactor(0.f)
                                    mWindowHeight(600)
 {
     if (!glfwInit()) {
-        throw std::runtime_error("Failed to initialize GLFW");
+        throw GraphicalException("Failed to initialize GLFW");
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    mWindow = glfwCreateWindow(mWindowWidth, mWindowHeight, "Arcade - OPENGL", nullptr, nullptr);
+    mWindow = glfwCreateWindow(
+        mWindowWidth, mWindowHeight, "Arcade - OPENGL", nullptr, nullptr
+    );
     if (!mWindow){
         glfwTerminate();
         return;
@@ -67,10 +70,12 @@ EKeyboardKey OPENGLModule::GetKeyByCharacter(int key, int scancode)
         char c = tolower(keyName[0]);
 
         if (c >= 'a' && c <= 'z') {
-            return (static_cast<EKeyboardKey>(static_cast<int>(EKeyboardKey::A) + (c - 'a')));
+            return (static_cast<EKeyboardKey>(static_cast<int>
+                (EKeyboardKey::A) + (c - 'a')));
         }
         if (c >= '0' && c <= '9') {
-            return (static_cast<EKeyboardKey>(static_cast<int>(EKeyboardKey::NUM0) + (c - '0')));
+            return (static_cast<EKeyboardKey>(static_cast<int>
+                (EKeyboardKey::NUM0) + (c - '0')));
         }
     }
 
@@ -99,24 +104,32 @@ EMouseButton OPENGLModule::GetMousePress(int click)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void OPENGLModule::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void OPENGLModule::KeyCallback(
+    GLFWwindow* window, int key, int scancode, int action, int mods
+)
 {
     (void)mods;
 
-    OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
+    OPENGLModule* instance = static_cast<OPENGLModule*>
+        (glfwGetWindowUserPointer(window));
     if (action == GLFW_PRESS){
-        API::PushEvent(API::Event::Channel::CORE, API::Event::KeyPressed{ instance->GetKeyByCharacter(key, scancode) });
+        API::PushEvent(API::Event::Channel::CORE, API::Event::KeyPressed{
+            instance->GetKeyByCharacter(key, scancode)
+        });
     }
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
-void OPENGLModule::MouseCallback(GLFWwindow* window, int button, int action, int mods)
+void OPENGLModule::MouseCallback(
+    GLFWwindow* window, int button, int action, int mods
+)
 {
     (void)action;
     (void)mods;
 
-    OPENGLModule* instance = static_cast<OPENGLModule*>(glfwGetWindowUserPointer(window));
+    OPENGLModule* instance = static_cast<OPENGLModule*>
+        (glfwGetWindowUserPointer(window));
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
     if (action == GLFW_PRESS){
@@ -133,7 +146,8 @@ void OPENGLModule::Update(void)
 {
     while (auto event = API::PollEvent(API::Event::GRAPHICS)) {
         if (auto gridSize = event->GetIf<API::Event::GridSize>()) {
-            const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            const GLFWvidmode* mode =
+                glfwGetVideoMode(glfwGetPrimaryMonitor());
             int screenWidth = mode->width;
             int screenHeight = mode->height;
 
@@ -145,8 +159,10 @@ void OPENGLModule::Update(void)
 
             // get ratio and standardize it
             mRatio = std::min(
-                static_cast<float>(screenWidth - (screenWidth / 4.f)) / gridWidth,
-                static_cast<float>(screenHeight - (screenHeight / 4.f)) / gridHeight
+                static_cast<float>(screenWidth -
+                    (screenWidth / 4.f)) / gridWidth,
+                static_cast<float>(screenHeight -
+                    (screenHeight / 4.f)) / gridHeight
             );
             mRatio = std::round(mRatio);
 
@@ -186,7 +202,7 @@ void OPENGLModule::CompileShaders()
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        throw(GraphicalException("VERTEX::FRAGMENT::COMPILATION_FAILED"));
     }
 
     // Fragment Shader
@@ -198,7 +214,7 @@ void OPENGLModule::CompileShaders()
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        throw(GraphicalException("SHADER::FRAGMENT::COMPILATION_FAILED"));
     }
 
     // Shader Program
@@ -207,7 +223,7 @@ void OPENGLModule::CompileShaders()
     glAttachShader(mShaderProgram, fragmentShader);
     glLinkProgram(mShaderProgram);
 
-    // Delete the shaders as they're linked into our program now and no longer necessary
+    // Delete the shaders no longer necessary as they are linked to the program
     glDetachShader(mShaderProgram, vertexShader);
     glDetachShader(mShaderProgram, fragmentShader);
     glDeleteShader(vertexShader);
@@ -217,7 +233,6 @@ void OPENGLModule::CompileShaders()
     glBindVertexArray(mVAO);
 
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 void OPENGLModule::Render()
@@ -230,8 +245,13 @@ void OPENGLModule::Render()
 
     glViewport(0, 0, mWindowWidth, mWindowHeight);
 
-    while (!API::IsDrawQueueEmpty()) {
-        auto draw = API::PopDraw();
+    std::queue<
+        std::tuple<IGameModule::Asset, Vec2f, Color>
+    > drawables = setDrawQueue();
+
+    while (!drawables.empty()) {
+        auto draw = drawables.front();
+        drawables.pop();
         auto [asset, pos, color] = draw;
         int entityId = asset.id;
 
@@ -247,7 +267,8 @@ void OPENGLModule::Render()
             mSpritePositions[entityId] = {targetPos, targetPos, 1.0f};
         } else {
             float length = std::sqrt(
-                std::pow(targetPos.x - mSpritePositions[entityId].current.x, 2) +
+                std::pow(targetPos.x - mSpritePositions[entityId].current.x, 2)
+                    +
                 std::pow(targetPos.y - mSpritePositions[entityId].current.y, 2)
             );
 
@@ -264,20 +285,30 @@ void OPENGLModule::Render()
         glm::vec2 currentPos = mSpritePositions[entityId].current;
 
         glm::vec2 interpolatedPos = {
-            currentPos.x + (targetPos.x - currentPos.x) * mSpritePositions[entityId].factor,
-            currentPos.y + (targetPos.y - currentPos.y) * mSpritePositions[entityId].factor
+            currentPos.x + (targetPos.x - currentPos.x)
+                * mSpritePositions[entityId].factor,
+            currentPos.y + (targetPos.y - currentPos.y)
+                * mSpritePositions[entityId].factor
         };
 
         // set origin point to top-left corner:
-        glm::vec2 originPoint = {asset.position.x * GRID_TILE_SIZE, asset.position.y * GRID_TILE_SIZE};
+        glm::vec2 originPoint = {asset.position.x * GRID_TILE_SIZE,
+                asset.position.y * GRID_TILE_SIZE};
 
         glm::vec2 textureCoords[6] = {
-            glm::vec2 ({originPoint}),    // vec2 (left, top),
-            glm::vec2 (originPoint.x, originPoint.y + asset.size.y), // vec2 (left, bottom),
-            glm::vec2 (originPoint.x + asset.size.x, originPoint.y), // vec2 (right, top),
-            glm::vec2 (originPoint.x + asset.size.x, originPoint.y), // vec2 (right, top),
-            glm::vec2 (originPoint.x, originPoint.y + asset.size.y), // vec2 (left, bottom),
-            glm::vec2 (originPoint.x + asset.size.x, originPoint.y + asset.size.y) // vec2 (right, bottom),
+                // vec2 (left, top),
+            glm::vec2 ({originPoint}),
+                // vec2 (left, bottom),
+            glm::vec2 (originPoint.x, originPoint.y + asset.size.y),
+                // vec2 (right, top),
+            glm::vec2 (originPoint.x + asset.size.x, originPoint.y),
+                // vec2 (right, top),
+            glm::vec2 (originPoint.x + asset.size.x, originPoint.y),
+                // vec2 (left, bottom),
+            glm::vec2 (originPoint.x, originPoint.y + asset.size.y),
+                // vec2 (right, bottom),
+            glm::vec2 (originPoint.x + asset.size.x,
+                originPoint.y + asset.size.y)
         };
 
         float ndcX = 2.0f / mWindowWidth;
@@ -302,10 +333,17 @@ void OPENGLModule::Render()
             glm::vec2(right, bottom) // Bottom Right
         };
 
-        GLuint textureCoordsLocation = glGetUniformLocation(mShaderProgram, "textureCoords");
-        glUniform2fv(textureCoordsLocation, 6, glm::value_ptr(textureCoords[0]));
+        GLuint textureCoordsLocation = glGetUniformLocation(
+            mShaderProgram, "textureCoords"
+        );
 
-        GLuint vertexPositionsLocation = glGetUniformLocation(mShaderProgram, "vertices");
+        glUniform2fv(
+            textureCoordsLocation, 6, glm::value_ptr(textureCoords[0])
+        );
+
+        GLuint vertexPositionsLocation = glGetUniformLocation(
+            mShaderProgram, "vertices"
+        );
         glUniform2fv(vertexPositionsLocation, 6, glm::value_ptr(vertices[0]));
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -321,7 +359,9 @@ void OPENGLModule::Render()
 void OPENGLModule::LoadSpriteSheet(const std::string& path)
 {
     int channels;
-    unsigned char* data = stbi_load(path.c_str(), &mAtlasWidth, &mAtlasHeight, &channels, 4);
+    unsigned char* data = stbi_load(
+        path.c_str(), &mAtlasWidth, &mAtlasHeight, &channels, 4
+    );
     if (!data) return;
 
     glGenTextures(1, &mSpriteSheet);
@@ -334,7 +374,10 @@ void OPENGLModule::LoadSpriteSheet(const std::string& path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mAtlasWidth, mAtlasHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_RGBA,
+        mAtlasWidth, mAtlasHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data
+    );
     stbi_image_free(data);
 }
 
