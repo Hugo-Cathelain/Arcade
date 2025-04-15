@@ -135,9 +135,9 @@ void Game::Tick(float deltaSeconds)
             float Eaten = mSnake->GetLastEaten();
             if (Eaten > 3.0f) {
                 if (mTimerGame > 0) {
-                    mTimerGame--;
+                    mTimerGame -= Eaten / 3;
                 }
-        }
+            }
         }
     }
     // Draw everything

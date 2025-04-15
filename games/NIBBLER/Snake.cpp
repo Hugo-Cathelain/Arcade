@@ -347,6 +347,7 @@ void Snake::Reset(void)
 {
     mSnakeParts.clear();
     Vec2f basePosition(15.f, 29);
+    mLastEatenTime = 0;
 
     mDirection = {1, 0};
     mSnakeParts.push_back(Snake::Part{basePosition, mDirection, mDirection});
