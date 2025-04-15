@@ -44,6 +44,7 @@ Game::Game(void)
     , mSoundTimer(0.f)
     , mAnimationTimer(0.f)
     , mShowWhiteMap(false)
+    , mBestScore(0)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,6 +133,17 @@ void Game::DrawScore(void)
         Menu::TextColor::TEXT_WHITE,
         Vec2i{7 - static_cast<int>(score.size()), 1}
     );
+
+    std::string bestScore = std::to_string(mBestScore);
+    if (mBestScore < 10) {
+        bestScore = "0" + bestScore;
+    }
+
+    Menu::Text(
+        bestScore,
+        Menu::TextColor::TEXT_WHITE,
+        Vec2i{17 - static_cast<int>(score.size()), 1}
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -205,6 +217,8 @@ void Game::HandleEvents(void)
             if (direction != 0 && mState == State::PLAYING) {
                 mPlayer->SetDesiredDirection(direction);
             }
+        } else if (auto best = event->GetIf<API::Event::BestScore>()) {
+            mBestScore = best->score > mScore ? best->score : mScore;
         }
     }
 }
@@ -562,7 +576,7 @@ void Game::Tick(float deltaSeconds)
         DrawMapBaseLayer();
         DrawPacmanLives();
         DrawGums();
-        DrawEatScore();
+        DrawScore();
         return;
     }
 

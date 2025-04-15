@@ -97,6 +97,7 @@ private:
     float mSoundTimer;                                  //<!
     float mAnimationTimer;                              //<!
     bool mShowWhiteMap;                                 //<!
+    int mBestScore;                                     //<!
 
 public:
     ///////////////////////////////////////////////////////////////////////////

@@ -75,6 +75,7 @@ void Core::SetLibraries(
 
     mGraphics = Library::Load<IGraphicsModule>(mGraphicLib);
     mStates.push(Library::Load<IGameModule>(mGameLib));
+    SendBestScore();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,6 +176,40 @@ void Core::SetGame(const std::string& game)
     mGraphics->LoadSpriteSheet(mStates.top()->GetSpriteSheet());
     mGraphics->SetTitle(mStates.top()->GetName());
     mStates.top()->BeginPlay();
+    SendBestScore();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Core::SendBestScore(void)
+{
+    if (mUserName.empty()) {
+        return;
+    }
+
+    std::string savePath = ".saves/" + mUserName + ".save";
+    std::string gameName = mStates.top()->GetName();
+    int currentScore = 0;
+
+    std::ifstream saveFile(savePath);
+    if (saveFile.is_open()) {
+        std::string line;
+        while (std::getline(saveFile, line)) {
+            size_t sep = line.find(':');
+            if (sep != std::string::npos) {
+                std::string game = line.substr(0, sep);
+                int score = std::stoi(line.substr(sep + 1));
+                if (game == gameName) {
+                    currentScore = score;
+                    break;
+                }
+            }
+        }
+        saveFile.close();
+    }
+
+    API::PushEvent(API::Event::Channel::GAME,
+        API::Event::BestScore{currentScore}
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -520,7 +555,7 @@ void Core::Run(void)
             HandleJoystick();
         }
         HandleEvents();
-
+        SendBestScore();
         mGraphics->Update();
         mGraphics->Clear();
         mStates.top()->Tick(deltaSeconds);
