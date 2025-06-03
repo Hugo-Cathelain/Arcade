@@ -42,7 +42,19 @@ Arcade is a sophisticated gaming platform designed with modularity and extensibi
 
 ## 🖼️ Gallery
 
-// TODO...
+![](./screenshots/arcade.gif)
+
+![](./screenshots/player-input.png)
+
+![](./screenshots/nibbler.png)
+
+![](./screenshots/nibbler2.png)
+
+![](./screenshots/pacman.png)
+
+![](./screenshots/pacman2.png)
+
+![](./screenshots/pacman-ascii.png)
 
 *Note: Screenshots and visual gallery can be found in the `screenshots/` directory*
 
