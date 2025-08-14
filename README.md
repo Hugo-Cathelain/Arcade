@@ -63,7 +63,7 @@ Arcade is a sophisticated gaming platform designed with modularity and extensibi
 ### Prerequisites
 - **Compiler**: GCC 9.0+ or Clang 10.0+ with C++17 support
 - **Build System**: Make
-- **Graphics Libraries**: 
+- **Graphics Libraries**:
   - SFML 2.5+
   - SDL2 2.0+
   - OpenGL 3.3+
@@ -247,7 +247,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## 👥 Authors
 
 - **Mallory SCOTTON** - Core Architecture & Game Development
-- **Hugo CATHELAIN** - Graphics Backends & Audio System  
+- **Hugo CATHELAIN** - Graphics Backends & Audio System
 - **Nathan FIEVET** - Library Management & Platform Integration
 
 See [AUTHORS.md](AUTHORS.md) for detailed contribution information.
@@ -255,10 +255,6 @@ See [AUTHORS.md](AUTHORS.md) for detailed contribution information.
 ## 🔍 Additional Resources
 
 - 📖 **[Complete Documentation](doc/documentation.pdf)** - Comprehensive technical documentation
-
-## 📫 Contact
-
-For questions or feedback, reach out at: `mscotton.pro@gmail.com`
 
 ---
 
